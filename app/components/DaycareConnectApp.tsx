@@ -1,7 +1,145 @@
 'use client';
 
-import React, { useState } from 'react';
-import { Search, MapPin, Star, Clock, Users, Phone, Mail, Calendar, DollarSign, Heart, Menu, X, User, Settings, MessageCircle, CreditCard, Bell, Filter } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Search, MapPin, Star, Clock, Users, Phone, Mail, Calendar, DollarSign, Heart, Menu, X, User, Settings, MessageCircle, CreditCard, Bell, Filter, LogOut } from 'lucide-react';
+
+// Simple auth modal component (inline for now)
+const AuthModal = ({ isOpen, onClose, mode, onToggleMode }: {
+  isOpen: boolean;
+  onClose: () => void;
+  mode: 'login' | 'signup';
+  onToggleMode: () => void;
+}) => {
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    password: '',
+    userType: 'parent' as 'parent' | 'provider',
+  });
+
+  if (!isOpen) return null;
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // Simulate successful login/signup
+    const user = {
+      id: Date.now().toString(),
+      name: formData.name || 'Demo User',
+      email: formData.email,
+      type: formData.userType,
+    };
+    
+    localStorage.setItem('user', JSON.stringify(user));
+    onClose();
+    window.location.reload();
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+      <div className="bg-white rounded-lg max-w-md w-full p-6">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-2xl font-bold text-gray-900">
+            {mode === 'login' ? 'Welcome Back!' : 'Create Account'}
+          </h2>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        <div className="mb-6">
+          <label className="block text-sm font-medium text-gray-700 mb-3">I am a:</label>
+          <div className="grid grid-cols-2 gap-3">
+            <button
+              type="button"
+              onClick={() => setFormData({...formData, userType: 'parent'})}
+              className={`p-4 border-2 rounded-lg text-center transition-colors ${
+                formData.userType === 'parent'
+                  ? 'border-blue-500 bg-blue-50 text-blue-700'
+                  : 'border-gray-200 hover:border-gray-300'
+              }`}
+            >
+              <div className="text-2xl mb-2">👨‍👩‍👧‍👦</div>
+              <div className="font-medium">Parent</div>
+            </button>
+            <button
+              type="button"
+              onClick={() => setFormData({...formData, userType: 'provider'})}
+              className={`p-4 border-2 rounded-lg text-center transition-colors ${
+                formData.userType === 'provider'
+                  ? 'border-blue-500 bg-blue-50 text-blue-700'
+                  : 'border-gray-200 hover:border-gray-300'
+              }`}
+            >
+              <div className="text-2xl mb-2">🏢</div>
+              <div className="font-medium">Provider</div>
+            </button>
+          </div>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {mode === 'signup' && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+              <input
+                type="text"
+                value={formData.name}
+                onChange={(e) => setFormData({...formData, name: e.target.value})}
+                className="w-full p-3 border rounded-lg"
+                placeholder="Enter your full name"
+                required
+              />
+            </div>
+          )}
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+            <input
+              type="email"
+              value={formData.email}
+              onChange={(e) => setFormData({...formData, email: e.target.value})}
+              className="w-full p-3 border rounded-lg"
+              placeholder="Enter your email"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+            <input
+              type="password"
+              value={formData.password}
+              onChange={(e) => setFormData({...formData, password: e.target.value})}
+              className="w-full p-3 border rounded-lg"
+              placeholder="Enter your password"
+              required
+            />
+          </div>
+
+          <button
+            type="submit"
+            className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700"
+          >
+            {mode === 'login' ? 'Sign In' : 'Create Account'}
+          </button>
+
+          <div className="text-center pt-4 border-t">
+            <p className="text-sm text-gray-600">
+              {mode === 'login' ? "Don't have an account?" : 'Already have an account?'}{' '}
+              <button
+                type="button"
+                onClick={onToggleMode}
+                className="text-blue-600 font-medium hover:underline"
+              >
+                {mode === 'login' ? 'Sign Up' : 'Sign In'}
+              </button>
+            </p>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
 
 const DaycareConnectApp = () => {
   const [userType, setUserType] = useState('parent');
@@ -13,6 +151,27 @@ const DaycareConnectApp = () => {
   const [sortBy, setSortBy] = useState('distance');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showBookingModal, setShowBookingModal] = useState(false);
+  
+  // Authentication state
+  const [currentUser, setCurrentUser] = useState<any>(null);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
+  const [favorites, setFavorites] = useState<number[]>([]);
+
+  // Load user from localStorage on mount
+  useEffect(() => {
+    const savedUser = localStorage.getItem('user');
+    if (savedUser) {
+      const user = JSON.parse(savedUser);
+      setCurrentUser(user);
+      setUserType(user.type);
+      
+      const savedFavorites = localStorage.getItem(`favorites_${user.id}`);
+      if (savedFavorites) {
+        setFavorites(JSON.parse(savedFavorites));
+      }
+    }
+  }, []);
 
   // Enhanced provider data
   const providers = [
@@ -118,7 +277,47 @@ const DaycareConnectApp = () => {
     }
   ];
 
-  // Simple filtering logic without useMemo to avoid re-render issues
+  // Authentication functions
+  const handleLogin = () => {
+    setAuthMode('login');
+    setShowAuthModal(true);
+  };
+
+  const handleSignup = () => {
+    setAuthMode('signup');
+    setShowAuthModal(true);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('user');
+    localStorage.removeItem(`favorites_${currentUser?.id}`);
+    setCurrentUser(null);
+    setFavorites([]);
+    setCurrentView('search');
+  };
+
+  const toggleAuthMode = () => {
+    setAuthMode(authMode === 'login' ? 'signup' : 'login');
+  };
+
+  // Favorites functionality
+  const toggleFavorite = (providerId: number) => {
+    if (!currentUser) {
+      setShowAuthModal(true);
+      return;
+    }
+
+    const newFavorites = favorites.includes(providerId)
+      ? favorites.filter(id => id !== providerId)
+      : [...favorites, providerId];
+    
+    setFavorites(newFavorites);
+    localStorage.setItem(`favorites_${currentUser.id}`, JSON.stringify(newFavorites));
+  };
+
+  const isFavorite = (providerId: number) => favorites.includes(providerId);
+
+  // Filter providers
   const getFilteredProviders = () => {
     let filtered = providers.filter(provider => {
       const searchMatch = searchQuery === '' || 
@@ -175,6 +374,18 @@ const DaycareConnectApp = () => {
             Waitlist ({provider.waitlist})
           </div>
         )}
+        
+        {/* Favorite Button */}
+        <button
+          onClick={() => toggleFavorite(provider.id)}
+          className={`absolute top-14 right-3 p-2 rounded-full transition-colors ${
+            isFavorite(provider.id)
+              ? 'bg-red-500 text-white'
+              : 'bg-white text-gray-400 hover:text-red-500'
+          }`}
+        >
+          <Heart className={`w-4 h-4 ${isFavorite(provider.id) ? 'fill-current' : ''}`} />
+        </button>
       </div>
       
       <div className="p-4">
@@ -222,7 +433,14 @@ const DaycareConnectApp = () => {
           </button>
           {provider.availableSpots > 0 ? (
             <button 
-              onClick={() => {setSelectedProvider(provider); setShowBookingModal(true);}}
+              onClick={() => {
+                if (!currentUser) {
+                  setShowAuthModal(true);
+                  return;
+                }
+                setSelectedProvider(provider); 
+                setShowBookingModal(true);
+              }}
               className="flex-1 bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 transition-colors text-sm font-medium"
             >
               Book Now
@@ -258,26 +476,61 @@ const DaycareConnectApp = () => {
               >
                 Find Care
               </button>
-              <button className="text-gray-500 hover:text-blue-600 px-3 py-2 text-sm font-medium">
-                My Bookings
-              </button>
+              {currentUser && (
+                <>
+                  <button 
+                    onClick={() => setCurrentView('favorites')}
+                    className={`${currentView === 'favorites' ? 'text-blue-600' : 'text-gray-500'} hover:text-blue-600 px-3 py-2 text-sm font-medium`}
+                  >
+                    My Favorites ({favorites.length})
+                  </button>
+                  <button className="text-gray-500 hover:text-blue-600 px-3 py-2 text-sm font-medium">
+                    My Bookings
+                  </button>
+                </>
+              )}
               <button className="text-gray-500 hover:text-blue-600 px-3 py-2 text-sm font-medium">
                 Messages
               </button>
             </nav>
             
             <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2">
-                <span className="text-sm text-gray-600">Parent</span>
-                <button 
-                  onClick={() => setUserType(userType === 'parent' ? 'provider' : 'parent')}
-                  className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-medium hover:bg-blue-200"
-                >
-                  Switch to {userType === 'parent' ? 'Provider' : 'Parent'}
-                </button>
-              </div>
+              {currentUser ? (
+                <div className="flex items-center space-x-3">
+                  <div className="flex items-center space-x-2">
+                    <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white text-sm font-bold">
+                      {currentUser.name.charAt(0).toUpperCase()}
+                    </div>
+                    <div className="hidden md:block">
+                      <p className="text-sm font-medium text-gray-900">{currentUser.name}</p>
+                      <p className="text-xs text-gray-500 capitalize">{currentUser.type}</p>
+                    </div>
+                  </div>
+                  <button 
+                    onClick={handleLogout}
+                    className="text-gray-400 hover:text-gray-600"
+                    title="Logout"
+                  >
+                    <LogOut className="w-5 h-5" />
+                  </button>
+                </div>
+              ) : (
+                <div className="flex items-center space-x-2">
+                  <button 
+                    onClick={handleLogin}
+                    className="text-gray-500 hover:text-blue-600 px-3 py-2 text-sm font-medium"
+                  >
+                    Sign In
+                  </button>
+                  <button 
+                    onClick={handleSignup}
+                    className="bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700"
+                  >
+                    Sign Up
+                  </button>
+                </div>
+              )}
               <Bell className="w-5 h-5 text-gray-400 hover:text-gray-600 cursor-pointer" />
-              <User className="w-5 h-5 text-gray-400 hover:text-gray-600 cursor-pointer" />
               <button 
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                 className="md:hidden"
@@ -392,6 +645,44 @@ const DaycareConnectApp = () => {
           </div>
         )}
 
+        {currentView === 'favorites' && (
+          <div className="space-y-6">
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">My Favorites</h2>
+              <p className="text-gray-600">
+                {favorites.length > 0 
+                  ? `You have ${favorites.length} saved provider${favorites.length !== 1 ? 's' : ''}`
+                  : 'No saved providers yet. Heart your favorites to see them here!'
+                }
+              </p>
+            </div>
+            
+            {favorites.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {providers
+                  .filter(provider => favorites.includes(provider.id))
+                  .map(provider => (
+                    <ProviderCard key={provider.id} provider={provider} />
+                  ))}
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <Heart className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                <h3 className="text-xl font-medium text-gray-500 mb-2">No favorites yet</h3>
+                <p className="text-gray-400 mb-4">
+                  Click the heart icon on provider cards to save your favorites
+                </p>
+                <button
+                  onClick={() => setCurrentView('search')}
+                  className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
+                >
+                  Browse Providers
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+
         {currentView === 'profile' && selectedProvider && (
           <div className="max-w-4xl mx-auto space-y-6">
             <button 
@@ -483,7 +774,13 @@ const DaycareConnectApp = () => {
                 <div className="flex gap-4">
                   {selectedProvider?.availableSpots > 0 ? (
                     <button 
-                      onClick={() => setShowBookingModal(true)}
+                      onClick={() => {
+                        if (!currentUser) {
+                          setShowAuthModal(true);
+                          return;
+                        }
+                        setShowBookingModal(true);
+                      }}
                       className="bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 transition-colors font-medium"
                     >
                       Book Now
@@ -493,13 +790,20 @@ const DaycareConnectApp = () => {
                       Join Waitlist
                     </button>
                   )}
+                  <button 
+                    onClick={() => toggleFavorite(selectedProvider.id)}
+                    className={`px-6 py-3 rounded-md transition-colors font-medium ${
+                      isFavorite(selectedProvider.id)
+                        ? 'bg-red-600 text-white hover:bg-red-700'
+                        : 'border border-gray-300 text-gray-700 hover:bg-gray-50'
+                    }`}
+                  >
+                    <Heart className={`w-4 h-4 inline mr-2 ${isFavorite(selectedProvider.id) ? 'fill-current' : ''}`} />
+                    {isFavorite(selectedProvider.id) ? 'Saved' : 'Save'}
+                  </button>
                   <button className="border border-gray-300 text-gray-700 px-6 py-3 rounded-md hover:bg-gray-50 transition-colors font-medium">
                     <MessageCircle className="w-4 h-4 inline mr-2" />
                     Message Provider
-                  </button>
-                  <button className="border border-gray-300 text-gray-700 px-6 py-3 rounded-md hover:bg-gray-50 transition-colors font-medium">
-                    <Heart className="w-4 h-4 inline mr-2" />
-                    Save
                   </button>
                 </div>
               </div>
@@ -528,6 +832,15 @@ const DaycareConnectApp = () => {
         )}
       </main>
       
+      {/* Authentication Modal */}
+      <AuthModal
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+        mode={authMode}
+        onToggleMode={toggleAuthMode}
+      />
+      
+      {/* Booking Modal */}
       {showBookingModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-lg max-w-md w-full p-6">
