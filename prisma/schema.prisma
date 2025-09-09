@@ -1,0 +1,186 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  phone     String?
+  userType  UserType @default(PARENT)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  ownedDaycares Daycare[]
+  bookings     Booking[]
+  reviews      Review[]
+  savedDaycares SavedDaycare[]
+
+  @@map("users")
+}
+
+model Daycare {
+  id             String      @id @default(cuid())
+  name           String
+  type           DaycareType
+  description    String?
+  address        String
+  city           String
+  province       String
+  postalCode     String
+  phone          String?
+  email          String?
+  website        String?
+  
+  // Capacity and availability
+  capacity       Int
+  currentOccupancy Int       @default(0)
+  ageGroups      String      // JSON string: ["Infant", "Toddler"]
+  
+  // Pricing and hours
+  dailyRate      Float
+  hourlyRate     Float?
+  openTime       String
+  closeTime      String
+  operatingDays  String      // JSON string: ["Monday", "Tuesday"]
+  
+  // Features (stored as JSON string)
+  features       String?     // JSON string: ["Meals Included", "Playground"]
+  images         String?     // JSON string: ["url1", "url2"]
+  
+  // Status and verification
+  verified       Boolean     @default(false)
+  active         Boolean     @default(true)
+  
+  // Ratings
+  averageRating  Float?      @default(0)
+  totalReviews   Int         @default(0)
+  waitlistCount  Int         @default(0)
+  
+  // Owner relation
+  ownerId        String      
+  owner          User        @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  
+  // Other relations
+  bookings       Booking[]
+  reviews        Review[]
+  savedBy        SavedDaycare[]
+  
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+
+  @@map("daycares")
+}
+
+model Booking {
+  id         String        @id @default(cuid())
+  
+  // User relation
+  parentId   String
+  parent     User          @relation(fields: [parentId], references: [id], onDelete: Cascade)
+  
+  // Daycare relation
+  daycareId  String
+  daycare    Daycare       @relation(fields: [daycareId], references: [id], onDelete: Cascade)
+  
+  // Booking details
+  childName  String
+  childAge   String?
+  startDate  DateTime
+  endDate    DateTime?
+  careType   CareType
+  status     BookingStatus @default(PENDING)
+  
+  // Pricing
+  dailyRate  Float
+  totalCost  Float?
+  
+  // Additional info
+  notes      String?
+  specialNeeds String?
+  
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+
+  @@map("bookings")
+}
+
+model Review {
+  id         String   @id @default(cuid())
+  
+  // User relation
+  parentId   String
+  parent     User     @relation(fields: [parentId], references: [id], onDelete: Cascade)
+  
+  // Daycare relation
+  daycareId  String
+  daycare    Daycare  @relation(fields: [daycareId], references: [id], onDelete: Cascade)
+  
+  // Review content
+  rating     Int      // 1-5 stars
+  title      String?
+  comment    String
+  
+  // Verification
+  verified   Boolean  @default(false)
+  
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@map("reviews")
+}
+
+model SavedDaycare {
+  id        String   @id @default(cuid())
+  
+  // User relation
+  parentId  String
+  parent    User     @relation(fields: [parentId], references: [id], onDelete: Cascade)
+  
+  // Daycare relation
+  daycareId String
+  daycare   Daycare  @relation(fields: [daycareId], references: [id], onDelete: Cascade)
+  
+  createdAt DateTime @default(now())
+
+  @@unique([parentId, daycareId])
+  @@map("saved_daycares")
+}
+
+// Enums
+enum UserType {
+  PARENT
+  PROVIDER
+  ADMIN
+}
+
+enum DaycareType {
+  LICENSED_DAYCARE_CENTER
+  LICENSED_HOME_DAYCARE
+  UNLICENSED_HOME_DAYCARE
+  NANNY_SERVICE
+}
+
+enum CareType {
+  FULL_TIME
+  PART_TIME
+  DROP_IN
+  EMERGENCY
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+  WAITLIST
+}

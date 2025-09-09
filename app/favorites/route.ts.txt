@@ -1,0 +1,131 @@
+// File: app/api/favorites/route.ts
+import { NextRequest, NextResponse } from 'next/server';
+import { PrismaClient } from '@prisma/client';
+import jwt from 'jsonwebtoken';
+
+const prisma = new PrismaClient();
+
+// Helper function to get user from token
+async function getUserFromToken(request: NextRequest) {
+  const token = request.cookies.get('auth-token')?.value;
+  
+  if (!token) {
+    throw new Error('Not authenticated');
+  }
+
+  const decoded = jwt.verify(
+    token,
+    process.env.JWT_SECRET || 'fallback-secret-key'
+  ) as { userId: string };
+
+  return decoded.userId;
+}
+
+// GET user's favorites
+export async function GET(request: NextRequest) {
+  try {
+    const userId = await getUserFromToken(request);
+
+    const favorites = await prisma.favorite.findMany({
+      where: { userId },
+      include: {
+        daycare: true
+      }
+    });
+
+    return NextResponse.json({ favorites });
+
+  } catch (error) {
+    console.error('Get favorites error:', error);
+    return NextResponse.json(
+      { message: 'Unauthorized' },
+      { status: 401 }
+    );
+  }
+}
+
+// POST add to favorites
+export async function POST(request: NextRequest) {
+  try {
+    const userId = await getUserFromToken(request);
+    const { daycareId } = await request.json();
+
+    if (!daycareId) {
+      return NextResponse.json(
+        { message: 'Daycare ID is required' },
+        { status: 400 }
+      );
+    }
+
+    // Check if already favorited
+    const existingFavorite = await prisma.favorite.findUnique({
+      where: {
+        userId_daycareId: {
+          userId,
+          daycareId
+        }
+      }
+    });
+
+    if (existingFavorite) {
+      return NextResponse.json(
+        { message: 'Already in favorites' },
+        { status: 400 }
+      );
+    }
+
+    // Add to favorites
+    const favorite = await prisma.favorite.create({
+      data: {
+        userId,
+        daycareId
+      }
+    });
+
+    return NextResponse.json({
+      message: 'Added to favorites',
+      favorite
+    });
+
+  } catch (error) {
+    console.error('Add favorite error:', error);
+    return NextResponse.json(
+      { message: 'Unauthorized' },
+      { status: 401 }
+    );
+  }
+}
+
+// DELETE remove from favorites
+export async function DELETE(request: NextRequest) {
+  try {
+    const userId = await getUserFromToken(request);
+    const { searchParams } = new URL(request.url);
+    const daycareId = searchParams.get('daycareId');
+
+    if (!daycareId) {
+      return NextResponse.json(
+        { message: 'Daycare ID is required' },
+        { status: 400 }
+      );
+    }
+
+    await prisma.favorite.deleteMany({
+      where: {
+        userId,
+        daycareId
+      }
+    });
+
+    return NextResponse.json({
+      message: 'Removed from favorites'
+    });
+
+  } catch (error) {
+    console.error('Remove favorite error:', error);
+    return NextResponse.json(
+      { message: 'Unauthorized' },
+      { status: 401 }
+    );
+  }
+}

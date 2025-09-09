@@ -1,0 +1,136 @@
+// File: app/lib/auth.ts - Authentication utilities
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+  type: 'PARENT' | 'PROVIDER';
+  children?: Child[];
+  favorites?: Favorite[];
+  createdAt: string;
+}
+
+export interface Child {
+  id: string;
+  name: string;
+  age: number;
+  allergies?: string;
+}
+
+export interface Favorite {
+  id: string;
+  daycareId: string;
+  daycare: any;
+  createdAt: string;
+}
+
+// Authentication functions
+export const authAPI = {
+  // Sign up new user
+  signup: async (userData: {
+    name: string;
+    email: string;
+    password: string;
+    userType: 'parent' | 'provider';
+  }) => {
+    const response = await fetch('/api/auth/signup', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(userData),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message || 'Signup failed');
+    }
+
+    return data;
+  },
+
+  // Login user
+  login: async (credentials: { email: string; password: string }) => {
+    const response = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(credentials),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message || 'Login failed');
+    }
+
+    return data;
+  },
+
+  // Logout user
+  logout: async () => {
+    const response = await fetch('/api/auth/logout', {
+      method: 'POST',
+    });
+
+    if (!response.ok) {
+      throw new Error('Logout failed');
+    }
+
+    return response.json();
+  },
+
+  // Get current user
+  getCurrentUser: async () => {
+    const response = await fetch('/api/auth/me');
+
+    if (!response.ok) {
+      return null;
+    }
+
+    const data = await response.json();
+    return data.user;
+  },
+};
+
+// Favorites functions
+export const favoritesAPI = {
+  // Get user's favorites
+  getFavorites: async () => {
+    const response = await fetch('/api/favorites');
+
+    if (!response.ok) {
+      throw new Error('Failed to get favorites');
+    }
+
+    const data = await response.json();
+    return data.favorites;
+  },
+
+  // Add to favorites
+  addFavorite: async (daycareId: string) => {
+    const response = await fetch('/api/favorites', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ daycareId }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message || 'Failed to add favorite');
+    }
+
+    return data;
+  },
+
+  // Remove from favorites
+  removeFavorite: async (daycareId: string) => {
+    const response = await fetch(`/api/favorites?daycareId=${daycareId}`, {
+      method: 'DELETE',
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to remove favorite');
+    }
+
+    return response.json();
+  },
+};
