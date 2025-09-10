@@ -74,7 +74,7 @@ export async function GET(request: NextRequest) {
     // Apply JavaScript-based filtering
     if (search) {
       const searchLower = search.toLowerCase()
-      transformedDaycares = transformedDaycares.filter(daycare =>
+      transformedDaycares = transformedDaycares.filter((daycare: any) =>
         daycare.name.toLowerCase().includes(searchLower) ||
         daycare.type.toLowerCase().includes(searchLower) ||
         daycare.description.toLowerCase().includes(searchLower) ||
