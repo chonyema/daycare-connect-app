@@ -152,7 +152,7 @@ const DaycareConnectApp = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showBookingModal, setShowBookingModal] = useState(false);
 
-  // NEW: Database integration state
+  // DATABASE INTEGRATION: Dynamic state instead of hardcoded data
   const [providers, setProviders] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -177,38 +177,38 @@ const DaycareConnectApp = () => {
     }
   }, []);
 
-  // NEW: Fetch daycares from API
+  // DATABASE INTEGRATION: Fetch daycares from API
   useEffect(() => {
     fetchDaycares();
   }, [searchQuery, selectedAgeGroup, sortBy, searchLocation]);
 
   const fetchDaycares = async () => {
-  setLoading(true);
-  try {
-    const params = new URLSearchParams({
-      search: searchQuery,
-      location: searchLocation,
-      ageGroup: selectedAgeGroup,
-      sortBy: sortBy
-    });
-    
-    const response = await fetch(`/api/daycares?${params}`);
-    
-    if (!response.ok) {
-      throw new Error(`API error: ${response.status}`);
+    setLoading(true);
+    try {
+      const params = new URLSearchParams({
+        search: searchQuery,
+        location: searchLocation,
+        ageGroup: selectedAgeGroup,
+        sortBy: sortBy
+      });
+      
+      const response = await fetch(`/api/daycares?${params}`);
+      
+      if (!response.ok) {
+        throw new Error(`API error: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      console.log('Fetched daycares:', data);
+      
+      // Ensure data is an array
+      setProviders(Array.isArray(data) ? data : []);
+    } catch (error) {
+      console.error('Error fetching daycares:', error);
+      setProviders([]); // Always set to empty array on error
     }
-    
-    const data = await response.json();
-    console.log('Fetched daycares:', data);
-    
-    // Ensure data is an array
-    setProviders(Array.isArray(data) ? data : []);
-  } catch (error) {
-    console.error('Error fetching daycares:', error);
-    setProviders([]); // Always set to empty array on error
-  }
-  setLoading(false);
-};
+    setLoading(false);
+  };
 
   // Authentication functions
   const handleLogin = () => {
@@ -250,7 +250,7 @@ const DaycareConnectApp = () => {
 
   const isFavorite = (providerId: number) => favorites.includes(providerId);
 
-  // NEW: Use filtered providers directly from API (filtering happens server-side)
+  // DATABASE INTEGRATION: Use filtered providers directly from API (filtering happens server-side)
   const filteredProviders = Array.isArray(providers) ? providers : [];
   const ageGroups = ['All Ages', 'Infant', 'Toddler', 'Preschool', 'School Age'];
 
