@@ -7,16 +7,12 @@ export async function GET(request: NextRequest) {
   try {
     console.log('Fetching daycares from database...')
 
-    // Get query parameters
     const { searchParams } = new URL(request.url)
     const search = searchParams.get('search') || ''
     const location = searchParams.get('location') || ''
     const ageGroup = searchParams.get('ageGroup') || ''
     const sortBy = searchParams.get('sortBy') || 'name'
 
-    console.log('Search params:', { search, location, ageGroup, sortBy })
-
-    // Fetch ALL daycares first (SQLite filtering is limited)
     const daycares = await prisma.daycare.findMany({
       where: {
         active: true,
@@ -32,16 +28,13 @@ export async function GET(request: NextRequest) {
       }
     })
 
-    console.log(`Fetched ${daycares.length} daycares from database`)
-
-    // Transform data to match your frontend format
-   let transformedDaycares = daycares.map((daycare: any) => {
+    // Transform data with proper TypeScript types
+    let transformedDaycares = daycares.map((daycare: any) => {
       const availableSpots = Math.max(0, daycare.capacity - daycare.currentOccupancy)
       const ageGroups = JSON.parse(daycare.ageGroups || '["All Ages"]')
       const features = JSON.parse(daycare.features || '[]')
       const images = JSON.parse(daycare.images || '[]')
       
-      // Convert database type to display format
       const typeDisplay = daycare.type
         .replace(/_/g, ' ')
         .toLowerCase()
@@ -71,7 +64,7 @@ export async function GET(request: NextRequest) {
       }
     })
 
-    // Apply JavaScript-based filtering
+    // Apply JavaScript-based filtering with proper types
     if (search) {
       const searchLower = search.toLowerCase()
       transformedDaycares = transformedDaycares.filter((daycare: any) =>
@@ -82,23 +75,21 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // Location filter
     if (location && location !== 'Toronto, ON') {
       const locationLower = location.toLowerCase()
-      transformedDaycares = transformedDaycares.filter(daycare =>
+      transformedDaycares = transformedDaycares.filter((daycare: any) =>
         daycare.address.toLowerCase().includes(locationLower)
       )
     }
 
-    // Age group filter
     if (ageGroup && ageGroup !== 'All Ages') {
-      transformedDaycares = transformedDaycares.filter(daycare =>
+      transformedDaycares = transformedDaycares.filter((daycare: any) =>
         daycare.ageGroups.some((age: string) => age.toLowerCase().includes(ageGroup.toLowerCase()))
       )
     }
 
-    // Apply JavaScript-based sorting
-    transformedDaycares.sort((a, b) => {
+    // Apply sorting with proper types
+    transformedDaycares.sort((a: any, b: any) => {
       switch (sortBy) {
         case 'rating':
           return b.rating - a.rating
@@ -111,8 +102,6 @@ export async function GET(request: NextRequest) {
           return a.name.localeCompare(b.name)
       }
     })
-
-    console.log(`Returning ${transformedDaycares.length} filtered daycares`)
 
     return NextResponse.json(transformedDaycares)
   } catch (error) {
