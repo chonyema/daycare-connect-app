@@ -45,7 +45,7 @@ export async function GET(request: NextRequest) {
       const typeDisplay = daycare.type
         .replace(/_/g, ' ')
         .toLowerCase()
-        .replace(/\b\w/g, l => l.toUpperCase())
+        .replace(/\b\w/g, (l: string) => l.toUpperCase())
 
       return {
         id: daycare.id,
