@@ -35,7 +35,7 @@ export async function GET(request: NextRequest) {
     console.log(`Fetched ${daycares.length} daycares from database`)
 
     // Transform data to match your frontend format
-    let transformedDaycares = daycares.map(daycare => {
+   let transformedDaycares = daycares.map((daycare: any) => {
       const availableSpots = Math.max(0, daycare.capacity - daycare.currentOccupancy)
       const ageGroups = JSON.parse(daycare.ageGroups || '["All Ages"]')
       const features = JSON.parse(daycare.features || '[]')
