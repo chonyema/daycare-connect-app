@@ -1,5 +1,3 @@
-// Create file: prisma/seed.ts
-
 import { PrismaClient } from '@prisma/client'
 
 const prisma = new PrismaClient()
@@ -8,10 +6,8 @@ async function main() {
   console.log('🌱 Starting database seed...')
 
   // Create test users
-  const parentUser = await prisma.user.upsert({
-    where: { email: 'parent@test.com' },
-    update: {},
-    create: {
+  const parentUser = await prisma.user.create({
+    data: {
       email: 'parent@test.com',
       name: 'Sarah Johnson',
       phone: '(416) 555-0123',
@@ -19,10 +15,8 @@ async function main() {
     },
   })
 
-  const providerUser1 = await prisma.user.upsert({
-    where: { email: 'provider1@test.com' },
-    update: {},
-    create: {
+  const providerUser1 = await prisma.user.create({
+    data: {
       email: 'provider1@test.com',
       name: 'Michelle Smith',
       phone: '(416) 555-0456',
@@ -30,10 +24,8 @@ async function main() {
     },
   })
 
-  const providerUser2 = await prisma.user.upsert({
-    where: { email: 'provider2@test.com' },
-    update: {},
-    create: {
+  const providerUser2 = await prisma.user.create({
+    data: {
       email: 'provider2@test.com',
       name: 'David Chen',
       phone: '(416) 555-0789',
@@ -41,11 +33,9 @@ async function main() {
     },
   })
 
-  // Create test daycares matching your mock data
-  const daycare1 = await prisma.daycare.upsert({
-    where: { name: 'Sunshine Daycare Centre' },
-    update: {},
-    create: {
+  // Create test daycares
+  const daycare1 = await prisma.daycare.create({
+    data: {
       name: 'Sunshine Daycare Centre',
       type: 'LICENSED_DAYCARE_CENTER',
       description: 'A warm and nurturing environment for children with experienced staff and modern facilities.',
@@ -57,13 +47,13 @@ async function main() {
       email: 'info@sunshine-daycare.com',
       capacity: 30,
       currentOccupancy: 27,
-      ageGroups: JSON.stringify(['Infant', 'Toddler', 'Preschool']),
+      ageGroups: '["Infant", "Toddler", "Preschool"]',
       dailyRate: 55.0,
       openTime: '7:00 AM',
       closeTime: '6:00 PM',
-      operatingDays: JSON.stringify(['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']),
-      features: JSON.stringify(['Meals Included', 'Outdoor Playground', 'Educational Programs']),
-      images: JSON.stringify(['https://images.unsplash.com/photo-1587654780291-39c9404d746b?w=400&h=300&fit=crop']),
+      operatingDays: '["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]',
+      features: '["Meals Included", "Outdoor Playground", "Educational Programs"]',
+      images: '["https://images.unsplash.com/photo-1587654780291-39c9404d746b?w=400&h=300&fit=crop"]',
       verified: true,
       averageRating: 4.8,
       totalReviews: 42,
@@ -72,10 +62,8 @@ async function main() {
     },
   })
 
-  const daycare2 = await prisma.daycare.upsert({
-    where: { name: 'Little Stars Home Daycare' },
-    update: {},
-    create: {
+  const daycare2 = await prisma.daycare.create({
+    data: {
       name: 'Little Stars Home Daycare',
       type: 'LICENSED_HOME_DAYCARE',
       description: 'Intimate home-based care with personalized attention and bilingual environment.',
@@ -87,13 +75,13 @@ async function main() {
       email: 'info@littlestars.com',
       capacity: 6,
       currentOccupancy: 5,
-      ageGroups: JSON.stringify(['Toddler', 'Preschool']),
+      ageGroups: '["Toddler", "Preschool"]',
       dailyRate: 45.0,
       openTime: '6:30 AM',
       closeTime: '6:30 PM',
-      operatingDays: JSON.stringify(['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']),
-      features: JSON.stringify(['Small Groups', 'Bilingual', 'Flexible Hours']),
-      images: JSON.stringify(['https://images.unsplash.com/photo-1544717297-fa95b6ee9643?w=400&h=300&fit=crop']),
+      operatingDays: '["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]',
+      features: '["Small Groups", "Bilingual", "Flexible Hours"]',
+      images: '["https://images.unsplash.com/photo-1544717297-fa95b6ee9643?w=400&h=300&fit=crop"]',
       verified: true,
       averageRating: 4.9,
       totalReviews: 28,
@@ -102,10 +90,8 @@ async function main() {
     },
   })
 
-  const daycare3 = await prisma.daycare.upsert({
-    where: { name: 'Adventure Kids Learning Centre' },
-    update: {},
-    create: {
+  const daycare3 = await prisma.daycare.create({
+    data: {
       name: 'Adventure Kids Learning Centre',
       type: 'LICENSED_DAYCARE_CENTER',
       description: 'Focus on learning through play with STEM programs and creative activities.',
@@ -117,13 +103,13 @@ async function main() {
       email: 'info@adventurekids.com',
       capacity: 25,
       currentOccupancy: 25,
-      ageGroups: JSON.stringify(['Preschool', 'School Age']),
+      ageGroups: '["Preschool", "School Age"]',
       dailyRate: 60.0,
       openTime: '7:00 AM',
       closeTime: '6:00 PM',
-      operatingDays: JSON.stringify(['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']),
-      features: JSON.stringify(['STEM Programs', 'Music Classes', 'Hot Meals']),
-      images: JSON.stringify(['https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=400&h=300&fit=crop']),
+      operatingDays: '["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]',
+      features: '["STEM Programs", "Music Classes", "Hot Meals"]',
+      images: '["https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=400&h=300&fit=crop"]',
       verified: true,
       averageRating: 4.6,
       totalReviews: 67,
@@ -132,72 +118,9 @@ async function main() {
     },
   })
 
-  const daycare4 = await prisma.daycare.upsert({
-    where: { name: 'Happy Hearts Family Daycare' },
-    update: {},
-    create: {
-      name: 'Happy Hearts Family Daycare',
-      type: 'LICENSED_HOME_DAYCARE',
-      description: 'Family-oriented care with focus on organic nutrition and outdoor activities.',
-      address: '321 Maple Rd',
-      city: 'Toronto',
-      province: 'ON',
-      postalCode: 'M4D 4D4',
-      phone: '(416) 555-0456',
-      email: 'info@happyhearts.com',
-      capacity: 8,
-      currentOccupancy: 6,
-      ageGroups: JSON.stringify(['Infant', 'Toddler']),
-      dailyRate: 50.0,
-      openTime: '7:30 AM',
-      closeTime: '5:30 PM',
-      operatingDays: JSON.stringify(['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']),
-      features: JSON.stringify(['Organic Meals', 'Nature Play', 'Music Therapy']),
-      images: JSON.stringify(['https://images.unsplash.com/photo-1576013551627-0cc20b96c2a7?w=400&h=300&fit=crop']),
-      verified: true,
-      averageRating: 4.7,
-      totalReviews: 35,
-      waitlistCount: 3,
-      ownerId: providerUser2.id,
-    },
-  })
-
-  const daycare5 = await prisma.daycare.upsert({
-    where: { name: 'Bright Minds Academy' },
-    update: {},
-    create: {
-      name: 'Bright Minds Academy',
-      type: 'LICENSED_DAYCARE_CENTER',
-      description: 'Academic-focused environment preparing children for elementary school success.',
-      address: '555 Cedar Ave',
-      city: 'Toronto',
-      province: 'ON',
-      postalCode: 'M5E 5E5',
-      phone: '(416) 555-0567',
-      email: 'info@brightminds.com',
-      capacity: 40,
-      currentOccupancy: 35,
-      ageGroups: JSON.stringify(['Preschool', 'School Age']),
-      dailyRate: 65.0,
-      openTime: '6:00 AM',
-      closeTime: '7:00 PM',
-      operatingDays: JSON.stringify(['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']),
-      features: JSON.stringify(['Extended Hours', 'Transportation', 'Academic Prep']),
-      images: JSON.stringify(['https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=400&h=300&fit=crop']),
-      verified: true,
-      averageRating: 4.5,
-      totalReviews: 89,
-      waitlistCount: 8,
-      ownerId: providerUser1.id,
-    },
-  })
-
   // Create test reviews
-  await prisma.review.upsert({
-    where: { id: 'review-1' },
-    update: {},
-    create: {
-      id: 'review-1',
+  await prisma.review.create({
+    data: {
       rating: 5,
       title: 'Amazing Experience!',
       comment: 'My daughter loves going here and the staff is so caring and professional. Highly recommend!',
@@ -206,11 +129,8 @@ async function main() {
     },
   })
 
-  await prisma.review.upsert({
-    where: { id: 'review-2' },
-    update: {},
-    create: {
-      id: 'review-2',
+  await prisma.review.create({
+    data: {
       rating: 4,
       title: 'Great communication',
       comment: 'The staff keeps us updated daily and my son has learned so much here.',
