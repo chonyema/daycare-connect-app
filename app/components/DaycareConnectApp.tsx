@@ -153,7 +153,7 @@ const DaycareConnectApp = () => {
   const [showBookingModal, setShowBookingModal] = useState(false);
 
   // DATABASE INTEGRATION: Dynamic state instead of hardcoded data
-  const [providers, setProviders] = useState([]);
+  const [providers, setProviders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   // Authentication state
