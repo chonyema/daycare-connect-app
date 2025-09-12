@@ -22,10 +22,12 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# Local env files
-.env*.local
-.env
-.env.production
+# Local env files - ALL ENVIRONMENT FILES
+.env*
+.env.local
+.env.production*
+.env.staging
+.env.development
 
 # Vercel
 .vercel
@@ -40,3 +42,13 @@ next-env.d.ts
 
 # OS
 Thumbs.db
+
+# Security - Backup and sensitive files
+*.backup
+*backup*.json
+production-backup*.json
+*-backup-*.json
+*.key
+*.pem
+*.crt
+secrets/
