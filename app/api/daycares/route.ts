@@ -3,11 +3,14 @@ import { PrismaClient } from '@prisma/client'
 
 const prisma = new PrismaClient()
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic'
+
 export async function GET(request: NextRequest) {
   try {
     console.log('Fetching daycares from database...')
 
-    const { searchParams } = new URL(request.url)
+    const searchParams = request.nextUrl.searchParams
     const search = searchParams.get('search') || ''
     const location = searchParams.get('location') || ''
     const ageGroup = searchParams.get('ageGroup') || ''
