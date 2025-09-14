@@ -52,3 +52,4 @@ production-backup*.json
 *.pem
 *.crt
 secrets/
+credentials-backup/
