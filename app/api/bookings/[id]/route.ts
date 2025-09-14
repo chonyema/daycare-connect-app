@@ -2,6 +2,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/app/lib/prisma';
 import { BookingStatus } from '@prisma/client';
+import { emailService } from '../../../utils/email';
 
 // GET - Get specific booking by ID
 export async function GET(
@@ -235,61 +236,54 @@ export async function DELETE(
 
 // Helper function to send status update email
 async function sendStatusUpdateEmail(booking: any) {
-  // In a real app, integrate with your email service
-  console.log(`Sending status update email for booking ${booking.id}`);
-  console.log(`New status: ${booking.status}`);
-  console.log(`Parent email: ${booking.parentEmail}`);
-  
-  // Example email content structure
-  const emailContent = {
-    to: booking.parentEmail,
-    subject: `Booking Update - ${booking.providerName}`,
-    html: `
-      <h2>Booking Status Update</h2>
-      <p>Your booking for ${booking.childName} has been updated.</p>
-      <p><strong>New Status:</strong> ${booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}</p>
-      <p><strong>Provider:</strong> ${booking.providerName}</p>
-      <p><strong>Start Date:</strong> ${new Date(booking.startDate).toLocaleDateString()}</p>
-      
-      ${booking.status === 'confirmed' ? `
-        <div style="background: #f0f9ff; padding: 15px; border-radius: 5px; margin: 20px 0;">
-          <h3 style="color: #0369a1;">Booking Confirmed! 🎉</h3>
-          <p>Your childcare booking has been confirmed. Please contact the provider if you have any questions.</p>
-        </div>
-      ` : ''}
-      
-      <p>If you have any questions, please contact us or the provider directly.</p>
-    `
-  };
-  
-  // TODO: Implement actual email sending here
-  // await emailService.send(emailContent);
+  try {
+    console.log(`Sending status update email for booking ${booking.id}`);
+    
+    const emailData = {
+      parentName: booking.parent.name,
+      childName: booking.childName,
+      daycareName: booking.daycare.name,
+      startDate: booking.startDate.toISOString(),
+      endDate: booking.endDate.toISOString(),
+      dailyRate: booking.dailyRate,
+      totalCost: booking.totalCost,
+    };
+
+    await emailService.sendBookingStatusUpdate(
+      booking.parent.email,
+      booking.status.toLowerCase(),
+      emailData
+    );
+    
+    console.log(`Status update email sent successfully for booking ${booking.id}`);
+  } catch (error) {
+    console.error(`Failed to send status update email for booking ${booking.id}:`, error);
+  }
 }
 
 // Helper function to send cancellation email
 async function sendCancellationEmail(booking: any) {
-  console.log(`Sending cancellation email for booking ${booking.id}`);
-  
-  const emailContent = {
-    to: booking.parentEmail,
-    subject: `Booking Cancelled - ${booking.providerName}`,
-    html: `
-      <h2>Booking Cancellation Confirmation</h2>
-      <p>Your booking for ${booking.childName} has been successfully cancelled.</p>
-      
-      <div style="background: #fef3c7; padding: 15px; border-radius: 5px; margin: 20px 0;">
-        <h3 style="color: #92400e;">Booking Details</h3>
-        <p><strong>Provider:</strong> ${booking.providerName}</p>
-        <p><strong>Child:</strong> ${booking.childName}</p>
-        <p><strong>Original Start Date:</strong> ${new Date(booking.startDate).toLocaleDateString()}</p>
-        <p><strong>Cancelled On:</strong> ${new Date(booking.cancellationDate).toLocaleDateString()}</p>
-      </div>
-      
-      <p>If this cancellation was made in error, please contact us immediately.</p>
-      <p>Thank you for using DaycareConnect!</p>
-    `
-  };
-  
-  // TODO: Implement actual email sending here
-  // await emailService.send(emailContent);
+  try {
+    console.log(`Sending cancellation email for booking ${booking.id}`);
+    
+    const emailData = {
+      parentName: booking.parent.name,
+      childName: booking.childName,
+      daycareName: booking.daycare.name,
+      startDate: booking.startDate.toISOString(),
+      endDate: booking.endDate.toISOString(),
+      dailyRate: booking.dailyRate,
+      totalCost: booking.totalCost,
+    };
+
+    await emailService.sendBookingStatusUpdate(
+      booking.parent.email,
+      'cancelled',
+      emailData
+    );
+    
+    console.log(`Cancellation email sent successfully for booking ${booking.id}`);
+  } catch (error) {
+    console.error(`Failed to send cancellation email for booking ${booking.id}:`, error);
+  }
 } 

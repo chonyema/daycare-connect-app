@@ -1,28 +1,29 @@
 'use client';
 
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { Search, MapPin, Star, Clock, Users, Phone, Mail, Calendar, DollarSign, Heart, Menu, X, User, Settings, MessageCircle, CreditCard, Bell, Filter, CheckCircle, Loader2, AlertCircle } from 'lucide-react';
+import { Search, MapPin, Star, Clock, Users, Phone, Mail, Calendar, DollarSign, Heart, X, MessageCircle, Filter, CheckCircle, Loader2, AlertCircle } from 'lucide-react';
 
 // MOVE SEARCHVIEW OUTSIDE THE MAIN COMPONENT - THIS IS THE KEY FIX!
-const SearchView = React.memo(({ 
-  searchQuery, 
-  setSearchQuery, 
-  searchLocation, 
-  setSearchLocation, 
-  selectedAgeGroup, 
-  setSelectedAgeGroup, 
-  sortBy, 
-  setSortBy, 
-  filteredProviders, 
-  ageGroups, 
-  setSelectedProvider, 
-  setCurrentView, 
+const SearchView = React.memo(({
+  searchQuery,
+  setSearchQuery,
+  searchLocation,
+  setSearchLocation,
+  selectedAgeGroup,
+  setSelectedAgeGroup,
+  sortBy,
+  setSortBy,
+  filteredProviders,
+  ageGroups,
+  setSelectedProvider,
+  setCurrentView,
   setShowBookingModal,
   toggleFavorite,
   joinWaitlist,
   isFavorite,
   favoriteLoading,
-  waitlistLoading
+  waitlistLoading,
+  providersLoading
 }: any) => (
   <div className="space-y-6">
     <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white p-6 rounded-lg">
@@ -97,7 +98,14 @@ const SearchView = React.memo(({
       </div>
     </div>
     
-    {filteredProviders.length === 0 ? (
+    {providersLoading ? (
+      <div className="flex justify-center items-center py-20">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Searching for daycares...</p>
+        </div>
+      </div>
+    ) : filteredProviders.length === 0 ? (
       <div className="text-center py-12">
         <Search className="w-16 h-16 text-gray-300 mx-auto mb-4" />
         <h3 className="text-xl font-medium text-gray-500 mb-2">No providers found</h3>
@@ -236,7 +244,7 @@ const ProviderCard = React.memo(({ provider, setSelectedProvider, setCurrentView
 ));
 
 // Enhanced Booking Modal Component
-const BookingModal = ({ selectedProvider, showBookingModal, setShowBookingModal }: any) => {
+const BookingModal = ({ selectedProvider, showBookingModal, setShowBookingModal, fetchProviders }: any) => {
   const [formData, setFormData] = useState({
     childName: '',
     childAge: '',
@@ -342,7 +350,11 @@ const BookingModal = ({ selectedProvider, showBookingModal, setShowBookingModal 
       if (result.success) {
         setSubmitStatus('success');
         setSubmitMessage(result.message || 'Booking created successfully!');
-        
+
+        // Refresh providers to update available spots
+        console.log('Refreshing providers after successful booking...');
+        fetchProviders();
+
         setTimeout(() => {
           resetForm();
           setShowBookingModal(false);
@@ -665,14 +677,12 @@ const BookingModal = ({ selectedProvider, showBookingModal, setShowBookingModal 
 
 // Main App Component - NOW MUCH SIMPLER
 const DaycareConnectApp = () => {
-  const [userType, setUserType] = useState('parent');
   const [currentView, setCurrentView] = useState('search');
   const [selectedProvider, setSelectedProvider] = useState<any>(null);
   const [searchLocation, setSearchLocation] = useState('Toronto, ON');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedAgeGroup, setSelectedAgeGroup] = useState('All Ages');
   const [sortBy, setSortBy] = useState('distance');
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showBookingModal, setShowBookingModal] = useState(false);
   const [userBookings, setUserBookings] = useState([]);
 
@@ -742,147 +752,53 @@ const DaycareConnectApp = () => {
 
   const isFavorite = (providerId: number) => favorites.includes(providerId);
 
-  // Enhanced provider data
-  const providers = [
-    {
-      id: 1,
-      name: "Sunshine Daycare Centre",
-      type: "Licensed Daycare Center",
-      address: "123 Main St, Toronto, ON",
-      distance: "0.8 km",
-      distanceValue: 0.8,
-      rating: 4.8,
-      reviews: 42,
-      availableSpots: 3,
-      ageGroups: ["Infant", "Toddler", "Preschool"],
-      pricing: "$55/day",
-      priceValue: 55,
-      hours: "7:00 AM - 6:00 PM",
-      image: "https://images.unsplash.com/photo-1587654780291-39c9404d746b?w=400&h=300&fit=crop",
-      verified: true,
-      waitlist: 5,
-      features: ["Meals Included", "Outdoor Playground", "Educational Programs"],
-      description: "A warm and nurturing environment for children with experienced staff and modern facilities."
-    },
-    {
-      id: 2,
-      name: "Little Stars Home Daycare",
-      type: "Licensed Home Daycare",
-      address: "456 Oak Ave, Toronto, ON",
-      distance: "1.2 km",
-      distanceValue: 1.2,
-      rating: 4.9,
-      reviews: 28,
-      availableSpots: 1,
-      ageGroups: ["Toddler", "Preschool"],
-      pricing: "$45/day",
-      priceValue: 45,
-      hours: "6:30 AM - 6:30 PM",
-      image: "https://images.unsplash.com/photo-1544717297-fa95b6ee9643?w=400&h=300&fit=crop",
-      verified: true,
-      waitlist: 2,
-      features: ["Small Groups", "Bilingual", "Flexible Hours"],
-      description: "Intimate home-based care with personalized attention and bilingual environment."
-    },
-    {
-      id: 3,
-      name: "Adventure Kids Learning Centre",
-      type: "Licensed Daycare Center",
-      address: "789 Pine St, Toronto, ON",
-      distance: "2.1 km",
-      distanceValue: 2.1,
-      rating: 4.6,
-      reviews: 67,
-      availableSpots: 0,
-      ageGroups: ["Preschool", "School Age"],
-      pricing: "$60/day",
-      priceValue: 60,
-      hours: "7:00 AM - 6:00 PM",
-      image: "https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=400&h=300&fit=crop",
-      verified: true,
-      waitlist: 12,
-      features: ["STEM Programs", "Music Classes", "Hot Meals"],
-      description: "Focus on learning through play with STEM programs and creative activities."
-    },
-    {
-      id: 4,
-      name: "Happy Hearts Family Daycare",
-      type: "Licensed Home Daycare",
-      address: "321 Maple Rd, Toronto, ON",
-      distance: "1.5 km",
-      distanceValue: 1.5,
-      rating: 4.7,
-      reviews: 35,
-      availableSpots: 2,
-      ageGroups: ["Infant", "Toddler"],
-      pricing: "$50/day",
-      priceValue: 50,
-      hours: "7:30 AM - 5:30 PM",
-      image: "https://images.unsplash.com/photo-1576013551627-0cc20b96c2a7?w=400&h=300&fit=crop",
-      verified: true,
-      waitlist: 3,
-      features: ["Organic Meals", "Nature Play", "Music Therapy"],
-      description: "Family-oriented care with focus on organic nutrition and outdoor activities."
-    },
-    {
-      id: 5,
-      name: "Bright Minds Academy",
-      type: "Licensed Daycare Center",
-      address: "555 Cedar Ave, Toronto, ON",
-      distance: "3.2 km",
-      distanceValue: 3.2,
-      rating: 4.5,
-      reviews: 89,
-      availableSpots: 5,
-      ageGroups: ["Preschool", "School Age"],
-      pricing: "$65/day",
-      priceValue: 65,
-      hours: "6:00 AM - 7:00 PM",
-      image: "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=400&h=300&fit=crop",
-      verified: true,
-      waitlist: 8,
-      features: ["Extended Hours", "Transportation", "Academic Prep"],
-      description: "Academic-focused environment preparing children for elementary school success."
-    }
-  ];
+  // Load providers from database
+  const [providers, setProviders] = useState([]);
+  const [providersLoading, setProvidersLoading] = useState(true);
 
-  // Filter and sort providers
-  const filteredProviders = useMemo(() => {
-    let filtered = providers.filter(provider => {
-      const searchMatch = searchQuery === '' || 
-        provider.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        provider.type.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        provider.features.some(feature => feature.toLowerCase().includes(searchQuery.toLowerCase())) ||
-        provider.description.toLowerCase().includes(searchQuery.toLowerCase());
-
-      const ageMatch = selectedAgeGroup === 'All Ages' || 
-        provider.ageGroups.some(age => age.toLowerCase().includes(selectedAgeGroup.toLowerCase()));
-
-      const locationMatch = searchLocation === '' || 
-        provider.address.toLowerCase().includes(searchLocation.toLowerCase());
-
-      return searchMatch && ageMatch && locationMatch;
-    });
-
-    filtered.sort((a, b) => {
-      switch (sortBy) {
-        case 'distance':
-          return a.distanceValue - b.distanceValue;
-        case 'rating':
-          return b.rating - a.rating;
-        case 'price':
-          return a.priceValue - b.priceValue;
-        case 'availability':
-          return b.availableSpots - a.availableSpots;
-        default:
-          return 0;
-      }
-    });
-
-    return filtered;
-  }, [searchQuery, selectedAgeGroup, searchLocation, sortBy]);
+  // Providers are already filtered and sorted by the API
+  const filteredProviders = providers;
 
   const ageGroups = ['All Ages', 'Infant', 'Toddler', 'Preschool', 'School Age'];
+
+  // Fetch providers from API
+  const fetchProviders = async () => {
+    try {
+      setProvidersLoading(true);
+      const params = new URLSearchParams();
+      if (searchQuery) params.append('search', searchQuery);
+      if (searchLocation && searchLocation !== 'Toronto, ON') params.append('location', searchLocation);
+      if (selectedAgeGroup && selectedAgeGroup !== 'All Ages') params.append('ageGroup', selectedAgeGroup);
+      if (sortBy) params.append('sortBy', sortBy);
+
+      const response = await fetch(`/api/daycares?${params.toString()}`);
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Fetched providers:', data);
+        setProviders(data || []);
+      } else {
+        console.error('Failed to fetch providers');
+      }
+    } catch (error) {
+      console.error('Error fetching providers:', error);
+    } finally {
+      setProvidersLoading(false);
+    }
+  };
+
+  // Fetch providers on component mount and when search parameters change
+  useEffect(() => {
+    fetchProviders();
+  }, []); // Initial load
+
+  // Refetch when search parameters change (debounced)
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      fetchProviders();
+    }, 300); // 300ms debounce
+
+    return () => clearTimeout(timeoutId);
+  }, [searchQuery, searchLocation, selectedAgeGroup, sortBy]);
 
   // Fetch user bookings
   const fetchBookings = async () => {
@@ -1121,68 +1037,37 @@ const DaycareConnectApp = () => {
     </div>
   );
 
-  const Header = () => (
-    <header className="bg-white shadow-sm border-b border-gray-200">
+  const ParentNavigation = () => (
+    <nav className="bg-white border-b border-gray-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
-          <div className="flex items-center">
-            <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
-                <Users className="w-5 h-5 text-white" />
-              </div>
-              <span className="text-xl font-bold text-gray-900">DaycareConnect</span>
-            </div>
-          </div>
-          
-          <nav className="hidden md:flex space-x-8">
-            <button 
-              onClick={() => setCurrentView('search')}
-              className={`${currentView === 'search' ? 'text-blue-600' : 'text-gray-500'} hover:text-blue-600 px-3 py-2 text-sm font-medium`}
-            >
-              Find Care
-            </button>
-            <button 
-              onClick={() => setCurrentView('bookings')}
-              className={`${currentView === 'bookings' ? 'text-blue-600' : 'text-gray-500'} hover:text-blue-600 px-3 py-2 text-sm font-medium`}
-            >
-              My Bookings
-            </button>
-            <button className="text-gray-500 hover:text-blue-600 px-3 py-2 text-sm font-medium">
-              Messages
-            </button>
-          </nav>
-          
-          <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-2">
-              <span className="text-sm text-gray-600">Parent</span>
-              <button 
-                onClick={() => setUserType(userType === 'parent' ? 'provider' : 'parent')}
-                className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-medium hover:bg-blue-200"
-              >
-                Switch to {userType === 'parent' ? 'Provider' : 'Parent'}
-              </button>
-            </div>
-            <Bell className="w-5 h-5 text-gray-400 hover:text-gray-600 cursor-pointer" />
-            <User className="w-5 h-5 text-gray-400 hover:text-gray-600 cursor-pointer" />
-            <button 
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden"
-            >
-              <Menu className="w-5 h-5 text-gray-400" />
-            </button>
-          </div>
+        <div className="flex justify-center space-x-8">
+          <button
+            onClick={() => setCurrentView('search')}
+            className={`${currentView === 'search' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 border-b-2 border-transparent'} hover:text-blue-600 px-3 py-4 text-sm font-medium transition-colors`}
+          >
+            Find Care
+          </button>
+          <button
+            onClick={() => setCurrentView('bookings')}
+            className={`${currentView === 'bookings' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 border-b-2 border-transparent'} hover:text-blue-600 px-3 py-4 text-sm font-medium transition-colors`}
+          >
+            My Bookings
+          </button>
+          <button className="text-gray-500 hover:text-blue-600 px-3 py-4 text-sm font-medium border-b-2 border-transparent transition-colors">
+            Messages
+          </button>
         </div>
       </div>
-    </header>
+    </nav>
   );
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Header />
-      
+    <div>
+      <ParentNavigation />
+
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {currentView === 'search' && (
-          <SearchView 
+          <SearchView
             searchQuery={searchQuery}
             setSearchQuery={setSearchQuery}
             searchLocation={searchLocation}
@@ -1201,16 +1086,18 @@ const DaycareConnectApp = () => {
             isFavorite={isFavorite}
             favoriteLoading={favoriteLoading}
             waitlistLoading={waitlistLoading}
+            providersLoading={providersLoading}
           />
         )}
         {currentView === 'bookings' && <BookingsView />}
         {currentView === 'profile' && selectedProvider && <ProviderProfile />}
       </main>
       
-      <BookingModal 
+      <BookingModal
         selectedProvider={selectedProvider}
         showBookingModal={showBookingModal}
         setShowBookingModal={setShowBookingModal}
+        fetchProviders={fetchProviders}
       />
     </div>
   );

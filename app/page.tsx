@@ -1,5 +1,5 @@
-import DaycareConnectApp from './components/DaycareConnectApp';
+import UnifiedDaycareApp from './components/UnifiedDaycareApp';
 
 export default function Home() {
-  return <DaycareConnectApp />;
+  return <UnifiedDaycareApp />;
 }

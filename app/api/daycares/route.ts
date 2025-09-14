@@ -31,9 +31,26 @@ export async function GET(request: NextRequest) {
       }
     })
 
+    // Get actual booking counts for accurate spot calculation
+    const daycaresWithBookingCounts = await Promise.all(
+      daycares.map(async (daycare: any) => {
+        const confirmedBookings = await prisma.booking.count({
+          where: {
+            daycareId: daycare.id,
+            status: 'CONFIRMED'
+          }
+        })
+
+        return {
+          ...daycare,
+          currentConfirmedBookings: confirmedBookings
+        }
+      })
+    )
+
     // Transform data with proper TypeScript types
-    let transformedDaycares = daycares.map((daycare: any) => {
-      const availableSpots = Math.max(0, daycare.capacity - daycare.currentOccupancy)
+    let transformedDaycares = daycaresWithBookingCounts.map((daycare: any) => {
+      const availableSpots = Math.max(0, daycare.capacity - daycare.currentConfirmedBookings)
       const ageGroups = JSON.parse(daycare.ageGroups || '["All Ages"]')
       const features = JSON.parse(daycare.features || '[]')
       const images = JSON.parse(daycare.images || '[]')
@@ -53,6 +70,7 @@ export async function GET(request: NextRequest) {
         rating: Number(daycare.averageRating || 0),
         reviews: daycare.totalReviews || 0,
         availableSpots,
+        currentOccupancy: daycare.currentConfirmedBookings,
         ageGroups,
         pricing: `$${Number(daycare.dailyRate)}/day`,
         priceValue: Number(daycare.dailyRate),

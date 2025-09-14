@@ -2,6 +2,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/app/lib/prisma';
 import { CareType, BookingStatus } from '@prisma/client';
+import { emailService } from '../../utils/email';
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
@@ -129,10 +130,43 @@ export async function POST(request: NextRequest) {
           select: { id: true, name: true, email: true }
         },
         daycare: {
-          select: { id: true, name: true, address: true, phone: true }
+          select: { id: true, name: true, address: true, phone: true, email: true, ownerId: true }
         }
       }
     });
+
+    // Send email notifications (don't block response if emails fail)
+    try {
+      // Get provider email
+      const provider = await prisma.user.findUnique({
+        where: { id: newBooking.daycare.ownerId },
+        select: { email: true, name: true }
+      });
+
+      const emailData = {
+        parentName: newBooking.parent.name,
+        childName: newBooking.childName,
+        daycareName: newBooking.daycare.name,
+        startDate: newBooking.startDate.toISOString(),
+        endDate: newBooking.endDate?.toISOString() || newBooking.startDate.toISOString(),
+        dailyRate: newBooking.dailyRate,
+        totalCost: newBooking.totalCost || newBooking.dailyRate,
+        parentEmail: newBooking.parent.email,
+        providerEmail: provider?.email,
+      };
+
+      // Send notification to parent (confirmation they submitted the request)
+      await emailService.sendBookingConfirmationToParent(emailData);
+
+      // Send notification to provider (new booking request)
+      if (provider?.email) {
+        await emailService.sendBookingNotificationToProvider(emailData);
+      }
+
+    } catch (emailError) {
+      console.error('Failed to send booking emails:', emailError);
+      // Continue - don't fail booking creation because of email issues
+    }
     
     return NextResponse.json({
       success: true,
