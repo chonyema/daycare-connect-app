@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Search, MapPin, Star, Clock, Users, Phone, Mail, Calendar, DollarSign, Heart, X, MessageCircle, Filter, CheckCircle, Loader2, AlertCircle } from 'lucide-react';
+import MessageButton from './MessageButton';
 
 // MOVE SEARCHVIEW OUTSIDE THE MAIN COMPONENT - THIS IS THE KEY FIX!
 const SearchView = React.memo(({
@@ -37,7 +38,7 @@ const SearchView = React.memo(({
               placeholder="Search by name, type, or features..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full px-4 py-2 rounded-md text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-300"
+              className="w-full px-4 py-2 rounded-md text-gray-900 bg-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-300"
             />
           </div>
           <div className="flex-1">
@@ -46,7 +47,7 @@ const SearchView = React.memo(({
               placeholder="Location (e.g., Toronto, ON)"
               value={searchLocation}
               onChange={(e) => setSearchLocation(e.target.value)}
-              className="w-full px-4 py-2 rounded-md text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-300"
+              className="w-full px-4 py-2 rounded-md text-gray-900 bg-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-300"
             />
           </div>
           <button className="bg-white text-blue-600 px-6 py-2 rounded-md hover:bg-gray-50 transition-colors font-medium flex items-center justify-center">
@@ -88,7 +89,7 @@ const SearchView = React.memo(({
         <select 
           value={sortBy}
           onChange={(e) => setSortBy(e.target.value)}
-          className="border border-gray-300 rounded-md px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
+          className="border border-gray-300 rounded-md px-3 py-1 text-sm text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-blue-300"
         >
           <option value="distance">Sort by Distance</option>
           <option value="rating">Sort by Rating</option>
@@ -244,14 +245,14 @@ const ProviderCard = React.memo(({ provider, setSelectedProvider, setCurrentView
 ));
 
 // Enhanced Booking Modal Component
-const BookingModal = ({ selectedProvider, showBookingModal, setShowBookingModal, fetchProviders }: any) => {
+const BookingModal = ({ selectedProvider, showBookingModal, setShowBookingModal, fetchProviders, user }: any) => {
   const [formData, setFormData] = useState({
     childName: '',
     childAge: '',
     startDate: '',
     endDate: '',
     careType: 'FULL_TIME',
-    parentId: 'cmfc5uege0000xt2sxukou174', // Default to sample parent
+    parentId: 'cmfkkj1gr0000xtxcgtmccjzk', // Sarah Johnson - Parent user from database
     parentEmail: '',
     parentPhone: '',
     notes: '',
@@ -259,8 +260,7 @@ const BookingModal = ({ selectedProvider, showBookingModal, setShowBookingModal,
   });
 
   const [availableParents, setAvailableParents] = useState([
-    { id: 'cmfc5uege0000xt2sxukou174', name: 'Sarah Johnson', email: 'parent@test.com' },
-    { id: 'cmfc5uegf0002xt2s8u9ox175', name: 'Demo Parent', email: 'demo@test.com' }
+    { id: 'cmfkkj1gr0000xtxcgtmccjzk', name: 'Sarah Johnson', email: 'parent@test.com' }
   ]);
 
   const [errors, setErrors] = useState<any>({});
@@ -324,7 +324,7 @@ const BookingModal = ({ selectedProvider, showBookingModal, setShowBookingModal,
 
     try {
       const bookingData = {
-        parentId: formData.parentId,
+        parentId: user?.id || formData.parentId, // Use authenticated user's ID, fallback to form data
         daycareId: selectedProvider?.id?.toString(), // Convert to string if numeric
         childName: formData.childName.trim(),
         childAge: formData.childAge.trim() || null,
@@ -383,7 +383,7 @@ const BookingModal = ({ selectedProvider, showBookingModal, setShowBookingModal,
       startDate: '',
       endDate: '',
       careType: 'FULL_TIME',
-      parentId: 'cmfc5uege0000xt2sxukou174',
+      parentId: 'cmfkkj1gr0000xtxcgtmccjzk',
       parentEmail: '',
       parentPhone: '',
       notes: '',
@@ -428,25 +428,38 @@ const BookingModal = ({ selectedProvider, showBookingModal, setShowBookingModal,
               <p className="text-sm text-blue-700">{selectedProvider?.type}</p>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Select Parent Account *
-              </label>
-              <select 
-                name="parentId"
-                value={formData.parentId}
-                onChange={handleInputChange}
-                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-300"
-                disabled={isSubmitting}
-              >
-                {availableParents.map((parent) => (
-                  <option key={parent.id} value={parent.id}>
-                    {parent.name} ({parent.email})
-                  </option>
-                ))}
-              </select>
-              <p className="text-xs text-gray-500 mt-1">In a real app, this would be your logged-in account</p>
-            </div>
+            {user ? (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Parent Account
+                </label>
+                <div className="w-full border border-gray-300 rounded-md px-3 py-2 bg-gray-50">
+                  <span className="font-medium">{user.name}</span>
+                  <span className="text-gray-600 ml-2">({user.email})</span>
+                </div>
+                <p className="text-xs text-gray-500 mt-1">Booking will be created for your account</p>
+              </div>
+            ) : (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Select Parent Account *
+                </label>
+                <select
+                  name="parentId"
+                  value={formData.parentId}
+                  onChange={handleInputChange}
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-blue-300"
+                  disabled={isSubmitting}
+                >
+                  {availableParents.map((parent) => (
+                    <option key={parent.id} value={parent.id}>
+                      {parent.name} ({parent.email})
+                    </option>
+                  ))}
+                </select>
+                <p className="text-xs text-gray-500 mt-1">Demo mode - please log in for real usage</p>
+              </div>
+            )}
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -457,7 +470,7 @@ const BookingModal = ({ selectedProvider, showBookingModal, setShowBookingModal,
                 name="childName"
                 value={formData.childName}
                 onChange={handleInputChange}
-                className={`w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-300 ${
+                className={`w-full border rounded-md px-3 py-2 text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-blue-300 ${
                   errors.childName ? 'border-red-500' : 'border-gray-300'
                 }`}
                 placeholder="Enter your child's full name"
@@ -478,7 +491,7 @@ const BookingModal = ({ selectedProvider, showBookingModal, setShowBookingModal,
                 value={formData.startDate}
                 onChange={handleInputChange}
                 min={new Date().toISOString().split('T')[0]}
-                className={`w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-300 ${
+                className={`w-full border rounded-md px-3 py-2 text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-blue-300 ${
                   errors.startDate ? 'border-red-500' : 'border-gray-300'
                 }`}
                 disabled={isSubmitting}
@@ -497,7 +510,7 @@ const BookingModal = ({ selectedProvider, showBookingModal, setShowBookingModal,
                 name="childAge"
                 value={formData.childAge}
                 onChange={handleInputChange}
-                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-300"
+                className="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-blue-300"
                 placeholder="e.g., 3 years old, 18 months"
                 disabled={isSubmitting}
               />
@@ -513,7 +526,7 @@ const BookingModal = ({ selectedProvider, showBookingModal, setShowBookingModal,
                 value={formData.endDate}
                 onChange={handleInputChange}
                 min={formData.startDate || new Date().toISOString().split('T')[0]}
-                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-300"
+                className="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-blue-300"
                 disabled={isSubmitting}
               />
               <p className="text-xs text-gray-500 mt-1">Leave empty for ongoing care</p>
@@ -527,7 +540,7 @@ const BookingModal = ({ selectedProvider, showBookingModal, setShowBookingModal,
                 name="careType"
                 value={formData.careType}
                 onChange={handleInputChange}
-                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-300"
+                className="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-blue-300"
                 disabled={isSubmitting}
               >
                 <option value="FULL_TIME">Full-time (5 days/week)</option>
@@ -546,7 +559,7 @@ const BookingModal = ({ selectedProvider, showBookingModal, setShowBookingModal,
                 name="parentEmail"
                 value={formData.parentEmail}
                 onChange={handleInputChange}
-                className={`w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-300 ${
+                className={`w-full border rounded-md px-3 py-2 text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-blue-300 ${
                   errors.parentEmail ? 'border-red-500' : 'border-gray-300'
                 }`}
                 placeholder="your.email@example.com"
@@ -566,7 +579,7 @@ const BookingModal = ({ selectedProvider, showBookingModal, setShowBookingModal,
                 name="parentPhone"
                 value={formData.parentPhone}
                 onChange={handleInputChange}
-                className={`w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-300 ${
+                className={`w-full border rounded-md px-3 py-2 text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-blue-300 ${
                   errors.parentPhone ? 'border-red-500' : 'border-gray-300'
                 }`}
                 placeholder="(416) 555-0123"
@@ -586,7 +599,7 @@ const BookingModal = ({ selectedProvider, showBookingModal, setShowBookingModal,
                 value={formData.notes}
                 onChange={handleInputChange}
                 rows={2}
-                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-300"
+                className="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-blue-300"
                 placeholder="Any additional information or requests..."
                 disabled={isSubmitting}
               />
@@ -601,7 +614,7 @@ const BookingModal = ({ selectedProvider, showBookingModal, setShowBookingModal,
                 value={formData.specialNeeds}
                 onChange={handleInputChange}
                 rows={2}
-                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-300"
+                className="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-blue-300"
                 placeholder="Any allergies, medical conditions, or special accommodations..."
                 disabled={isSubmitting}
               />
@@ -676,7 +689,16 @@ const BookingModal = ({ selectedProvider, showBookingModal, setShowBookingModal,
 };
 
 // Main App Component - NOW MUCH SIMPLER
-const DaycareConnectApp = () => {
+interface DaycareConnectAppProps {
+  user?: {
+    id: string;
+    name: string;
+    email: string;
+    userType: 'PARENT' | 'PROVIDER' | 'ADMIN';
+  } | null;
+}
+
+const DaycareConnectApp: React.FC<DaycareConnectAppProps> = ({ user }) => {
   const [currentView, setCurrentView] = useState('search');
   const [selectedProvider, setSelectedProvider] = useState<any>(null);
   const [searchLocation, setSearchLocation] = useState('Toronto, ON');
@@ -690,7 +712,7 @@ const DaycareConnectApp = () => {
   const [favorites, setFavorites] = useState<number[]>([]);
   const [waitlistLoading, setWaitlistLoading] = useState<number | null>(null);
   const [favoriteLoading, setFavoriteLoading] = useState<number | null>(null);
-  const currentParentId = 'cmfc5uege0000xt2sxukou174'; // Default parent for demo
+  const currentParentId = 'cmfkkj1gr0000xtxcgtmccjzk'; // Sarah Johnson - Parent user from database
 
   // Favorites functionality
   const toggleFavorite = async (providerId: number) => {
@@ -805,19 +827,32 @@ const DaycareConnectApp = () => {
     try {
       const response = await fetch('/api/bookings');
       const result = await response.json();
-      if (result.success) {
+
+      if (response.ok && result.success) {
         setUserBookings(result.bookings);
+      } else if (response.status === 401) {
+        // User not authenticated, show empty bookings (this is expected for logged-out users)
+        setUserBookings([]);
+      } else {
+        console.error('Failed to fetch bookings:', result.error);
+        setUserBookings([]);
       }
     } catch (error) {
       console.error('Failed to fetch bookings:', error);
+      setUserBookings([]);
     }
   };
 
   useEffect(() => {
     if (currentView === 'bookings') {
-      fetchBookings();
+      // Only fetch bookings if user is authenticated
+      if (user) {
+        fetchBookings();
+      } else {
+        setUserBookings([]); // Clear bookings for non-authenticated users
+      }
     }
-  }, [currentView]);
+  }, [currentView, user]);
 
   // Bookings View Component
   const BookingsView = () => (
@@ -999,10 +1034,22 @@ const DaycareConnectApp = () => {
                 {waitlistLoading === selectedProvider?.id ? 'Joining...' : 'Join Waitlist'}
               </button>
             )}
-            <button className="border border-gray-300 text-gray-700 px-6 py-3 rounded-md hover:bg-gray-50 transition-colors font-medium">
-              <MessageCircle className="w-4 h-4 inline mr-2" />
-              Message Provider
-            </button>
+            {user && selectedProvider?.ownerId && (
+              <MessageButton
+                currentUser={{
+                  id: user.id,
+                  name: user.name || '',
+                  email: user.email,
+                  userType: user.userType
+                }}
+                targetUserId={selectedProvider.ownerId}
+                daycareId={selectedProvider.id}
+                className="border border-gray-300 text-gray-700 px-6 py-3 rounded-md hover:bg-gray-50 transition-colors font-medium"
+                size="md"
+              >
+                Message Provider
+              </MessageButton>
+            )}
             <button 
               onClick={() => toggleFavorite(selectedProvider?.id)}
               disabled={favoriteLoading === selectedProvider?.id}
@@ -1098,6 +1145,7 @@ const DaycareConnectApp = () => {
         showBookingModal={showBookingModal}
         setShowBookingModal={setShowBookingModal}
         fetchProviders={fetchProviders}
+        user={user}
       />
     </div>
   );

@@ -188,7 +188,7 @@ const DaycareForm: React.FC<DaycareFormProps> = ({
                   required
                   value={formData.name}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 bg-white"
                   placeholder="Sunshine Daycare Center"
                 />
               </div>
@@ -202,7 +202,7 @@ const DaycareForm: React.FC<DaycareFormProps> = ({
                   required
                   value={formData.type}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 bg-white"
                 >
                   {daycareTypes.map(type => (
                     <option key={type.value} value={type.value}>
@@ -222,7 +222,7 @@ const DaycareForm: React.FC<DaycareFormProps> = ({
                 rows={3}
                 value={formData.description}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 bg-white"
                 placeholder="Describe your daycare, philosophy, and what makes it special..."
               />
             </div>
@@ -245,7 +245,7 @@ const DaycareForm: React.FC<DaycareFormProps> = ({
                 required
                 value={formData.address}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 bg-white"
                 placeholder="123 Main Street"
               />
             </div>
@@ -261,7 +261,7 @@ const DaycareForm: React.FC<DaycareFormProps> = ({
                   required
                   value={formData.city}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 bg-white"
                   placeholder="Toronto"
                 />
               </div>
@@ -275,7 +275,7 @@ const DaycareForm: React.FC<DaycareFormProps> = ({
                   required
                   value={formData.province}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 bg-white"
                 >
                   {provinces.map(province => (
                     <option key={province} value={province}>{province}</option>
@@ -293,7 +293,7 @@ const DaycareForm: React.FC<DaycareFormProps> = ({
                   required
                   value={formData.postalCode}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 bg-white"
                   placeholder="M5V 3L9"
                 />
               </div>
@@ -317,7 +317,7 @@ const DaycareForm: React.FC<DaycareFormProps> = ({
                   name="phone"
                   value={formData.phone}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 bg-white"
                   placeholder="(555) 123-4567"
                 />
               </div>
@@ -331,7 +331,7 @@ const DaycareForm: React.FC<DaycareFormProps> = ({
                   name="email"
                   value={formData.email}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 bg-white"
                   placeholder="info@daycare.com"
                 />
               </div>
@@ -345,7 +345,7 @@ const DaycareForm: React.FC<DaycareFormProps> = ({
                   name="website"
                   value={formData.website}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 bg-white"
                   placeholder="https://www.daycare.com"
                 />
               </div>
@@ -363,7 +363,7 @@ const DaycareForm: React.FC<DaycareFormProps> = ({
                   min="1"
                   value={formData.capacity}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 bg-white"
                   placeholder="50"
                 />
               </div>
@@ -380,7 +380,7 @@ const DaycareForm: React.FC<DaycareFormProps> = ({
                   step="0.01"
                   value={formData.dailyRate}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 bg-white"
                   placeholder="45.00"
                 />
               </div>
@@ -396,7 +396,7 @@ const DaycareForm: React.FC<DaycareFormProps> = ({
                   step="0.01"
                   value={formData.hourlyRate}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 bg-white"
                   placeholder="8.00"
                 />
               </div>
@@ -421,7 +421,7 @@ const DaycareForm: React.FC<DaycareFormProps> = ({
                   required
                   value={formData.openTime}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 bg-white"
                 />
               </div>
 
@@ -435,7 +435,7 @@ const DaycareForm: React.FC<DaycareFormProps> = ({
                   required
                   value={formData.closeTime}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 bg-white"
                 />
               </div>
             </div>
