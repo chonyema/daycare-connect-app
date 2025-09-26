@@ -25,15 +25,17 @@ export function formatDatabaseUrl(baseUrl: string): string {
 
   // For Supabase, use the transaction pooler for better serverless performance
   if (url.hostname.includes('supabase')) {
-    // Replace direct connection with pooled connection
-    const pooledHostname = url.hostname.replace('.supabase.co', '-pooler.supabase.co');
-    url.hostname = pooledHostname;
-    url.port = '6543'; // Supabase pooler port
+    // Only modify if it's not already a pooler URL
+    if (!url.hostname.includes('.pooler.')) {
+      const pooledHostname = url.hostname.replace('.supabase.co', '.pooler.supabase.co');
+      url.hostname = pooledHostname;
+      url.port = '6543'; // Supabase pooler port
 
-    // Add pooling parameters
-    url.searchParams.set('pgbouncer', 'true');
-    url.searchParams.set('connection_limit', '1');
-    url.searchParams.set('pool_timeout', '10');
+      // Add pooling parameters
+      url.searchParams.set('pgbouncer', 'true');
+      url.searchParams.set('connection_limit', '1');
+      url.searchParams.set('pool_timeout', '10');
+    }
   }
 
   return url.toString();
