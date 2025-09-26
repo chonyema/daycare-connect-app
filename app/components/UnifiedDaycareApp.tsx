@@ -29,15 +29,18 @@ const UnifiedDaycareApp = () => {
 
   // Set interface based on localStorage or user type
   useEffect(() => {
-    // Check if there's a saved interface preference
-    const savedInterface = localStorage.getItem('selectedInterface') as 'parent' | 'provider' | null;
+    // Check if we're on the client side before accessing localStorage
+    if (typeof window !== 'undefined') {
+      // Check if there's a saved interface preference
+      const savedInterface = localStorage.getItem('selectedInterface') as 'parent' | 'provider' | null;
 
-    if (savedInterface) {
-      setCurrentInterface(savedInterface);
-    } else if (user && !authLoading) {
-      // Default to their account type for new users
-      if (isProvider) {
-        setCurrentInterface('provider');
+      if (savedInterface) {
+        setCurrentInterface(savedInterface);
+      } else if (user && !authLoading) {
+        // Default to their account type for new users
+        if (isProvider) {
+          setCurrentInterface('provider');
+        }
       }
     }
   }, [user, isProvider, authLoading]);
@@ -45,7 +48,9 @@ const UnifiedDaycareApp = () => {
   // Handle interface switching
   const handleInterfaceSwitch = (newInterface: 'parent' | 'provider') => {
     setCurrentInterface(newInterface);
-    localStorage.setItem('selectedInterface', newInterface);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('selectedInterface', newInterface);
+    }
     setMobileMenuOpen(false);
   };
 
