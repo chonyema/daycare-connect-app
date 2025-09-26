@@ -1,138 +1,91 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/app/lib/prisma'
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic'
 
 export async function GET(request: NextRequest) {
   try {
-    console.log('Fetching daycares from database...')
+    console.log('Fetching daycares (static data temporarily)...')
 
-    const searchParams = request.nextUrl.searchParams
-    const search = searchParams.get('search') || ''
-    const location = searchParams.get('location') || ''
-    const ageGroup = searchParams.get('ageGroup') || ''
-    const sortBy = searchParams.get('sortBy') || 'name'
-
-    const daycares = await prisma.daycare.findMany({
-      where: {
-        active: true,
-      },
-      include: {
-        owner: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-            phone: true,
-          }
-        }
-      }
-    })
-
-    // Get actual booking counts for accurate spot calculation
-    const daycaresWithBookingCounts = await Promise.all(
-      daycares.map(async (daycare: any) => {
-        const confirmedBookings = await prisma.booking.count({
-          where: {
-            daycareId: daycare.id,
-            status: 'CONFIRMED'
-          }
-        })
-
-        return {
-          ...daycare,
-          currentConfirmedBookings: confirmedBookings
-        }
-      })
-    )
-
-    // Transform data with proper TypeScript types
-    let transformedDaycares = daycaresWithBookingCounts.map((daycare: any) => {
-      const availableSpots = Math.max(0, daycare.capacity - daycare.currentConfirmedBookings)
-      const ageGroups = JSON.parse(daycare.ageGroups || '["All Ages"]')
-      const features = JSON.parse(daycare.features || '[]')
-      const images = JSON.parse(daycare.images || '[]')
-      
-      const typeDisplay = daycare.type
-        .replace(/_/g, ' ')
-        .toLowerCase()
-        .replace(/\b\w/g, (l: string) => l.toUpperCase())
-
-      return {
-        id: daycare.id,
-        name: daycare.name,
-        type: typeDisplay,
-        address: `${daycare.address}, ${daycare.city}, ${daycare.province}`,
+    // TEMPORARY: Return static data while debugging Prisma connection issues
+    const staticDaycares = [
+      {
+        id: "static-1",
+        name: "Adventure Kids Learning Centre",
+        type: "Licensed Daycare Center",
+        address: "123 Main St, Toronto, ON",
         distance: "1.2 km",
         distanceValue: 1.2,
-        rating: Number(daycare.averageRating || 0),
-        reviews: daycare.totalReviews || 0,
-        availableSpots,
-        currentOccupancy: daycare.currentConfirmedBookings,
-        ageGroups,
-        pricing: `$${Number(daycare.dailyRate)}/day`,
-        priceValue: Number(daycare.dailyRate),
-        hours: `${daycare.openTime} - ${daycare.closeTime}`,
-        image: images[0] || 'https://images.unsplash.com/photo-1587654780291-39c9404d746b?w=400&h=300&fit=crop',
-        verified: daycare.verified,
-        waitlist: daycare.waitlistCount || 0,
-        features,
-        description: daycare.description || 'Quality childcare services.',
-        phone: daycare.phone || daycare.owner.phone,
-        email: daycare.email || daycare.owner.email,
-        ownerId: daycare.ownerId,
-        owner: daycare.owner,
+        rating: 4.8,
+        reviews: 25,
+        availableSpots: 15,
+        currentOccupancy: 35,
+        ageGroups: ["Infant", "Toddler", "Preschool"],
+        pricing: "$65/day",
+        priceValue: 65,
+        hours: "7:00 AM - 6:00 PM",
+        image: "https://images.unsplash.com/photo-1587654780291-39c9404d746b?w=400&h=300&fit=crop",
+        verified: true,
+        waitlist: 3,
+        features: ["Meals Included", "Playground", "Educational Programs"],
+        description: "A wonderful place for children to learn and grow with experienced educators.",
+        phone: "(416) 555-0123",
+        email: "info@adventurekids.ca"
+      },
+      {
+        id: "static-2",
+        name: "Sunshine Daycare",
+        type: "Licensed Home Daycare",
+        address: "456 Oak Avenue, Toronto, ON",
+        distance: "0.8 km",
+        distanceValue: 0.8,
+        rating: 4.5,
+        reviews: 18,
+        availableSpots: 4,
+        currentOccupancy: 8,
+        ageGroups: ["Toddler", "Preschool"],
+        pricing: "$55/day",
+        priceValue: 55,
+        hours: "6:30 AM - 6:30 PM",
+        image: "https://images.unsplash.com/photo-1576013551627-0cc20b96c2a7?w=400&h=300&fit=crop",
+        verified: true,
+        waitlist: 1,
+        features: ["Home Cooked Meals", "Small Groups", "Flexible Hours"],
+        description: "Cozy home environment with personalized care and attention.",
+        phone: "(416) 555-0456",
+        email: "hello@sunshinedaycare.ca"
+      },
+      {
+        id: "static-3",
+        name: "Little Explorers Academy",
+        type: "Licensed Daycare Center",
+        address: "789 Elm Street, Toronto, ON",
+        distance: "2.1 km",
+        distanceValue: 2.1,
+        rating: 4.7,
+        reviews: 32,
+        availableSpots: 8,
+        currentOccupancy: 42,
+        ageGroups: ["Infant", "Toddler", "Preschool", "School Age"],
+        pricing: "$70/day",
+        priceValue: 70,
+        hours: "6:45 AM - 6:15 PM",
+        image: "https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=400&h=300&fit=crop",
+        verified: true,
+        waitlist: 5,
+        features: ["STEM Programs", "Music Classes", "Outdoor Adventures"],
+        description: "Innovative learning programs that inspire curiosity and creativity.",
+        phone: "(416) 555-0789",
+        email: "contact@littleexplorers.ca"
       }
-    })
+    ]
 
-    // Apply JavaScript-based filtering with proper types
-    if (search) {
-      const searchLower = search.toLowerCase()
-      transformedDaycares = transformedDaycares.filter((daycare: any) =>
-        daycare.name.toLowerCase().includes(searchLower) ||
-        daycare.type.toLowerCase().includes(searchLower) ||
-        daycare.description.toLowerCase().includes(searchLower) ||
-        daycare.features.some((feature: string) => feature.toLowerCase().includes(searchLower))
-      )
-    }
+    return NextResponse.json(staticDaycares)
 
-    if (location && location !== 'Toronto, ON') {
-      const locationLower = location.toLowerCase()
-      transformedDaycares = transformedDaycares.filter((daycare: any) =>
-        daycare.address.toLowerCase().includes(locationLower)
-      )
-    }
-
-    if (ageGroup && ageGroup !== 'All Ages') {
-      transformedDaycares = transformedDaycares.filter((daycare: any) =>
-        daycare.ageGroups.some((age: string) => age.toLowerCase().includes(ageGroup.toLowerCase()))
-      )
-    }
-
-    // Apply sorting with proper types
-    transformedDaycares.sort((a: any, b: any) => {
-      switch (sortBy) {
-        case 'rating':
-          return b.rating - a.rating
-        case 'price':
-          return a.priceValue - b.priceValue
-        case 'availability':
-          return b.availableSpots - a.availableSpots
-        case 'distance':
-        default:
-          return a.name.localeCompare(b.name)
-      }
-    })
-
-    return NextResponse.json(transformedDaycares)
   } catch (error: any) {
     console.error('Error fetching daycares:', error)
     return NextResponse.json(
-      {
-        error: 'Failed to fetch daycares',
-        details: error instanceof Error ? error?.message : 'Unknown error'
-      },
+      { error: 'Failed to fetch daycares' },
       { status: 500 }
     )
   }
