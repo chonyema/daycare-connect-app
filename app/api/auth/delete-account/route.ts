@@ -54,25 +54,24 @@ export async function DELETE(request: NextRequest) {
         where: { parentId: user.id }
       });
 
-      // Delete user's messages
-      await tx.message.deleteMany({
-        where: {
-          OR: [
-            { senderId: user.id },
-            { receiverId: user.id }
-          ]
-        }
-      });
+      // TODO: Delete user's messages and conversations when messaging models are added to production schema
+      // await tx.message.deleteMany({
+      //   where: {
+      //     OR: [
+      //       { senderId: user.id },
+      //       { receiverId: user.id }
+      //     ]
+      //   }
+      // });
 
-      // Delete user's conversations
-      await tx.conversation.deleteMany({
-        where: {
-          OR: [
-            { parentId: user.id },
-            { providerId: user.id }
-          ]
-        }
-      });
+      // await tx.conversation.deleteMany({
+      //   where: {
+      //     OR: [
+      //       { parentId: user.id },
+      //       { providerId: user.id }
+      //     ]
+      //   }
+      // });
 
       // Delete completed/cancelled bookings
       await tx.booking.deleteMany({
