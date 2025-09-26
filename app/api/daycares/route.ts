@@ -6,6 +6,9 @@ export const dynamic = 'force-dynamic'
 
 export async function GET(request: NextRequest) {
   try {
+    console.log('=== DAYCARES API CALLED (v2) ===')
+    console.log('Environment:', process.env.NODE_ENV)
+    console.log('Has DATABASE_URL:', !!process.env.DATABASE_URL)
     console.log('Fetching daycares from database (updated)...')
 
     // Get all active daycares from database
@@ -96,9 +99,22 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(transformedDaycares)
 
   } catch (error: any) {
-    console.error('Error fetching daycares:', error)
+    console.error('=== DAYCARES API ERROR ===')
+    console.error('Error name:', error.name)
+    console.error('Error message:', error.message)
+    console.error('Error stack:', error.stack)
+    console.error('Error details:', {
+      code: error.code,
+      errno: error.errno,
+      syscall: error.syscall
+    })
+
     return NextResponse.json(
-      { error: 'Failed to fetch daycares' },
+      {
+        error: 'Failed to fetch daycares',
+        details: error.message,
+        code: error.code
+      },
       { status: 500 }
     )
   }
