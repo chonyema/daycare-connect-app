@@ -124,7 +124,7 @@ export async function GET(request: NextRequest) {
           resolve('Socket connection successful')
         })
 
-        socket.on('error', (error) => {
+        socket.on('error', (error: any) => {
           clearTimeout(timeout)
           reject(error)
         })
