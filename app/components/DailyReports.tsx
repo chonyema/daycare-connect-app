@@ -293,7 +293,7 @@ const DailyReports: React.FC<DailyReportsProps> = ({ userType, currentUser }) =>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {groupedReports[date].map(report => (
+                {groupedReports[date].map((report: any) => (
                   <div key={report.id} className="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-lg transition-shadow">
                     {/* Report Header */}
                     <div className="flex items-center justify-between mb-4">
