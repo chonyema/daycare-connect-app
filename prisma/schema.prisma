@@ -24,6 +24,15 @@ model User {
   reviews      Review[]
   savedDaycares SavedDaycare[]
 
+  // Messaging relations
+  sentMessages         Message[] @relation("MessageSender")
+  receivedMessages     Message[] @relation("MessageReceiver")
+  parentConversations  Conversation[] @relation("ConversationParticipant")
+  providerConversations Conversation[] @relation("ConversationProvider")
+
+  // Daily reports relation
+  dailyReports         DailyReport[]
+
   @@map("users")
 }
 
@@ -73,6 +82,8 @@ model Daycare {
   bookings       Booking[]
   reviews        Review[]
   savedBy        SavedDaycare[]
+  conversations  Conversation[]
+  dailyReports   DailyReport[]
   
   createdAt      DateTime    @default(now())
   updatedAt      DateTime    @updatedAt
@@ -106,7 +117,10 @@ model Booking {
   // Additional info
   notes      String?
   specialNeeds String?
-  
+
+  // Daily reports relation
+  dailyReports DailyReport[]
+
   createdAt  DateTime      @default(now())
   updatedAt  DateTime      @updatedAt
 
@@ -182,4 +196,188 @@ enum BookingStatus {
   CANCELLED
   COMPLETED
   WAITLIST
+}
+
+// === MESSAGING MODELS ===
+
+model Conversation {
+  id          String   @id @default(cuid())
+
+  // Participants
+  parentId    String
+  parent      User     @relation("ConversationParticipant", fields: [parentId], references: [id], onDelete: Cascade)
+
+  providerId  String
+  provider    User     @relation("ConversationProvider", fields: [providerId], references: [id], onDelete: Cascade)
+
+  // Associated daycare for context
+  daycareId   String?
+  daycare     Daycare? @relation(fields: [daycareId], references: [id], onDelete: SetNull)
+
+  // Conversation metadata
+  lastMessageAt DateTime @default(now())
+  isActive      Boolean  @default(true)
+
+  // Messages in this conversation
+  messages    Message[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([parentId, providerId, daycareId])
+  @@map("conversations")
+}
+
+model Message {
+  id             String   @id @default(cuid())
+
+  // Conversation relation
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  // Sender and receiver
+  senderId       String
+  sender         User     @relation("MessageSender", fields: [senderId], references: [id], onDelete: Cascade)
+
+  receiverId     String
+  receiver       User     @relation("MessageReceiver", fields: [receiverId], references: [id], onDelete: Cascade)
+
+  // Message content
+  content        String
+  messageType    MessageType @default(TEXT)
+
+  // File attachment fields
+  fileName       String?
+  fileUrl        String?  // Base64 data or URL
+  fileType       String?  // MIME type
+  fileSize       Int?     // Size in bytes
+
+  // Message status
+  isRead         Boolean  @default(false)
+  readAt         DateTime?
+
+  // Optional attachment
+  attachmentUrl  String?
+  attachmentType String?
+
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@map("messages")
+}
+
+// === DAILY REPORTS MODELS ===
+
+model DailyReport {
+  id        String   @id @default(cuid())
+
+  // Child information
+  childName String
+  childAge  String
+
+  // Booking relation
+  bookingId String
+  booking   Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+
+  // Daycare relation
+  daycareId String
+  daycare   Daycare @relation(fields: [daycareId], references: [id], onDelete: Cascade)
+
+  // Provider relation
+  providerId String
+  provider   User    @relation(fields: [providerId], references: [id], onDelete: Cascade)
+
+  // Report date
+  reportDate DateTime @default(now())
+
+  // Summary fields
+  overallMood       String?  // Happy, Fussy, Sleepy, etc.
+  generalNotes      String?
+
+  // Parent notification
+  notificationSent  Boolean @default(false)
+  parentViewed      Boolean @default(false)
+  parentViewedAt    DateTime?
+
+  // Activities relation
+  activities DailyReportActivity[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Ensure one report per child per day
+  @@unique([bookingId, reportDate])
+  @@map("daily_reports")
+}
+
+model DailyReportActivity {
+  id        String   @id @default(cuid())
+
+  // Daily report relation
+  reportId  String
+  report    DailyReport @relation(fields: [reportId], references: [id], onDelete: Cascade)
+
+  // Activity details
+  activityType ActivityType
+  title        String
+  description  String?
+
+  // Time tracking
+  startTime    DateTime
+  endTime      DateTime?
+  duration     Int?     // Duration in minutes
+
+  // Meal specific fields
+  mealType     MealType?
+  foodItems    String?   // JSON array of food items
+  amountEaten  String?   // "All", "Most", "Some", "Little", "None"
+
+  // Nap specific fields
+  napQuality   NapQuality?
+
+  // Photo/file attachments
+  photos       String?   // JSON array of photo URLs/base64
+  documents    String?   // JSON array of document URLs/base64
+
+  // Additional notes
+  notes        String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("daily_report_activities")
+}
+
+// === ENUMS ===
+
+enum MessageType {
+  TEXT
+  IMAGE
+  FILE
+  SYSTEM
+}
+
+enum ActivityType {
+  MEAL
+  NAP
+  ACTIVITY
+  DIAPER_CHANGE
+  MILESTONE
+  INCIDENT
+  PHOTO
+  OTHER
+}
+
+enum MealType {
+  BREAKFAST
+  LUNCH
+  DINNER
+  SNACK
+}
+
+enum NapQuality {
+  EXCELLENT
+  GOOD
+  FAIR
+  POOR
 }
