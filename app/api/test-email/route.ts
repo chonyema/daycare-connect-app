@@ -1,33 +1,39 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { emailService } from '../../utils/email';
+import { NextRequest, NextResponse } from "next/server"
+import { emailService } from "../../utils/email"
 
-export async function POST(request: NextRequest) {
+export const dynamic = "force-dynamic"
+export const runtime = "nodejs"
+
+export async function GET(request: NextRequest) {
   try {
-    const { email } = await request.json();
+    console.log("=== EMAIL TEST ===")
 
-    if (!email) {
-      return NextResponse.json({ error: 'Email address required' }, { status: 400 });
+    // Check environment variables
+    const emailConfig = {
+      SMTP_HOST: process.env.SMTP_HOST,
+      SMTP_PORT: process.env.SMTP_PORT,
+      SMTP_USER: process.env.SMTP_USER,
+      hasPassword: \!\!process.env.SMTP_PASS,
+      passwordLength: process.env.SMTP_PASS?.length || 0
     }
 
-    // Send a test email
-    const success = await emailService.sendWelcomeEmail(email, 'Test User', 'PARENT');
+    console.log("Email config:", emailConfig)
 
-    if (success) {
-      return NextResponse.json({
-        message: 'Test email sent successfully!',
-        details: `Welcome email sent to ${email}`
-      });
-    } else {
-      return NextResponse.json({
-        error: 'Failed to send test email. Check your SMTP configuration.'
-      }, { status: 500 });
-    }
+    return NextResponse.json({
+      status: "success",
+      message: "Email configuration check",
+      emailConfig,
+      timestamp: new Date().toISOString()
+    })
 
   } catch (error: any) {
-    console.error('Test email error:', error);
+    console.error("=== EMAIL TEST FAILED ===")
+    console.error("Error:", error.message)
+
     return NextResponse.json({
-      error: 'Failed to send test email',
-      details: error.message
-    }, { status: 500 });
+      status: "error",
+      message: "Email test failed",
+      error: error.message
+    }, { status: 500 })
   }
 }
