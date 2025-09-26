@@ -15,30 +15,9 @@ export const dbConfig = {
 export function formatDatabaseUrl(baseUrl: string): string {
   if (!baseUrl) return baseUrl;
 
-  // If it's already a pooled connection, return as is
-  if (baseUrl.includes('?pgbouncer=true') || baseUrl.includes('pooler')) {
-    return baseUrl;
-  }
-
-  // Add connection pooling parameters for Supabase
-  const url = new URL(baseUrl);
-
-  // For Supabase, use the transaction pooler for better serverless performance
-  if (url.hostname.includes('supabase')) {
-    // Only modify if it's not already a pooler URL
-    if (!url.hostname.includes('.pooler.')) {
-      const pooledHostname = url.hostname.replace('.supabase.co', '.pooler.supabase.co');
-      url.hostname = pooledHostname;
-      url.port = '6543'; // Supabase pooler port
-
-      // Add pooling parameters
-      url.searchParams.set('pgbouncer', 'true');
-      url.searchParams.set('connection_limit', '1');
-      url.searchParams.set('pool_timeout', '10');
-    }
-  }
-
-  return url.toString();
+  // TEMPORARY: Return URL as-is to debug connectivity issues
+  // The user should set their DATABASE_URL directly to the correct pooler URL
+  return baseUrl;
 }
 
 // Get optimized connection URLs
