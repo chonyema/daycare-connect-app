@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '@/app/lib/prisma';
 import { getUserFromRequest, requireProvider } from '../../../utils/auth';
-
-const prisma = new PrismaClient();
 
 // GET /api/provider/stats - Get provider dashboard statistics
 export async function GET(request: NextRequest) {
