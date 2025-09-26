@@ -136,16 +136,6 @@ export async function POST(request: NextRequest) {
       }
     });
 
-    // Update daycare occupancy
-    await prisma.daycare.update({
-      where: { id: actualDaycareId },
-      data: {
-        currentOccupancy: {
-          increment: 1
-        }
-      }
-    });
-
     // Send email notifications (don't block response if emails fail)
     try {
       // Get provider email

@@ -227,6 +227,29 @@ export async function PATCH(request: NextRequest) {
       }
     });
 
+    // Update daycare occupancy based on status change
+    if (status === 'CONFIRMED' && existingBooking.status !== 'CONFIRMED') {
+      // Booking was confirmed - increase occupancy
+      await prisma.daycare.update({
+        where: { id: existingBooking.daycareId },
+        data: {
+          currentOccupancy: {
+            increment: 1
+          }
+        }
+      });
+    } else if (existingBooking.status === 'CONFIRMED' && status !== 'CONFIRMED') {
+      // Booking was un-confirmed (cancelled/waitlisted) - decrease occupancy
+      await prisma.daycare.update({
+        where: { id: existingBooking.daycareId },
+        data: {
+          currentOccupancy: {
+            decrement: 1
+          }
+        }
+      });
+    }
+
     // Send notification email to parent about status change
     try {
       const emailData = {
