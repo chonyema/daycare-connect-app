@@ -86,7 +86,7 @@ export async function GET(request: NextRequest) {
         openTime: daycare.openTime,
         closeTime: daycare.closeTime,
         operatingDays,
-        image: "https://images.unsplash.com/photo-1587654780291-39c9404d746b?w=400&h=300&fit=crop", // Default image
+        image: daycare.images ? JSON.parse(daycare.images)[0] : "https://images.unsplash.com/photo-1587654780291-39c9404d746b?w=400&h=300&fit=crop",
         verified: daycare.verified,
         waitlist: 0, // TODO: Calculate from bookings with WAITLIST status
         features,
