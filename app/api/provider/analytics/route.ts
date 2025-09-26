@@ -5,6 +5,8 @@ import { format, subDays, startOfMonth, endOfMonth, startOfYear, endOfYear } fro
 
 const prisma = new PrismaClient();
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: NextRequest) {
   try {
     const user = await getUserFromRequest(request);

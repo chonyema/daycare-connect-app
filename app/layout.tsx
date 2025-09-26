@@ -10,17 +10,18 @@ export const metadata = {
   title: 'DaycareConnect - Find Quality Childcare',
   description: 'Professional childcare booking platform connecting parents with trusted daycare providers',
   manifest: '/manifest.json',
-  themeColor: '#2563eb',
-  viewport: {
-    width: 'device-width',
-    initialScale: 1,
-    maximumScale: 1,
-  },
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
     title: 'DaycareConnect',
   },
+}
+
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  themeColor: '#2563eb',
 }
 
 export default function RootLayout({

@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/app/lib/prisma';
 import { getUserFromRequest, requireProvider } from '../../../utils/auth';
 
+export const dynamic = 'force-dynamic';
+
 // GET /api/provider/stats - Get provider dashboard statistics
 export async function GET(request: NextRequest) {
   try {
