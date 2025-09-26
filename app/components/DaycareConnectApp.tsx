@@ -1,8 +1,10 @@
 'use client';
 
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { Search, MapPin, Star, Clock, Users, Phone, Mail, Calendar, DollarSign, Heart, X, MessageCircle, Filter, CheckCircle, Loader2, AlertCircle } from 'lucide-react';
+import { Search, MapPin, Star, Clock, Users, Phone, Mail, Calendar, DollarSign, Heart, X, MessageCircle, Filter, CheckCircle, Loader2, AlertCircle, Upload, FileText } from 'lucide-react';
 import MessageButton from './MessageButton';
+import DocumentUpload from './DocumentUpload';
+import DailyReports from './DailyReports';
 
 // MOVE SEARCHVIEW OUTSIDE THE MAIN COMPONENT - THIS IS THE KEY FIX!
 const SearchView = React.memo(({
@@ -266,6 +268,8 @@ const BookingModal = ({ selectedProvider, showBookingModal, setShowBookingModal,
   const [errors, setErrors] = useState<any>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [showDocumentUpload, setShowDocumentUpload] = useState(false);
+  const [uploadedDocuments, setUploadedDocuments] = useState<Array<{name: string; data: string; type: string}>>([]);
   const [submitMessage, setSubmitMessage] = useState('');
 
   const validateForm = () => {
@@ -334,7 +338,8 @@ const BookingModal = ({ selectedProvider, showBookingModal, setShowBookingModal,
         dailyRate: selectedProvider?.priceValue || 0,
         totalCost: null, // Will be calculated by backend if needed
         notes: formData.notes.trim() || null,
-        specialNeeds: formData.specialNeeds.trim() || null
+        specialNeeds: formData.specialNeeds.trim() || null,
+        documents: uploadedDocuments
       };
 
       const response = await fetch('/api/bookings', {
@@ -620,6 +625,50 @@ const BookingModal = ({ selectedProvider, showBookingModal, setShowBookingModal,
               />
             </div>
 
+            {/* Document Upload Section */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Supporting Documents (Optional)
+              </label>
+              <p className="text-xs text-gray-500 mb-3">
+                Upload any relevant documents such as medical records, immunization certificates, or identification.
+              </p>
+
+              <button
+                type="button"
+                onClick={() => setShowDocumentUpload(true)}
+                className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                <Upload className="h-4 w-4" />
+                Upload Document
+              </button>
+
+              {/* Uploaded Documents List */}
+              {uploadedDocuments.length > 0 && (
+                <div className="mt-3 space-y-2">
+                  {uploadedDocuments.map((doc, index) => (
+                    <div key={index} className="flex items-center justify-between p-2 bg-gray-50 rounded border">
+                      <div className="flex items-center gap-2">
+                        <FileText className="h-4 w-4 text-gray-500" />
+                        <span className="text-sm text-gray-700 truncate max-w-[200px]">
+                          {doc.name}
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setUploadedDocuments(prev => prev.filter((_, i) => i !== index));
+                        }}
+                        className="text-red-500 hover:text-red-700"
+                      >
+                        <X className="h-4 w-4" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
             <div className="bg-gray-50 p-4 rounded-md">
               <div className="flex justify-between items-center mb-2">
                 <span>Daily Rate:</span>
@@ -684,6 +733,19 @@ const BookingModal = ({ selectedProvider, showBookingModal, setShowBookingModal,
           </div>
         </form>
       </div>
+
+      {/* Document Upload Modal */}
+      {showDocumentUpload && (
+        <DocumentUpload
+          onDocumentSelect={(document) => {
+            setUploadedDocuments(prev => [...prev, document]);
+            setShowDocumentUpload(false);
+          }}
+          onClose={() => setShowDocumentUpload(false)}
+          title="Upload Supporting Document"
+          description="Upload documents such as medical records, immunization certificates, or identification."
+        />
+      )}
     </div>
   );
 };
@@ -1100,6 +1162,13 @@ const DaycareConnectApp: React.FC<DaycareConnectAppProps> = ({ user }) => {
           >
             My Bookings
           </button>
+          <button
+            onClick={() => setCurrentView('daily-reports')}
+            className={`${currentView === 'daily-reports' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 border-b-2 border-transparent'} hover:text-blue-600 px-3 py-4 text-sm font-medium transition-colors flex items-center gap-2`}
+          >
+            <FileText className="h-4 w-4" />
+            Daily Reports
+          </button>
           <button className="text-gray-500 hover:text-blue-600 px-3 py-4 text-sm font-medium border-b-2 border-transparent transition-colors">
             Messages
           </button>
@@ -1137,6 +1206,16 @@ const DaycareConnectApp: React.FC<DaycareConnectAppProps> = ({ user }) => {
           />
         )}
         {currentView === 'bookings' && <BookingsView />}
+        {currentView === 'daily-reports' && user && (
+          <DailyReports
+            userType="PARENT"
+            currentUser={{
+              id: user.id,
+              name: user.name || '',
+              userType: user.userType
+            }}
+          />
+        )}
         {currentView === 'profile' && selectedProvider && <ProviderProfile />}
       </main>
       

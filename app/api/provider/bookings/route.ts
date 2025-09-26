@@ -108,14 +108,14 @@ export async function GET(request: NextRequest) {
       statusSummary
     });
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('Provider bookings fetch error:', error);
-    
-    if (error.message === 'Authentication required') {
+
+    if (error?.message === 'Authentication required') {
       return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
     }
-    
-    if (error.message === 'Provider access required') {
+
+    if (error?.message === 'Provider access required') {
       return NextResponse.json({ error: 'Provider access required' }, { status: 403 });
     }
     
@@ -175,6 +175,33 @@ export async function PATCH(request: NextRequest) {
       );
     }
 
+    // Check capacity before confirming booking
+    if (status === 'CONFIRMED' && existingBooking.status !== 'CONFIRMED') {
+      // Get current confirmed bookings count
+      const confirmedBookingsCount = await prisma.booking.count({
+        where: {
+          daycareId: existingBooking.daycareId,
+          status: 'CONFIRMED'
+        }
+      });
+
+      // Get daycare capacity
+      const daycare = await prisma.daycare.findUnique({
+        where: { id: existingBooking.daycareId },
+        select: { capacity: true, name: true }
+      });
+
+      if (daycare && confirmedBookingsCount >= daycare.capacity) {
+        return NextResponse.json(
+          {
+            error: `Cannot confirm booking. ${daycare.name} is at full capacity (${daycare.capacity} spots). Please add the child to the waitlist instead.`,
+            suggestWaitlist: true
+          },
+          { status: 400 }
+        );
+      }
+    }
+
     // Update the booking
     const booking = await prisma.booking.update({
       where: {
@@ -203,7 +230,7 @@ export async function PATCH(request: NextRequest) {
     // Send notification email to parent about status change
     try {
       const emailData = {
-        parentName: booking.parent.name,
+        parentName: booking.parent.name || 'Parent',
         childName: booking.childName,
         daycareName: booking.daycare.name,
         startDate: booking.startDate.toISOString(),
@@ -227,14 +254,14 @@ export async function PATCH(request: NextRequest) {
       booking,
       message: `Booking ${status.toLowerCase()}`
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Booking update error:', error);
-    
-    if (error.message === 'Authentication required') {
+
+    if (error?.message === 'Authentication required') {
       return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
     }
-    
-    if (error.message === 'Provider access required') {
+
+    if (error?.message === 'Provider access required') {
       return NextResponse.json({ error: 'Provider access required' }, { status: 403 });
     }
     

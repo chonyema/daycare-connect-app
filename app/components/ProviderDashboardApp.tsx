@@ -20,12 +20,15 @@ import {
   Home,
   TrendingUp,
   Mail,
+  FileText,
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import DaycareForm from './DaycareForm';
 import EmailManagement from './EmailManagement';
 import Analytics from './Analytics';
 import BookingManagement from './BookingManagement';
+import MessagingSystem from './MessagingSystem';
+import DailyReports from './DailyReports';
 
 interface Daycare {
   id: string;
@@ -65,6 +68,7 @@ const ProviderDashboardApp = () => {
   const [loading, setLoading] = useState(true);
   const [showDaycareForm, setShowDaycareForm] = useState(false);
   const [editingDaycare, setEditingDaycare] = useState<Daycare | null>(null);
+  const [showMessaging, setShowMessaging] = useState(false);
   const [stats, setStats] = useState({
     totalRevenue: 0,
     activeBookings: 0,
@@ -189,6 +193,7 @@ const ProviderDashboardApp = () => {
             { id: 'dashboard', label: 'Dashboard', icon: BarChart3 },
             { id: 'daycares', label: 'My Daycares', icon: Home },
             { id: 'bookings', label: 'Bookings', icon: Calendar },
+            { id: 'daily-reports', label: 'Daily Reports', icon: FileText },
             { id: 'analytics', label: 'Analytics', icon: TrendingUp },
             { id: 'emails', label: 'Emails', icon: Mail },
             { id: 'messages', label: 'Messages', icon: MessageCircle },
@@ -396,11 +401,43 @@ const ProviderDashboardApp = () => {
         {activeTab === 'dashboard' && <DashboardView />}
         {activeTab === 'daycares' && <DaycaresView />}
         {activeTab === 'bookings' && <BookingManagement />}
+        {activeTab === 'daily-reports' && user && (
+          <DailyReports
+            userType="PROVIDER"
+            currentUser={{
+              id: user.id,
+              name: user.name || '',
+              userType: user.userType
+            }}
+          />
+        )}
         {activeTab === 'messages' && (
-          <div className="text-center py-12">
-            <MessageCircle className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">Messages Coming Soon</h3>
-            <p className="text-gray-600">Direct messaging with parents will be available soon.</p>
+          <div className="space-y-6">
+            <div className="flex justify-between items-center">
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900">Messages</h2>
+                <p className="text-gray-600">Communicate directly with parents</p>
+              </div>
+              <button
+                onClick={() => setShowMessaging(true)}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2"
+              >
+                <MessageCircle className="h-4 w-4" />
+                Open Messages
+              </button>
+            </div>
+
+            <div className="bg-white rounded-lg border p-8 text-center">
+              <MessageCircle className="h-12 w-12 text-blue-600 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 mb-2">Message Center</h3>
+              <p className="text-gray-600 mb-4">Stay connected with parents and manage all your conversations in one place.</p>
+              <button
+                onClick={() => setShowMessaging(true)}
+                className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium"
+              >
+                Start Messaging
+              </button>
+            </div>
           </div>
         )}
         {activeTab === 'analytics' && <Analytics />}
@@ -417,6 +454,19 @@ const ProviderDashboardApp = () => {
         daycare={editingDaycare}
         onSave={handleFormSubmit}
       />
+
+      {/* Messaging System */}
+      {showMessaging && user && (
+        <MessagingSystem
+          currentUser={{
+            id: user.id,
+            name: user.name || '',
+            email: user.email,
+            userType: user.userType
+          }}
+          onClose={() => setShowMessaging(false)}
+        />
+      )}
     </div>
   );
 };

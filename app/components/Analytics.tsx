@@ -324,7 +324,7 @@ const Analytics = () => {
                 cx="50%"
                 cy="50%"
                 labelLine={false}
-                label={({ rating, count }) => `${rating}★ (${count})`}
+                label={({ rating, count }: any) => `${rating}★ (${count})`}
                 outerRadius={80}
                 fill="#8884d8"
                 dataKey="count"
@@ -373,7 +373,7 @@ const Analytics = () => {
                 cx="50%"
                 cy="50%"
                 labelLine={false}
-                label={({ type, count }) => `${type} (${count})`}
+                label={({ type, count }: any) => `${type} (${count})`}
                 outerRadius={80}
                 fill="#8884d8"
                 dataKey="count"

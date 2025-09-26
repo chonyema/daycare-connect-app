@@ -35,14 +35,14 @@ export async function GET(request: NextRequest) {
     });
 
     return NextResponse.json(daycares);
-  } catch (error) {
+  } catch (error: any) {
     console.error('Provider daycares fetch error:', error);
     
-    if (error.message === 'Authentication required') {
+    if (error?.message === 'Authentication required') {
       return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
     }
     
-    if (error.message === 'Provider access required') {
+    if (error?.message === 'Provider access required') {
       return NextResponse.json({ error: 'Provider access required' }, { status: 403 });
     }
     
@@ -111,14 +111,14 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json(daycare, { status: 201 });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Daycare creation error:', error);
     
-    if (error.message === 'Authentication required') {
+    if (error?.message === 'Authentication required') {
       return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
     }
     
-    if (error.message === 'Provider access required') {
+    if (error?.message === 'Provider access required') {
       return NextResponse.json({ error: 'Provider access required' }, { status: 403 });
     }
     

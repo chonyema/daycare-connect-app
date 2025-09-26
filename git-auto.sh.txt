@@ -1,0 +1,16 @@
+#!/bin/bash
+
+# Ask for a commit message
+echo "Enter commit message: "
+read msg
+
+# Add all changes
+git add .
+
+# Commit with the message provided
+git commit -m "$msg"
+
+# Push to the main branch
+git push origin main
+
+echo "✅ Code pushed to GitHub!"

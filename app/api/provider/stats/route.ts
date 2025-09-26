@@ -80,14 +80,14 @@ export async function GET(request: NextRequest) {
       totalCapacity,
       totalOccupied,
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Provider stats fetch error:', error);
     
-    if (error.message === 'Authentication required') {
+    if (error?.message === 'Authentication required') {
       return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
     }
     
-    if (error.message === 'Provider access required') {
+    if (error?.message === 'Provider access required') {
       return NextResponse.json({ error: 'Provider access required' }, { status: 403 });
     }
     

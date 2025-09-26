@@ -52,4 +52,6 @@ production-backup*.json
 *.pem
 *.crt
 secrets/
-credentials-backup/
+credentials-backup/nul
+android/
+ios/

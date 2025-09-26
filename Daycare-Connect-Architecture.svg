@@ -1,0 +1,283 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 1000" style="background: white;">
+  <!-- Title -->
+  <text x="700" y="30" text-anchor="middle" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="#1e293b">
+    Daycare Connect - Solution Architecture
+  </text>
+
+  <!-- User Layer -->
+  <g id="user-layer">
+    <!-- Parents -->
+    <rect x="50" y="80" width="150" height="80" fill="#3b82f6" stroke="#1e40af" stroke-width="2" rx="8"/>
+    <text x="125" y="110" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="white">Parents</text>
+    <text x="125" y="130" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="white">Browse & Book</text>
+
+    <!-- Providers -->
+    <rect x="250" y="80" width="150" height="80" fill="#059669" stroke="#047857" stroke-width="2" rx="8"/>
+    <text x="325" y="110" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="white">Providers</text>
+    <text x="325" y="130" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="white">Manage Daycare</text>
+
+    <!-- Admins -->
+    <rect x="450" y="80" width="150" height="80" fill="#dc2626" stroke="#b91c1c" stroke-width="2" rx="8"/>
+    <text x="525" y="110" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="white">Admins</text>
+    <text x="525" y="130" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="white">System Control</text>
+  </g>
+
+  <!-- Frontend Layer -->
+  <g id="frontend-layer">
+    <rect x="50" y="200" width="550" height="120" fill="#f1f5f9" stroke="#64748b" stroke-width="2" rx="8"/>
+    <text x="325" y="225" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#1e293b">
+      Frontend Layer - Next.js 14 + React 18
+    </text>
+
+    <!-- Frontend Components -->
+    <rect x="70" y="240" width="120" height="60" fill="#06b6d4" stroke="#0891b2" stroke-width="1" rx="4"/>
+    <text x="130" y="265" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="white">Parent Portal</text>
+    <text x="130" y="280" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="white">Search, Book,</text>
+    <text x="130" y="292" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="white">Manage</text>
+
+    <rect x="210" y="240" width="120" height="60" fill="#10b981" stroke="#059669" stroke-width="1" rx="4"/>
+    <text x="270" y="265" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="white">Provider Portal</text>
+    <text x="270" y="280" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="white">Daycare Mgmt,</text>
+    <text x="270" y="292" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="white">Analytics</text>
+
+    <rect x="350" y="240" width="120" height="60" fill="#8b5cf6" stroke="#7c3aed" stroke-width="1" rx="4"/>
+    <text x="410" y="265" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="white">Auth System</text>
+    <text x="410" y="280" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="white">JWT, Roles,</text>
+    <text x="410" y="292" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="white">Sessions</text>
+
+    <rect x="490" y="240" width="90" height="60" fill="#f59e0b" stroke="#d97706" stroke-width="1" rx="4"/>
+    <text x="535" y="265" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="white">UI/UX</text>
+    <text x="535" y="280" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="white">Tailwind CSS</text>
+    <text x="535" y="292" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="white">Responsive</text>
+  </g>
+
+  <!-- API Layer -->
+  <g id="api-layer">
+    <rect x="50" y="360" width="550" height="180" fill="#fef3c7" stroke="#f59e0b" stroke-width="2" rx="8"/>
+    <text x="325" y="385" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#92400e">
+      API Layer - Next.js API Routes
+    </text>
+
+    <!-- API Routes -->
+    <rect x="70" y="400" width="100" height="50" fill="#3b82f6" stroke="#1e40af" stroke-width="1" rx="4"/>
+    <text x="120" y="420" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="white">/api/auth</text>
+    <text x="120" y="435" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" fill="white">Login/Signup</text>
+
+    <rect x="190" y="400" width="100" height="50" fill="#059669" stroke="#047857" stroke-width="1" rx="4"/>
+    <text x="240" y="420" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="white">/api/daycares</text>
+    <text x="240" y="435" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" fill="white">CRUD Ops</text>
+
+    <rect x="310" y="400" width="100" height="50" fill="#dc2626" stroke="#b91c1c" stroke-width="1" rx="4"/>
+    <text x="360" y="420" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="white">/api/bookings</text>
+    <text x="360" y="435" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" fill="white">Reservations</text>
+
+    <rect x="430" y="400" width="100" height="50" fill="#7c3aed" stroke="#6d28d9" stroke-width="1" rx="4"/>
+    <text x="480" y="420" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="white">/api/provider</text>
+    <text x="480" y="435" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" fill="white">Dashboard</text>
+
+    <rect x="70" y="470" width="100" height="50" fill="#0891b2" stroke="#0e7490" stroke-width="1" rx="4"/>
+    <text x="120" y="490" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="white">/api/waitlist</text>
+    <text x="120" y="505" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" fill="white">Queue Mgmt</text>
+
+    <rect x="190" y="470" width="100" height="50" fill="#be185d" stroke="#9d174d" stroke-width="1" rx="4"/>
+    <text x="240" y="490" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="white">/api/emails</text>
+    <text x="240" y="505" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" fill="white">Notifications</text>
+
+    <rect x="310" y="470" width="100" height="50" fill="#ea580c" stroke="#c2410c" stroke-width="1" rx="4"/>
+    <text x="360" y="490" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="white">/api/analytics</text>
+    <text x="360" y="505" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" fill="white">Reports</text>
+
+    <rect x="430" y="470" width="100" height="50" fill="#059669" stroke="#047857" stroke-width="1" rx="4"/>
+    <text x="480" y="490" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="white">/api/favorites</text>
+    <text x="480" y="505" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" fill="white">Saved Items</text>
+  </g>
+
+  <!-- Business Logic Layer -->
+  <g id="business-layer">
+    <rect x="50" y="580" width="550" height="120" fill="#ecfdf5" stroke="#10b981" stroke-width="2" rx="8"/>
+    <text x="325" y="605" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#065f46">
+      Business Logic Layer
+    </text>
+
+    <rect x="70" y="620" width="120" height="60" fill="#16a34a" stroke="#15803d" stroke-width="1" rx="4"/>
+    <text x="130" y="645" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="white">Capacity Control</text>
+    <text x="130" y="660" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="white">Spot Validation</text>
+    <text x="130" y="672" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="white">Waitlist Logic</text>
+
+    <rect x="210" y="620" width="120" height="60" fill="#0ea5e9" stroke="#0284c7" stroke-width="1" rx="4"/>
+    <text x="270" y="645" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="white">Booking Engine</text>
+    <text x="270" y="660" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="white">Status Management</text>
+    <text x="270" y="672" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="white">Confirmation</text>
+
+    <rect x="350" y="620" width="120" height="60" fill="#7c2d12" stroke="#92400e" stroke-width="1" rx="4"/>
+    <text x="410" y="645" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="white">Email Service</text>
+    <text x="410" y="660" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="white">Nodemailer</text>
+    <text x="410" y="672" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="white">Templates</text>
+
+    <rect x="490" y="620" width="90" height="60" fill="#a21caf" stroke="#86198f" stroke-width="1" rx="4"/>
+    <text x="535" y="645" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="white">Analytics</text>
+    <text x="535" y="660" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="white">Metrics</text>
+    <text x="535" y="672" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="white">Reports</text>
+  </g>
+
+  <!-- Data Layer -->
+  <g id="data-layer">
+    <rect x="50" y="740" width="550" height="120" fill="#fef2f2" stroke="#ef4444" stroke-width="2" rx="8"/>
+    <text x="325" y="765" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#991b1b">
+      Data Layer - Prisma ORM + PostgreSQL
+    </text>
+
+    <!-- Database Models -->
+    <rect x="70" y="780" width="90" height="60" fill="#dc2626" stroke="#b91c1c" stroke-width="1" rx="4"/>
+    <text x="115" y="800" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="white">Users</text>
+    <text x="115" y="815" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" fill="white">Parents</text>
+    <text x="115" y="827" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" fill="white">Providers</text>
+
+    <rect x="180" y="780" width="90" height="60" fill="#059669" stroke="#047857" stroke-width="1" rx="4"/>
+    <text x="225" y="800" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="white">Daycares</text>
+    <text x="225" y="815" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" fill="white">Facilities</text>
+    <text x="225" y="827" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" fill="white">Capacity</text>
+
+    <rect x="290" y="780" width="90" height="60" fill="#7c3aed" stroke="#6d28d9" stroke-width="1" rx="4"/>
+    <text x="335" y="800" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="white">Bookings</text>
+    <text x="335" y="815" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" fill="white">Reservations</text>
+    <text x="335" y="827" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" fill="white">Status</text>
+
+    <rect x="400" y="780" width="90" height="60" fill="#0891b2" stroke="#0e7490" stroke-width="1" rx="4"/>
+    <text x="445" y="800" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="white">Reviews</text>
+    <text x="445" y="815" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" fill="white">Ratings</text>
+    <text x="445" y="827" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" fill="white">Feedback</text>
+
+    <rect x="510" y="780" width="90" height="60" fill="#ea580c" stroke="#c2410c" stroke-width="1" rx="4"/>
+    <text x="555" y="800" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="white">Favorites</text>
+    <text x="555" y="815" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" fill="white">Saved</text>
+    <text x="555" y="827" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" fill="white">Daycares</text>
+  </g>
+
+  <!-- External Services -->
+  <g id="external-services">
+    <rect x="700" y="200" width="200" height="300" fill="#f8fafc" stroke="#475569" stroke-width="2" rx="8"/>
+    <text x="800" y="225" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#1e293b">
+      External Services
+    </text>
+
+    <rect x="720" y="240" width="160" height="50" fill="#3b82f6" stroke="#1e40af" stroke-width="1" rx="4"/>
+    <text x="800" y="265" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="white">Email Service</text>
+    <text x="800" y="280" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="white">SMTP Provider</text>
+
+    <rect x="720" y="310" width="160" height="50" fill="#059669" stroke="#047857" stroke-width="1" rx="4"/>
+    <text x="800" y="335" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="white">File Storage</text>
+    <text x="800" y="350" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="white">Images/Documents</text>
+
+    <rect x="720" y="380" width="160" height="50" fill="#dc2626" stroke="#b91c1c" stroke-width="1" rx="4"/>
+    <text x="800" y="405" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="white">Maps Integration</text>
+    <text x="800" y="420" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="white">Location Services</text>
+
+    <rect x="720" y="450" width="160" height="50" fill="#7c3aed" stroke="#6d28d9" stroke-width="1" rx="4"/>
+    <text x="800" y="475" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="white">Payment Gateway</text>
+    <text x="800" y="490" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="white">(Future)</text>
+  </g>
+
+  <!-- Key Features -->
+  <g id="key-features">
+    <rect x="700" y="550" width="200" height="200" fill="#fefce8" stroke="#ca8a04" stroke-width="2" rx="8"/>
+    <text x="800" y="575" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#92400e">
+      Key Features
+    </text>
+
+    <text x="720" y="600" font-family="Arial, sans-serif" font-size="12" fill="#1e293b">• Unified Parent/Provider Portal</text>
+    <text x="720" y="620" font-family="Arial, sans-serif" font-size="12" fill="#1e293b">• Real-time Capacity Management</text>
+    <text x="720" y="640" font-family="Arial, sans-serif" font-size="12" fill="#1e293b">• Automated Waitlist System</text>
+    <text x="720" y="660" font-family="Arial, sans-serif" font-size="12" fill="#1e293b">• Email Notifications</text>
+    <text x="720" y="680" font-family="Arial, sans-serif" font-size="12" fill="#1e293b">• Analytics & Reporting</text>
+    <text x="720" y="700" font-family="Arial, sans-serif" font-size="12" fill="#1e293b">• Reviews & Ratings</text>
+    <text x="720" y="720" font-family="Arial, sans-serif" font-size="12" fill="#1e293b">• Role-based Access Control</text>
+  </g>
+
+  <!-- Technology Stack -->
+  <g id="tech-stack">
+    <rect x="950" y="200" width="400" height="300" fill="#f0f9ff" stroke="#0284c7" stroke-width="2" rx="8"/>
+    <text x="1150" y="225" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#0c4a6e">
+      Technology Stack
+    </text>
+
+    <!-- Frontend -->
+    <rect x="970" y="240" width="180" height="70" fill="#06b6d4" stroke="#0891b2" stroke-width="1" rx="4"/>
+    <text x="1060" y="260" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="white">Frontend</text>
+    <text x="1060" y="275" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="white">• Next.js 14 (React 18)</text>
+    <text x="1060" y="290" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="white">• TypeScript</text>
+    <text x="1060" y="300" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="white">• Tailwind CSS</text>
+
+    <!-- Backend -->
+    <rect x="1170" y="240" width="160" height="70" fill="#10b981" stroke="#059669" stroke-width="1" rx="4"/>
+    <text x="1250" y="260" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="white">Backend</text>
+    <text x="1250" y="275" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="white">• Next.js API Routes</text>
+    <text x="1250" y="290" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="white">• Node.js Runtime</text>
+    <text x="1250" y="300" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="white">• JWT Authentication</text>
+
+    <!-- Database -->
+    <rect x="970" y="330" width="180" height="70" fill="#7c3aed" stroke="#6d28d9" stroke-width="1" rx="4"/>
+    <text x="1060" y="350" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="white">Database</text>
+    <text x="1060" y="365" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="white">• PostgreSQL</text>
+    <text x="1060" y="380" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="white">• Prisma ORM</text>
+    <text x="1060" y="390" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="white">• ACID Compliance</text>
+
+    <!-- Tools -->
+    <rect x="1170" y="330" width="160" height="70" fill="#dc2626" stroke="#b91c1c" stroke-width="1" rx="4"/>
+    <text x="1250" y="350" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="white">Tools & Libraries</text>
+    <text x="1250" y="365" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="white">• Lucide Icons</text>
+    <text x="1250" y="380" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="white">• Date-fns</text>
+    <text x="1250" y="390" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="white">• React Hook Form</text>
+
+    <!-- Communication -->
+    <rect x="970" y="420" width="360" height="60" fill="#ea580c" stroke="#c2410c" stroke-width="1" rx="4"/>
+    <text x="1150" y="440" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="white">Communication & Security</text>
+    <text x="1150" y="455" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="white">• Nodemailer (Email) • bcryptjs (Password Hashing) • HTTPS/TLS</text>
+    <text x="1150" y="470" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="white">• JWT Tokens • Role-based Access Control • Input Validation</text>
+  </g>
+
+  <!-- Data Flow -->
+  <g id="data-flow">
+    <rect x="950" y="550" width="400" height="200" fill="#fef7ff" stroke="#a855f7" stroke-width="2" rx="8"/>
+    <text x="1150" y="575" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#6b21a8">
+      Data Flow & Processes
+    </text>
+
+    <text x="970" y="600" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#6b21a8">Booking Process:</text>
+    <text x="970" y="615" font-family="Arial, sans-serif" font-size="11" fill="#1e293b">1. Parent searches daycares → API filters by location/criteria</text>
+    <text x="970" y="630" font-family="Arial, sans-serif" font-size="11" fill="#1e293b">2. Parent submits booking → System validates capacity</text>
+    <text x="970" y="645" font-family="Arial, sans-serif" font-size="11" fill="#1e293b">3. Provider receives notification → Reviews booking</text>
+    <text x="970" y="660" font-family="Arial, sans-serif" font-size="11" fill="#1e293b">4. Confirmation/Waitlist → Automated email notifications</text>
+
+    <text x="970" y="685" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#6b21a8">Capacity Management:</text>
+    <text x="970" y="700" font-family="Arial, sans-serif" font-size="11" fill="#1e293b">• Real-time spot tracking • Automatic waitlist when full</text>
+    <text x="970" y="715" font-family="Arial, sans-serif" font-size="11" fill="#1e293b">• Provider dashboard with occupancy metrics</text>
+    <text x="970" y="730" font-family="Arial, sans-serif" font-size="11" fill="#1e293b">• Analytics for demand forecasting</text>
+  </g>
+
+  <!-- Connection Lines -->
+  <g id="connections" stroke="#64748b" stroke-width="2" fill="none" opacity="0.6">
+    <!-- User to Frontend -->
+    <line x1="125" y1="160" x2="130" y2="200"/>
+    <line x1="325" y1="160" x2="270" y2="200"/>
+    <line x1="525" y1="160" x2="410" y2="200"/>
+
+    <!-- Frontend to API -->
+    <line x1="325" y1="320" x2="325" y2="360"/>
+
+    <!-- API to Business Logic -->
+    <line x1="325" y1="540" x2="325" y2="580"/>
+
+    <!-- Business Logic to Data -->
+    <line x1="325" y1="700" x2="325" y2="740"/>
+
+    <!-- API to External Services -->
+    <line x1="600" y1="450" x2="700" y2="350"/>
+  </g>
+
+  <!-- Footer -->
+  <text x="700" y="980" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="#64748b">
+    Daycare Connect - Modern, Scalable Childcare Management Platform
+  </text>
+</svg>

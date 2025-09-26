@@ -5,6 +5,8 @@ import { useAuth } from '../contexts/AuthContext';
 import AuthModal from './AuthModal';
 import DaycareConnectApp from './DaycareConnectApp';
 import ProviderDashboardApp from './ProviderDashboardApp';
+import MessageNotifications from './MessageNotifications';
+import MessagingSystem from './MessagingSystem';
 import {
   Users,
   Settings,
@@ -14,12 +16,16 @@ import {
   Bell,
   User
 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 const UnifiedDaycareApp = () => {
   const { user, loading: authLoading, logout, isProvider, isParent } = useAuth();
   const [currentInterface, setCurrentInterface] = useState<'parent' | 'provider'>('parent');
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [showMessaging, setShowMessaging] = useState(false);
+  const [initialConversationId, setInitialConversationId] = useState<string | undefined>();
+  const router = useRouter();
 
   // Set interface based on localStorage or user type
   useEffect(() => {
@@ -40,6 +46,13 @@ const UnifiedDaycareApp = () => {
   const handleInterfaceSwitch = (newInterface: 'parent' | 'provider') => {
     setCurrentInterface(newInterface);
     localStorage.setItem('selectedInterface', newInterface);
+    setMobileMenuOpen(false);
+  };
+
+  // Handle opening messaging system
+  const handleOpenMessaging = (conversationId?: string) => {
+    setInitialConversationId(conversationId);
+    setShowMessaging(true);
     setMobileMenuOpen(false);
   };
 
@@ -104,8 +117,14 @@ const UnifiedDaycareApp = () => {
                     {user.userType.toLowerCase()}
                   </span>
                 </div>
-                <Bell className="w-5 h-5 text-gray-400 hover:text-gray-600 cursor-pointer" />
-                <Settings className="w-5 h-5 text-gray-400 hover:text-gray-600 cursor-pointer" />
+                <MessageNotifications onOpenMessaging={handleOpenMessaging} />
+                <button
+                  onClick={() => router.push('/settings')}
+                  className="p-1 rounded-full hover:bg-gray-100 transition-colors"
+                  title="Settings"
+                >
+                  <Settings className="w-5 h-5 text-gray-400 hover:text-gray-600" />
+                </button>
                 <button
                   onClick={logout}
                   className="flex items-center gap-2 text-gray-600 hover:text-gray-800"
@@ -298,7 +317,7 @@ const UnifiedDaycareApp = () => {
       <UnifiedHeader />
 
       {currentInterface === 'parent' ? (
-        <DaycareConnectApp />
+        <DaycareConnectApp user={user} />
       ) : (
         <ProviderDashboardApp />
       )}
@@ -308,6 +327,20 @@ const UnifiedDaycareApp = () => {
         isOpen={showAuthModal}
         onClose={() => setShowAuthModal(false)}
       />
+
+      {/* Messaging System */}
+      {showMessaging && user && (
+        <MessagingSystem
+          currentUser={{
+            id: user.id,
+            name: user.name || '',
+            email: user.email,
+            userType: user.userType
+          }}
+          onClose={() => setShowMessaging(false)}
+          initialConversationId={initialConversationId}
+        />
+      )}
     </div>
   );
 };

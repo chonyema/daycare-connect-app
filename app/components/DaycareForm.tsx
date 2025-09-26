@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { X, Save, Loader2, Upload, MapPin, Clock, Users, DollarSign } from 'lucide-react';
+import { X, Save, Loader2, Upload, MapPin, Clock, Users, DollarSign, Camera, Image } from 'lucide-react';
+import CameraCapture, { FileUpload } from './CameraCapture';
 
 interface DaycareFormProps {
   isOpen: boolean;
@@ -17,6 +18,9 @@ const DaycareForm: React.FC<DaycareFormProps> = ({
   onSave 
 }) => {
   const [loading, setLoading] = useState(false);
+  const [showCamera, setShowCamera] = useState(false);
+  const [showFileUpload, setShowFileUpload] = useState(false);
+  const [uploadedImages, setUploadedImages] = useState<string[]>([]);
   const [formData, setFormData] = useState({
     name: '',
     type: 'LICENSED_DAYCARE_CENTER',
@@ -127,7 +131,12 @@ const DaycareForm: React.FC<DaycareFormProps> = ({
     setLoading(true);
 
     try {
-      await onSave(formData);
+      // Include uploaded images in the form data
+      const dataWithImages = {
+        ...formData,
+        images: uploadedImages
+      };
+      await onSave(dataWithImages);
       onClose();
     } catch (error) {
       console.error('Failed to save daycare:', error);
@@ -501,6 +510,64 @@ const DaycareForm: React.FC<DaycareFormProps> = ({
             </div>
           </div>
 
+          {/* Photo Upload Section */}
+          <div className="space-y-6">
+            <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+              <Image className="h-5 w-5" />
+              Photos
+            </h3>
+
+            <div className="space-y-4">
+              <p className="text-sm text-gray-600">
+                Add photos of your daycare to help parents get a better sense of your facility.
+              </p>
+
+              {/* Photo Upload Buttons */}
+              <div className="flex gap-4">
+                <button
+                  type="button"
+                  onClick={() => setShowCamera(true)}
+                  className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  <Camera className="h-4 w-4" />
+                  Take Photo
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowFileUpload(true)}
+                  className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  <Upload className="h-4 w-4" />
+                  Upload Photo
+                </button>
+              </div>
+
+              {/* Uploaded Images Preview */}
+              {uploadedImages.length > 0 && (
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  {uploadedImages.map((image, index) => (
+                    <div key={index} className="relative group">
+                      <img
+                        src={image}
+                        alt={`Daycare photo ${index + 1}`}
+                        className="w-full h-32 object-cover rounded-lg border"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setUploadedImages(prev => prev.filter((_, i) => i !== index));
+                        }}
+                        className="absolute top-2 right-2 bg-red-600 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <X className="h-4 w-4" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
           {/* Submit Buttons */}
           <div className="flex justify-end gap-4 pt-6 border-t">
             <button
@@ -530,6 +597,28 @@ const DaycareForm: React.FC<DaycareFormProps> = ({
           </div>
         </form>
       </div>
+
+      {/* Camera Modal */}
+      {showCamera && (
+        <CameraCapture
+          onImageCapture={(imageData) => {
+            setUploadedImages(prev => [...prev, imageData]);
+            setShowCamera(false);
+          }}
+          onClose={() => setShowCamera(false)}
+        />
+      )}
+
+      {/* File Upload Modal */}
+      {showFileUpload && (
+        <FileUpload
+          onImageSelect={(imageData) => {
+            setUploadedImages(prev => [...prev, imageData]);
+            setShowFileUpload(false);
+          }}
+          onClose={() => setShowFileUpload(false)}
+        />
+      )}
     </div>
   );
 };

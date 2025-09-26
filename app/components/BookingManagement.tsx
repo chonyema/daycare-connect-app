@@ -143,10 +143,22 @@ const BookingManagement = () => {
       if (response.ok) {
         await fetchBookings(); // Refresh the data
       } else {
-        console.error('Failed to update booking status');
+        const errorData = await response.json();
+        if (errorData.suggestWaitlist) {
+          // Show capacity error and suggest waitlist
+          if (confirm(`${errorData.error}\n\nWould you like to move this booking to the waitlist instead?`)) {
+            // Retry with WAITLIST status
+            await updateBookingStatus(bookingId, 'WAITLIST', notes);
+            return;
+          }
+        } else {
+          alert(errorData.error || 'Failed to update booking status');
+        }
+        console.error('Failed to update booking status:', errorData);
       }
     } catch (error) {
       console.error('Booking update error:', error);
+      alert('An error occurred while updating the booking status');
     } finally {
       setUpdating(null);
     }

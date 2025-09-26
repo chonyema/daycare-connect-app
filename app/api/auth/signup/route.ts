@@ -94,7 +94,15 @@ export async function POST(request: NextRequest) {
 
     // Send welcome email (don't block registration if email fails)
     try {
-      const emailResponse = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3002'}/api/emails`, {
+      // Get the current request URL to determine the correct port
+      const requestUrl = new URL(request.url);
+      const baseUrl = `${requestUrl.protocol}//${requestUrl.host}`;
+
+      // Use AbortController to add timeout
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+
+      const emailResponse = await fetch(`${baseUrl}/api/emails`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -108,7 +116,10 @@ export async function POST(request: NextRequest) {
             userType: user.userType,
           },
         }),
+        signal: controller.signal
       });
+
+      clearTimeout(timeoutId);
 
       if (!emailResponse.ok) {
         console.error('Failed to send welcome email, but registration succeeded');
@@ -120,31 +131,31 @@ export async function POST(request: NextRequest) {
 
     return response;
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('Signup error details:', {
-      error: error.message,
-      stack: error.stack,
-      name: error.name,
-      code: error.code
+      error: error?.message,
+      stack: error?.stack,
+      name: error?.name,
+      code: error?.code
     });
-    
-    if (error.code === 'P2002') {
+
+    if (error?.code === 'P2002') {
       return NextResponse.json(
         { message: 'User with this email already exists' },
         { status: 400 }
       );
     }
-    
-    if (error.name === 'PrismaClientValidationError') {
-      console.error('Prisma validation error:', error.message);
+
+    if (error?.name === 'PrismaClientValidationError') {
+      console.error('Prisma validation error:', error?.message);
       return NextResponse.json(
-        { message: 'Database validation error: ' + error.message },
+        { message: 'Database validation error: ' + (error?.message || 'Unknown validation error') },
         { status: 400 }
       );
     }
     
     return NextResponse.json(
-      { message: 'Internal server error: ' + error.message },
+      { message: 'Internal server error: ' + error?.message },
       { status: 500 }
     );
   }

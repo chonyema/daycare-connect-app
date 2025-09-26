@@ -1,9 +1,13 @@
 import { PrismaClient } from '@prisma/client'
+import bcrypt from 'bcryptjs'
 
 const prisma = new PrismaClient()
 
 async function main() {
   console.log('🌱 Starting database seed...')
+
+  // Hash password for test users
+  const hashedPassword = await bcrypt.hash('password123', 10)
 
   // Create test users
   const parentUser = await prisma.user.create({
@@ -11,6 +15,7 @@ async function main() {
       email: 'parent@test.com',
       name: 'Sarah Johnson',
       phone: '(416) 555-0123',
+      password: hashedPassword,
       userType: 'PARENT',
     },
   })
@@ -20,6 +25,7 @@ async function main() {
       email: 'provider1@test.com',
       name: 'Michelle Smith',
       phone: '(416) 555-0456',
+      password: hashedPassword,
       userType: 'PROVIDER',
     },
   })
@@ -29,6 +35,7 @@ async function main() {
       email: 'provider2@test.com',
       name: 'David Chen',
       phone: '(416) 555-0789',
+      password: hashedPassword,
       userType: 'PROVIDER',
     },
   })

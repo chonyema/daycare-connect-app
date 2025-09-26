@@ -1,0 +1,9 @@
+<!-- This would be a PNG file in reality. For now, creating an SVG placeholder -->
+<svg width="192" height="192" viewBox="0 0 192 192" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="192" height="192" rx="24" fill="#2563eb"/>
+  <path d="M96 48C78.33 48 64 62.33 64 80C64 97.67 78.33 112 96 112C113.67 112 128 97.67 128 80C128 62.33 113.67 48 96 48ZM96 104C82.75 104 72 93.25 72 80C72 66.75 82.75 56 96 56C109.25 56 120 66.75 120 80C120 93.25 109.25 104 96 104Z" fill="white"/>
+  <path d="M144 120H48C44.69 120 42 122.69 42 126V138C42 141.31 44.69 144 48 144H144C147.31 144 150 141.31 150 138V126C150 122.69 147.31 120 144 120Z" fill="white"/>
+  <circle cx="72" cy="132" r="6" fill="#2563eb"/>
+  <circle cx="96" cy="132" r="6" fill="#2563eb"/>
+  <circle cx="120" cy="132" r="6" fill="#2563eb"/>
+</svg>

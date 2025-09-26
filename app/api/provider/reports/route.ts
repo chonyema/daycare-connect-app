@@ -84,14 +84,14 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(reportData);
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('Reports error:', error);
     
-    if (error.message === 'Authentication required') {
+    if (error?.message === 'Authentication required') {
       return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
     }
     
-    if (error.message === 'Provider access required') {
+    if (error?.message === 'Provider access required') {
       return NextResponse.json({ error: 'Provider access required' }, { status: 403 });
     }
     
@@ -134,26 +134,26 @@ async function generateSummaryReport(daycares: any[], startDate: Date, endDate: 
       name: daycare.name,
       capacity: daycare.capacity,
       bookings: daycare.bookings.length,
-      confirmedBookings: daycare.bookings.filter(b => b.status === 'CONFIRMED').length,
+      confirmedBookings: daycare.bookings.filter((b: any) => b.status === 'CONFIRMED').length,
       revenue: daycare.bookings
-        .filter(b => b.status === 'CONFIRMED' || b.status === 'COMPLETED')
-        .reduce((sum, b) => sum + (b.totalCost || 0), 0),
-      averageRating: daycare.reviews.length > 0 
-        ? daycare.reviews.reduce((sum, r) => sum + r.rating, 0) / daycare.reviews.length 
+        .filter((b: any) => b.status === 'CONFIRMED' || b.status === 'COMPLETED')
+        .reduce((sum: number, b: any) => sum + (b.totalCost || 0), 0),
+      averageRating: daycare.reviews.length > 0
+        ? daycare.reviews.reduce((sum: number, r: any) => sum + r.rating, 0) / daycare.reviews.length
         : 0
     }))
   };
 }
 
 async function generateRevenueReport(daycares: any[], startDate: Date, endDate: Date) {
-  const revenueBookings = daycares.flatMap(d => d.bookings)
-    .filter(b => b.status === 'CONFIRMED' || b.status === 'COMPLETED');
+  const revenueBookings = daycares.flatMap((d: any) => d.bookings)
+    .filter((b: any) => b.status === 'CONFIRMED' || b.status === 'COMPLETED');
 
-  const totalRevenue = revenueBookings.reduce((sum, b) => sum + (b.totalCost || 0), 0);
+  const totalRevenue = revenueBookings.reduce((sum: number, b: any) => sum + (b.totalCost || 0), 0);
   
   // Group by month
-  const monthlyRevenue = {};
-  revenueBookings.forEach(booking => {
+  const monthlyRevenue: { [key: string]: number } = {};
+  revenueBookings.forEach((booking: any) => {
     const month = format(booking.createdAt, 'yyyy-MM');
     if (!monthlyRevenue[month]) {
       monthlyRevenue[month] = 0;
@@ -229,11 +229,11 @@ async function generateBookingsReport(daycares: any[], startDate: Date, endDate:
 }
 
 async function generateCustomersReport(daycares: any[], startDate: Date, endDate: Date) {
-  const allBookings = daycares.flatMap(d => d.bookings);
-  
+  const allBookings = daycares.flatMap((d: any) => d.bookings);
+
   // Group by parent
-  const customerData = {};
-  allBookings.forEach(booking => {
+  const customerData: { [key: string]: any } = {};
+  allBookings.forEach((booking: any) => {
     const parentId = booking.parent.email; // Using email as unique identifier
     if (!customerData[parentId]) {
       customerData[parentId] = {
@@ -269,7 +269,7 @@ async function generateCustomersReport(daycares: any[], startDate: Date, endDate
       totalBookings: customer.totalBookings,
       totalSpent: Math.round(customer.totalSpent * 100) / 100,
       lastBooking: customer.bookings.length > 0 
-        ? format(new Date(Math.max(...customer.bookings.map(b => new Date(b.createdAt).getTime()))), 'yyyy-MM-dd')
+        ? format(new Date(Math.max(...customer.bookings.map((b: any) => new Date(b.createdAt).getTime()))), 'yyyy-MM-dd')
         : null
     }))
   };

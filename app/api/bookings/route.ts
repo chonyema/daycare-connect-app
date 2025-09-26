@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/app/lib/prisma';
 import { CareType, BookingStatus } from '@prisma/client';
 import { emailService } from '../../utils/email';
+import { getUserFromRequest } from '../../utils/auth';
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
@@ -144,7 +145,7 @@ export async function POST(request: NextRequest) {
       });
 
       const emailData = {
-        parentName: newBooking.parent.name,
+        parentName: newBooking.parent.name || 'Parent',
         childName: newBooking.childName,
         daycareName: newBooking.daycare.name,
         startDate: newBooking.startDate.toISOString(),
@@ -174,7 +175,7 @@ export async function POST(request: NextRequest) {
       message: "Booking created successfully!"
     });
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('Booking creation error:', error);
     return NextResponse.json(
       { 
@@ -188,23 +189,26 @@ export async function POST(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
   try {
+    // Require authentication
+    const user = await getUserFromRequest(request);
+    if (!user) {
+      return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
+    }
+
     // Get query parameters
     const searchParams = request.nextUrl.searchParams;
-    const parentId = searchParams.get('parentId');
     const daycareId = searchParams.get('daycareId');
     const status = searchParams.get('status');
-    
-    // Build the where clause for filtering
-    const where: any = {};
-    
-    if (parentId) {
-      where.parentId = parentId;
-    }
-    
+
+    // Build the where clause for filtering - always filter by authenticated user's ID
+    const where: any = {
+      parentId: user.id // Only return bookings for the authenticated user
+    };
+
     if (daycareId) {
       where.daycareId = daycareId;
     }
-    
+
     if (status && Object.values(BookingStatus).includes(status as BookingStatus)) {
       where.status = status as BookingStatus;
     }
@@ -238,7 +242,7 @@ export async function GET(request: NextRequest) {
       bookings
     });
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('Fetch bookings error:', error);
     return NextResponse.json(
       { 

@@ -44,7 +44,7 @@ export async function GET(
       booking
     });
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('Get booking error:', error);
     return NextResponse.json(
       { success: false, error: "Failed to fetch booking" },
@@ -139,7 +139,7 @@ export async function PUT(
       message: "Booking updated successfully"
     });
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('Update booking error:', error);
     return NextResponse.json(
       { success: false, error: "Failed to update booking" },
@@ -225,7 +225,7 @@ export async function DELETE(
       booking: cancelledBooking
     });
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('Cancel booking error:', error);
     return NextResponse.json(
       { success: false, error: "Failed to cancel booking" },
@@ -256,7 +256,7 @@ async function sendStatusUpdateEmail(booking: any) {
     );
     
     console.log(`Status update email sent successfully for booking ${booking.id}`);
-  } catch (error) {
+  } catch (error: any) {
     console.error(`Failed to send status update email for booking ${booking.id}:`, error);
   }
 }
@@ -283,7 +283,7 @@ async function sendCancellationEmail(booking: any) {
     );
     
     console.log(`Cancellation email sent successfully for booking ${booking.id}`);
-  } catch (error) {
+  } catch (error: any) {
     console.error(`Failed to send cancellation email for booking ${booking.id}:`, error);
   }
 } 

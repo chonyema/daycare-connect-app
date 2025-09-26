@@ -1,0 +1,44 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="512" height="512" rx="64" fill="#2563eb"/>
+
+  <!-- Building structure -->
+  <rect x="96" y="160" width="320" height="256" rx="16" fill="white"/>
+
+  <!-- Roof -->
+  <path d="M80 160L256 80L432 160H80Z" fill="#ef4444"/>
+
+  <!-- Door -->
+  <rect x="224" y="280" width="64" height="136" rx="8" fill="#2563eb"/>
+  <circle cx="268" cy="340" r="4" fill="white"/>
+
+  <!-- Windows -->
+  <rect x="128" y="200" width="48" height="48" rx="8" fill="#3b82f6"/>
+  <rect x="336" y="200" width="48" height="48" rx="8" fill="#3b82f6"/>
+  <rect x="128" y="280" width="48" height="48" rx="8" fill="#3b82f6"/>
+  <rect x="336" y="280" width="48" height="48" rx="8" fill="#3b82f6"/>
+
+  <!-- Window frames -->
+  <line x1="152" y1="200" x2="152" y2="248" stroke="white" stroke-width="2"/>
+  <line x1="128" y1="224" x2="176" y2="224" stroke="white" stroke-width="2"/>
+  <line x1="360" y1="200" x2="360" y2="248" stroke="white" stroke-width="2"/>
+  <line x1="336" y1="224" x2="384" y2="224" stroke="white" stroke-width="2"/>
+  <line x1="152" y1="280" x2="152" y2="328" stroke="white" stroke-width="2"/>
+  <line x1="128" y1="304" x2="176" y2="304" stroke="white" stroke-width="2"/>
+  <line x1="360" y1="280" x2="360" y2="328" stroke="white" stroke-width="2"/>
+  <line x1="336" y1="304" x2="384" y2="304" stroke="white" stroke-width="2"/>
+
+  <!-- Children figures -->
+  <circle cx="160" cy="370" r="12" fill="#fbbf24"/>
+  <rect x="148" y="382" width="24" height="34" rx="4" fill="#10b981"/>
+
+  <circle cx="320" cy="370" r="12" fill="#fbbf24"/>
+  <rect x="308" y="382" width="24" height="34" rx="4" fill="#f59e0b"/>
+
+  <circle cx="240" cy="370" r="12" fill="#fbbf24"/>
+  <rect x="228" y="382" width="24" height="34" rx="4" fill="#ef4444"/>
+
+  <!-- Sign -->
+  <rect x="200" y="120" width="112" height="32" rx="4" fill="white"/>
+  <text x="256" y="140" text-anchor="middle" fill="#2563eb" font-family="Arial, sans-serif" font-size="14" font-weight="bold">DAYCARE</text>
+</svg>

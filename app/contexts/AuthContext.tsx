@@ -52,7 +52,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const data = await response.json();
         setUser(data.user);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Auth check failed:', error);
     } finally {
       setLoading(false);
@@ -75,7 +75,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       } else {
         return { success: false, error: data.message };
       }
-    } catch (error) {
+    } catch (error: any) {
       return { success: false, error: 'Login failed. Please try again.' };
     }
   };
@@ -107,16 +107,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       } else {
         return { success: false, error: data.message || 'Signup failed' };
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Signup client error:', error);
-      return { success: false, error: 'Network error: ' + error.message };
+      return { success: false, error: 'Network error: ' + (error?.message || 'Unknown error') };
     }
   };
 
   const logout = async () => {
     try {
       await fetch('/api/auth/logout', { method: 'POST' });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Logout error:', error);
     } finally {
       setUser(null);

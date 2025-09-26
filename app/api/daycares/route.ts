@@ -23,6 +23,7 @@ export async function GET(request: NextRequest) {
       include: {
         owner: {
           select: {
+            id: true,
             name: true,
             email: true,
             phone: true,
@@ -82,6 +83,8 @@ export async function GET(request: NextRequest) {
         description: daycare.description || 'Quality childcare services.',
         phone: daycare.phone || daycare.owner.phone,
         email: daycare.email || daycare.owner.email,
+        ownerId: daycare.ownerId,
+        owner: daycare.owner,
       }
     })
 
@@ -125,12 +128,12 @@ export async function GET(request: NextRequest) {
     })
 
     return NextResponse.json(transformedDaycares)
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error fetching daycares:', error)
     return NextResponse.json(
       { 
         error: 'Failed to fetch daycares',
-        details: error instanceof Error ? error.message : 'Unknown error'
+        details: error instanceof Error ? error?.message : 'Unknown error'
       },
       { status: 500 }
     )

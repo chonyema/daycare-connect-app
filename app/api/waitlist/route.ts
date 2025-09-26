@@ -98,7 +98,7 @@ export async function POST(request: NextRequest) {
       waitlistBooking
     });
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('Waitlist error:', error);
     return NextResponse.json(
       { success: false, error: "Failed to join waitlist" },
@@ -144,7 +144,7 @@ export async function GET(request: NextRequest) {
       waitlistBookings
     });
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('Get waitlist error:', error);
     return NextResponse.json(
       { success: false, error: "Failed to get waitlist" },

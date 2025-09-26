@@ -172,10 +172,10 @@ export async function GET(request: NextRequest) {
     ];
 
     const careTypes = [
-      { type: 'Full Day', count: bookings.filter(b => b.careType === 'FULL_DAY').length },
-      { type: 'Half Day', count: bookings.filter(b => b.careType === 'HALF_DAY').length },
-      { type: 'Hourly', count: bookings.filter(b => b.careType === 'HOURLY').length },
-      { type: 'Extended', count: bookings.filter(b => b.careType === 'EXTENDED_DAY').length },
+      { type: 'Full Time', count: bookings.filter(b => b.careType === 'FULL_TIME').length },
+      { type: 'Part Time', count: bookings.filter(b => b.careType === 'PART_TIME').length },
+      { type: 'Drop In', count: bookings.filter(b => b.careType === 'DROP_IN').length },
+      { type: 'Emergency', count: bookings.filter(b => b.careType === 'EMERGENCY').length },
     ];
 
     const analyticsData = {
@@ -207,14 +207,14 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(analyticsData);
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('Analytics error:', error);
-    
-    if (error.message === 'Authentication required') {
+
+    if (error?.message === 'Authentication required') {
       return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
     }
-    
-    if (error.message === 'Provider access required') {
+
+    if (error?.message === 'Provider access required') {
       return NextResponse.json({ error: 'Provider access required' }, { status: 403 });
     }
     

@@ -75,14 +75,14 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
     });
 
     return NextResponse.json(daycare);
-  } catch (error) {
+  } catch (error: any) {
     console.error('Daycare update error:', error);
-    
-    if (error.message === 'Authentication required') {
+
+    if (error?.message === 'Authentication required') {
       return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
     }
-    
-    if (error.message === 'Provider access required') {
+
+    if (error?.message === 'Provider access required') {
       return NextResponse.json({ error: 'Provider access required' }, { status: 403 });
     }
     
@@ -120,14 +120,14 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
     });
 
     return NextResponse.json({ message: 'Daycare deleted successfully' });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Daycare deletion error:', error);
     
-    if (error.message === 'Authentication required') {
+    if (error?.message === 'Authentication required') {
       return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
     }
     
-    if (error.message === 'Provider access required') {
+    if (error?.message === 'Provider access required') {
       return NextResponse.json({ error: 'Provider access required' }, { status: 403 });
     }
     
