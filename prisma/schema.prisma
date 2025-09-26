@@ -1,7 +1,6 @@
 // Production PostgreSQL Schema - Optimized for Serverless
 generator client {
   provider = "prisma-client-js"
-  previewFeatures = ["jsonProtocol"]
 }
 
 datasource db {

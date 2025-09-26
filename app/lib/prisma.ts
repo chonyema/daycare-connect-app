@@ -14,8 +14,6 @@ export const prisma = globalForPrisma.prisma ??
         url: process.env.DATABASE_URL,
       },
     },
-    // Optimize for serverless
-    datasourceUrl: process.env.DATABASE_URL,
   })
 
 // Cache the client in development to avoid creating multiple instances
