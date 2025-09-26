@@ -8,7 +8,9 @@ const ProviderRedirect = () => {
 
   useEffect(() => {
     // Set provider interface in localStorage and redirect to main app
-    localStorage.setItem('selectedInterface', 'provider');
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('selectedInterface', 'provider');
+    }
     router.replace('/');
   }, [router]);
 

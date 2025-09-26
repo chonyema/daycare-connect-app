@@ -15,13 +15,16 @@ export default function PWAInstallPrompt() {
   const [isStandalone, setIsStandalone] = useState(false)
 
   useEffect(() => {
-    // Check if device is iOS
-    const iOS = /iPad|iPhone|iPod/.test(navigator.userAgent)
-    setIsIOS(iOS)
+    // Only run on client side
+    if (typeof window !== 'undefined' && typeof navigator !== 'undefined') {
+      // Check if device is iOS
+      const iOS = /iPad|iPhone|iPod/.test(navigator.userAgent)
+      setIsIOS(iOS)
 
-    // Check if app is already installed (standalone mode)
-    const standalone = window.matchMedia('(display-mode: standalone)').matches
-    setIsStandalone(standalone)
+      // Check if app is already installed (standalone mode)
+      const standalone = window.matchMedia('(display-mode: standalone)').matches
+      setIsStandalone(standalone)
+    }
 
     // Listen for the beforeinstallprompt event
     const handleBeforeInstallPrompt = (e: Event) => {

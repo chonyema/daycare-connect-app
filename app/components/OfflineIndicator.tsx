@@ -8,34 +8,39 @@ export default function OfflineIndicator() {
   const [showToast, setShowToast] = useState(false)
 
   useEffect(() => {
-    // Set initial online status
-    setIsOnline(navigator.onLine)
+    // Only run on client side
+    if (typeof window !== 'undefined' && typeof navigator !== 'undefined') {
+      // Set initial online status
+      setIsOnline(navigator.onLine)
 
-    const handleOnline = () => {
-      setIsOnline(true)
-      setShowToast(true)
-      setTimeout(() => setShowToast(false), 3000)
-    }
+      const handleOnline = () => {
+        setIsOnline(true)
+        setShowToast(true)
+        setTimeout(() => setShowToast(false), 3000)
+      }
 
-    const handleOffline = () => {
-      setIsOnline(false)
-      setShowToast(true)
-      setTimeout(() => setShowToast(false), 5000)
-    }
+      const handleOffline = () => {
+        setIsOnline(false)
+        setShowToast(true)
+        setTimeout(() => setShowToast(false), 5000)
+      }
 
-    // Listen for online/offline events
-    window.addEventListener('online', handleOnline)
-    window.addEventListener('offline', handleOffline)
+      // Listen for online/offline events
+      window.addEventListener('online', handleOnline)
+      window.addEventListener('offline', handleOffline)
 
-    // Cleanup
-    return () => {
-      window.removeEventListener('online', handleOnline)
-      window.removeEventListener('offline', handleOffline)
+      // Cleanup function needs to be returned
+      return () => {
+        window.removeEventListener('online', handleOnline)
+        window.removeEventListener('offline', handleOffline)
+      }
     }
   }, [])
 
   const handleRetry = () => {
-    window.location.reload()
+    if (typeof window !== 'undefined') {
+      window.location.reload()
+    }
   }
 
   if (!showToast) return null
