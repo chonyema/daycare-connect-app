@@ -7,13 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "postinstall": "prisma generate",
-    "build:mobile": "next build",
-    "cap:sync": "npm run build:mobile && npx cap sync",
-    "cap:ios": "npm run cap:sync && npx cap open ios",
-    "cap:android": "npm run cap:sync && npx cap open android",
-    "cap:build:ios": "npm run cap:sync && npx cap build ios",
-    "cap:build:android": "npm run cap:sync && npx cap build android"
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@capacitor/android": "^7.4.3",
