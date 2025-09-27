@@ -91,6 +91,7 @@ export async function GET(request: NextRequest) {
         waitlist: 0, // TODO: Calculate from bookings with WAITLIST status
         features,
         owner: daycare.owner,
+        ownerId: daycare.ownerId,
         createdAt: daycare.createdAt,
         updatedAt: daycare.updatedAt
       }
