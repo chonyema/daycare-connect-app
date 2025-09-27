@@ -774,10 +774,15 @@ const DaycareConnectApp: React.FC<DaycareConnectAppProps> = ({ user }) => {
   const [favorites, setFavorites] = useState<number[]>([]);
   const [waitlistLoading, setWaitlistLoading] = useState<number | null>(null);
   const [favoriteLoading, setFavoriteLoading] = useState<number | null>(null);
-  const currentParentId = 'cmfkkj1gr0000xtxcgtmccjzk'; // Sarah Johnson - Parent user from database
+  const currentParentId = user?.id; // Use authenticated user's ID
 
   // Favorites functionality
   const toggleFavorite = async (providerId: number) => {
+    if (!currentParentId) {
+      alert('Please sign in to manage favorites');
+      return;
+    }
+
     setFavoriteLoading(providerId);
     try {
       const response = await fetch('/api/favorites', {
@@ -788,7 +793,7 @@ const DaycareConnectApp: React.FC<DaycareConnectAppProps> = ({ user }) => {
           daycareId: providerId
         })
       });
-      
+
       const result = await response.json();
       if (result.success) {
         if (result.action === 'added') {
@@ -806,6 +811,11 @@ const DaycareConnectApp: React.FC<DaycareConnectAppProps> = ({ user }) => {
 
   // Waitlist functionality
   const joinWaitlist = async (provider: any) => {
+    if (!currentParentId) {
+      alert('Please sign in to join the waitlist');
+      return;
+    }
+
     setWaitlistLoading(provider.id);
     try {
       const response = await fetch('/api/waitlist', {
@@ -819,7 +829,7 @@ const DaycareConnectApp: React.FC<DaycareConnectAppProps> = ({ user }) => {
           notes: `Joined waitlist for ${provider.name}`
         })
       });
-      
+
       const result = await response.json();
       if (result.success) {
         alert(`Successfully joined waitlist for ${provider.name}!`);
