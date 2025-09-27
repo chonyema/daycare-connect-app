@@ -120,22 +120,40 @@ const EnhancedProviderWaitlistDashboard: React.FC<EnhancedProviderWaitlistDashbo
     try {
       setLoading(true);
 
-      // Load waitlist entries for all daycares owned by this provider
-      const [entriesResponse, programsResponse] = await Promise.all([
-        fetch('/api/waitlist/enhanced?daycareId=provider-daycares'),
-        fetch('/api/waitlist/programs')
-      ]);
+      // First get the provider's daycares
+      const daycaresResponse = await fetch('/api/daycares');
+      const allDaycares = await daycaresResponse.json();
 
-      const entriesData = await entriesResponse.json();
-      const programsData = await programsResponse.json();
+      // Filter to only daycares owned by this provider
+      const providerDaycares = allDaycares.filter(daycare => daycare.ownerId === currentUser.id);
 
-      if (entriesData.success) {
-        setEntries(entriesData.entries || []);
+      console.log('All daycares:', allDaycares.length, 'Provider daycares:', providerDaycares.length);
+
+      if (!providerDaycares.length) {
+        console.log('No daycares found for provider:', currentUser.id);
+        setEntries([]);
+        setPrograms([]);
+        return;
       }
 
-      if (programsData.success) {
-        setPrograms(programsData.programs || []);
+      // Get waitlist entries for all provider's daycares
+      const allEntries = [];
+
+      for (const daycare of providerDaycares) {
+        console.log('Loading waitlist for daycare:', daycare.id, daycare.name);
+        const entriesResponse = await fetch(`/api/waitlist/enhanced?daycareId=${daycare.id}`);
+        const entriesData = await entriesResponse.json();
+
+        console.log('Waitlist response for', daycare.name, ':', entriesData);
+
+        if (entriesData.success) {
+          allEntries.push(...(entriesData.data || []));
+        }
       }
+
+      setEntries(allEntries);
+      setPrograms([]); // For now, until we implement programs API
+      console.log('Loaded waitlist data:', { entries: allEntries.length, daycaresChecked: providerDaycares.length });
 
     } catch (error) {
       console.error('Failed to load waitlist data:', error);
