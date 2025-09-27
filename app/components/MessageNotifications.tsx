@@ -45,11 +45,20 @@ const MessageNotifications: React.FC<MessageNotificationsProps> = ({
   const fetchNotifications = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/messages/unread-count');
+      const response = await fetch('/api/messages/unread-count', {
+        credentials: 'include'
+      });
       if (response.ok) {
         const data = await response.json();
         setNotifications(data.notifications || []);
         setTotalUnreadCount(data.totalUnreadCount || 0);
+      } else {
+        console.warn('Failed to fetch notifications:', response.status, response.statusText);
+        // If authentication failed, reset notifications
+        if (response.status === 401) {
+          setNotifications([]);
+          setTotalUnreadCount(0);
+        }
       }
     } catch (error) {
       console.error('Failed to fetch notifications:', error);
