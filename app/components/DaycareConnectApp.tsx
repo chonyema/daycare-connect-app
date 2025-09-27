@@ -5,6 +5,7 @@ import { Search, MapPin, Star, Clock, Users, Phone, Mail, Calendar, DollarSign, 
 import MessageButton from './MessageButton';
 import DocumentUpload from './DocumentUpload';
 import DailyReports from './DailyReports';
+import MessagingSystem from './MessagingSystem';
 
 // MOVE SEARCHVIEW OUTSIDE THE MAIN COMPONENT - THIS IS THE KEY FIX!
 const SearchView = React.memo(({
@@ -768,6 +769,7 @@ const DaycareConnectApp: React.FC<DaycareConnectAppProps> = ({ user }) => {
   const [selectedAgeGroup, setSelectedAgeGroup] = useState('All Ages');
   const [sortBy, setSortBy] = useState('distance');
   const [showBookingModal, setShowBookingModal] = useState(false);
+  const [showMessaging, setShowMessaging] = useState(false);
   const [userBookings, setUserBookings] = useState([]);
 
   // State for favorites and waitlist
@@ -1239,6 +1241,18 @@ const DaycareConnectApp: React.FC<DaycareConnectAppProps> = ({ user }) => {
         fetchProviders={fetchProviders}
         user={user}
       />
+
+      {showMessaging && user && (
+        <MessagingSystem
+          currentUser={{
+            id: user.id,
+            name: user.name || '',
+            email: user.email || '',
+            userType: user.userType
+          }}
+          onClose={() => setShowMessaging(false)}
+        />
+      )}
     </div>
   );
 };
