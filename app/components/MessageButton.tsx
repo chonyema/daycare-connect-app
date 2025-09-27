@@ -75,7 +75,7 @@ const MessageButton: React.FC<MessageButtonProps> = ({
       icon: 'text-blue-600 hover:text-blue-800 hover:bg-blue-50'
     };
 
-    return `${baseClasses} ${sizeClasses[size]} ${variantClasses[variant]} ${className}`;
+    return `${baseClasses} ${sizeClasses[size]} ${className} ${variantClasses[variant]}`;
   };
 
   const getIconSize = () => {
