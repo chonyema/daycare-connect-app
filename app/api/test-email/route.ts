@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
       SMTP_HOST: process.env.SMTP_HOST,
       SMTP_PORT: process.env.SMTP_PORT,
       SMTP_USER: process.env.SMTP_USER,
-      hasPassword: \!\!process.env.SMTP_PASS,
+      hasPassword: !!process.env.SMTP_PASS,
       passwordLength: process.env.SMTP_PASS?.length || 0
     }
 
