@@ -72,7 +72,7 @@ const MessageButton: React.FC<MessageButtonProps> = ({
 
     const variantClasses = {
       button: 'bg-blue-600 text-white hover:bg-blue-700',
-      icon: 'text-blue-600 hover:text-blue-800 hover:bg-blue-50'
+      icon: 'text-blue-600 hover:bg-blue-50'
     };
 
     return `${baseClasses} ${sizeClasses[size]} ${className} ${variantClasses[variant]}`;

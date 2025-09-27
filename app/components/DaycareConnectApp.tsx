@@ -197,7 +197,6 @@ const ProviderCard = React.memo(({ provider, setSelectedProvider, setCurrentView
                 daycareId={provider.id}
                 variant="icon"
                 size="sm"
-                className="p-1 rounded-full"
               />
             )}
             <button
