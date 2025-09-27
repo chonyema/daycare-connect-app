@@ -27,7 +27,8 @@ const SearchView = React.memo(({
   isFavorite,
   favoriteLoading,
   waitlistLoading,
-  providersLoading
+  providersLoading,
+  user
 }: any) => (
   <div className="space-y-6">
     <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white p-6 rounded-lg">
@@ -130,17 +131,18 @@ const SearchView = React.memo(({
     ) : (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredProviders.map((provider: any) => (
-          <ProviderCard 
-            key={provider.id} 
-            provider={provider} 
-            setSelectedProvider={setSelectedProvider} 
-            setCurrentView={setCurrentView} 
+          <ProviderCard
+            key={provider.id}
+            provider={provider}
+            setSelectedProvider={setSelectedProvider}
+            setCurrentView={setCurrentView}
             setShowBookingModal={setShowBookingModal}
             toggleFavorite={toggleFavorite}
             joinWaitlist={joinWaitlist}
             isFavorite={isFavorite}
             favoriteLoading={favoriteLoading}
             waitlistLoading={waitlistLoading}
+            user={user}
           />
         ))}
       </div>
@@ -149,7 +151,7 @@ const SearchView = React.memo(({
 ));
 
 // ALSO MOVE PROVIDER CARD OUTSIDE
-const ProviderCard = React.memo(({ provider, setSelectedProvider, setCurrentView, setShowBookingModal, toggleFavorite, joinWaitlist, isFavorite, favoriteLoading, waitlistLoading }: any) => (
+const ProviderCard = React.memo(({ provider, setSelectedProvider, setCurrentView, setShowBookingModal, toggleFavorite, joinWaitlist, isFavorite, favoriteLoading, waitlistLoading, user }: any) => (
   <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-200">
     <div className="relative">
       <img 
@@ -182,13 +184,30 @@ const ProviderCard = React.memo(({ provider, setSelectedProvider, setCurrentView
             <Star className="w-4 h-4 text-yellow-400 fill-current" />
             <span className="ml-1 text-sm text-gray-600">{provider.rating} ({provider.reviews})</span>
           </div>
-          <button
-            onClick={() => toggleFavorite(provider.id)}
-            disabled={favoriteLoading === provider.id}
-            className="p-1 rounded-full hover:bg-gray-100 transition-colors disabled:opacity-50"
-          >
-            <Heart className={`w-4 h-4 ${isFavorite(provider.id) ? 'text-red-500 fill-current' : 'text-gray-400'}`} />
-          </button>
+          <div className="flex items-center space-x-1">
+            {user && provider.ownerId && (
+              <MessageButton
+                currentUser={{
+                  id: user.id,
+                  name: user.name || '',
+                  email: user.email || '',
+                  userType: user.userType
+                }}
+                targetUserId={provider.ownerId}
+                daycareId={provider.id}
+                variant="icon"
+                size="sm"
+                className="p-1 rounded-full hover:bg-gray-100 transition-colors"
+              />
+            )}
+            <button
+              onClick={() => toggleFavorite(provider.id)}
+              disabled={favoriteLoading === provider.id}
+              className="p-1 rounded-full hover:bg-gray-100 transition-colors disabled:opacity-50"
+            >
+              <Heart className={`w-4 h-4 ${isFavorite(provider.id) ? 'text-red-500 fill-current' : 'text-gray-400'}`} />
+            </button>
+          </div>
         </div>
       </div>
       
@@ -1218,6 +1237,7 @@ const DaycareConnectApp: React.FC<DaycareConnectAppProps> = ({ user }) => {
             favoriteLoading={favoriteLoading}
             waitlistLoading={waitlistLoading}
             providersLoading={providersLoading}
+            user={user}
           />
         )}
         {currentView === 'bookings' && <BookingsView />}
