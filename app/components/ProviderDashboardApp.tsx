@@ -28,6 +28,7 @@ import EmailManagement from './EmailManagement';
 import Analytics from './Analytics';
 import BookingManagement from './BookingManagement';
 import MessagingSystem from './MessagingSystem';
+import EnhancedProviderWaitlistDashboard from './EnhancedProviderWaitlistDashboard';
 import DailyReports from './DailyReports';
 
 interface Daycare {
@@ -193,6 +194,7 @@ const ProviderDashboardApp = () => {
             { id: 'dashboard', label: 'Dashboard', icon: BarChart3 },
             { id: 'daycares', label: 'My Daycares', icon: Home },
             { id: 'bookings', label: 'Bookings', icon: Calendar },
+            { id: 'waitlist', label: 'Waitlist', icon: Users },
             { id: 'daily-reports', label: 'Daily Reports', icon: FileText },
             { id: 'analytics', label: 'Analytics', icon: TrendingUp },
             { id: 'emails', label: 'Emails', icon: Mail },
@@ -439,6 +441,15 @@ const ProviderDashboardApp = () => {
               </button>
             </div>
           </div>
+        )}
+        {activeTab === 'waitlist' && user && (
+          <EnhancedProviderWaitlistDashboard
+            currentUser={{
+              id: user.id,
+              name: user.name || '',
+              userType: user.userType
+            }}
+          />
         )}
         {activeTab === 'analytics' && <Analytics />}
         {activeTab === 'emails' && <EmailManagement />}

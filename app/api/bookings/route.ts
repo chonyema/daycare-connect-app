@@ -4,6 +4,7 @@ import { prisma } from '@/app/lib/prisma';
 import { CareType, BookingStatus } from '@prisma/client';
 import { emailService } from '../../utils/email';
 import { getUserFromRequest } from '../../utils/auth';
+import { CapacityManager } from '../../utils/waitlist/capacityManager';
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
@@ -110,8 +111,62 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create the booking in the database
-    const newBooking = await prisma.booking.create({
+    // Check capacity before creating booking
+    const capacityCheck = await CapacityManager.checkCapacity({
+      daycareId: actualDaycareId,
+      programId: undefined, // Regular bookings don't specify program for now
+      requiredSlots: 1
+    });
+
+    if (!capacityCheck.hasCapacity) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "No capacity available",
+          details: `Only ${capacityCheck.availableSlots} slots available. Current enrollment: ${capacityCheck.currentEnrollment}/${capacityCheck.totalCapacity}, Pending offers: ${capacityCheck.pendingOffers}`,
+          capacityInfo: capacityCheck
+        },
+        { status: 409 } // Conflict status for capacity issues
+      );
+    }
+
+    // Create the booking in the database with atomic transaction
+    const result = await prisma.$transaction(async (tx) => {
+      // Double-check capacity within transaction with locks
+      const daycareLocked = await tx.daycare.findUnique({
+        where: { id: actualDaycareId },
+        select: { totalCapacity: true, currentEnrollment: true }
+      });
+
+      if (!daycareLocked) {
+        throw new Error("Daycare not found");
+      }
+
+      // Count current confirmed bookings + pending offers
+      const [confirmedBookings, pendingOffers] = await Promise.all([
+        tx.booking.count({
+          where: {
+            daycareId: actualDaycareId,
+            status: { in: ['CONFIRMED', 'PENDING'] }
+          }
+        }),
+        tx.waitlistOffer.count({
+          where: {
+            waitlistEntry: { daycareId: actualDaycareId },
+            response: { in: ['PENDING', null] },
+            offerExpiresAt: { gt: new Date() }
+          }
+        })
+      ]);
+
+      const totalOccupied = confirmedBookings + pendingOffers;
+
+      if (totalOccupied >= daycareLocked.totalCapacity) {
+        throw new Error(`Capacity exceeded: ${totalOccupied}/${daycareLocked.totalCapacity} (including pending offers)`);
+      }
+
+      // Create the booking
+      const newBooking = await tx.booking.create({
       data: {
         parentId: body.parentId,
         daycareId: actualDaycareId,
@@ -136,23 +191,29 @@ export async function POST(request: NextRequest) {
       }
     });
 
+      return newBooking;
+    }, {
+      isolationLevel: 'Serializable',
+      timeout: 10000
+    });
+
     // Send email notifications (don't block response if emails fail)
     try {
       // Get provider email
       const provider = await prisma.user.findUnique({
-        where: { id: newBooking.daycare.ownerId },
+        where: { id: result.daycare.ownerId },
         select: { email: true, name: true }
       });
 
       const emailData = {
-        parentName: newBooking.parent.name || 'Parent',
-        childName: newBooking.childName,
-        daycareName: newBooking.daycare.name,
-        startDate: newBooking.startDate.toISOString(),
-        endDate: newBooking.endDate?.toISOString() || newBooking.startDate.toISOString(),
-        dailyRate: newBooking.dailyRate,
-        totalCost: newBooking.totalCost || newBooking.dailyRate,
-        parentEmail: newBooking.parent.email,
+        parentName: result.parent.name || 'Parent',
+        childName: result.childName,
+        daycareName: result.daycare.name,
+        startDate: result.startDate.toISOString(),
+        endDate: result.endDate?.toISOString() || result.startDate.toISOString(),
+        dailyRate: result.dailyRate,
+        totalCost: result.totalCost || result.dailyRate,
+        parentEmail: result.parent.email,
         providerEmail: provider?.email,
       };
 
@@ -171,7 +232,7 @@ export async function POST(request: NextRequest) {
     
     return NextResponse.json({
       success: true,
-      booking: newBooking,
+      booking: result,
       message: "Booking created successfully!"
     });
 

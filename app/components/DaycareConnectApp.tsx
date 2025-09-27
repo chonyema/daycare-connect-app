@@ -1,11 +1,13 @@
 'use client';
 
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { Search, MapPin, Star, Clock, Users, Phone, Mail, Calendar, DollarSign, Heart, X, MessageCircle, Filter, CheckCircle, Loader2, AlertCircle, Upload, FileText } from 'lucide-react';
+import { Search, MapPin, Star, Clock, Users, Phone, Mail, Calendar, DollarSign, Heart, X, MessageCircle, Filter, CheckCircle, Loader2, AlertCircle, Upload, FileText, List } from 'lucide-react';
 import MessageButton from './MessageButton';
 import DocumentUpload from './DocumentUpload';
 import DailyReports from './DailyReports';
 import MessagingSystem from './MessagingSystem';
+import ParentWaitlistManager from './ParentWaitlistManager';
+import EnhancedWaitlistModal from './EnhancedWaitlistModal';
 
 // MOVE SEARCHVIEW OUTSIDE THE MAIN COMPONENT - THIS IS THE KEY FIX!
 const SearchView = React.memo(({
@@ -789,6 +791,8 @@ const DaycareConnectApp: React.FC<DaycareConnectAppProps> = ({ user }) => {
   const [showBookingModal, setShowBookingModal] = useState(false);
   const [showMessaging, setShowMessaging] = useState(false);
   const [userBookings, setUserBookings] = useState([]);
+  const [showWaitlistModal, setShowWaitlistModal] = useState(false);
+  const [waitlistProvider, setWaitlistProvider] = useState<any>(null);
 
   // State for favorites and waitlist
   const [favorites, setFavorites] = useState<number[]>([]);
@@ -829,39 +833,21 @@ const DaycareConnectApp: React.FC<DaycareConnectAppProps> = ({ user }) => {
     }
   };
 
-  // Waitlist functionality
+  // Enhanced waitlist functionality
   const joinWaitlist = async (provider: any) => {
     if (!currentParentId) {
       alert('Please sign in to join the waitlist');
       return;
     }
 
-    setWaitlistLoading(provider.id);
-    try {
-      const response = await fetch('/api/waitlist', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          parentId: currentParentId,
-          daycareId: provider.id,
-          childName: 'My Child', // In real app, would come from form
-          careType: 'FULL_TIME',
-          notes: `Joined waitlist for ${provider.name}`
-        })
-      });
+    setWaitlistProvider(provider);
+    setShowWaitlistModal(true);
+  };
 
-      const result = await response.json();
-      if (result.success) {
-        alert(`Successfully joined waitlist for ${provider.name}!`);
-      } else {
-        alert(result.error || 'Failed to join waitlist');
-      }
-    } catch (error) {
-      console.error('Error joining waitlist:', error);
-      alert('Failed to join waitlist. Please try again.');
-    } finally {
-      setWaitlistLoading(null);
-    }
+  const handleWaitlistSuccess = () => {
+    // Refresh any necessary data
+    console.log('Waitlist joined successfully');
+    // You might want to refresh the provider list or navigate to waitlist view
   };
 
   const isFavorite = (providerId: number) => favorites.includes(providerId);
@@ -1193,6 +1179,13 @@ const DaycareConnectApp: React.FC<DaycareConnectAppProps> = ({ user }) => {
             My Bookings
           </button>
           <button
+            onClick={() => setCurrentView('waitlist')}
+            className={`${currentView === 'waitlist' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 border-b-2 border-transparent'} hover:text-blue-600 px-3 py-4 text-sm font-medium transition-colors flex items-center gap-2`}
+          >
+            <List className="h-4 w-4" />
+            My Waitlists
+          </button>
+          <button
             onClick={() => setCurrentView('daily-reports')}
             className={`${currentView === 'daily-reports' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 border-b-2 border-transparent'} hover:text-blue-600 px-3 py-4 text-sm font-medium transition-colors flex items-center gap-2`}
           >
@@ -1240,6 +1233,12 @@ const DaycareConnectApp: React.FC<DaycareConnectAppProps> = ({ user }) => {
           />
         )}
         {currentView === 'bookings' && <BookingsView />}
+        {currentView === 'waitlist' && user && (
+          <ParentWaitlistManager
+            userId={user.id}
+            onJoinWaitlist={() => setCurrentView('search')}
+          />
+        )}
         {currentView === 'daily-reports' && user && (
           <DailyReports
             userType="PARENT"
@@ -1272,6 +1271,17 @@ const DaycareConnectApp: React.FC<DaycareConnectAppProps> = ({ user }) => {
           onClose={() => setShowMessaging(false)}
         />
       )}
+
+      <EnhancedWaitlistModal
+        provider={waitlistProvider}
+        show={showWaitlistModal}
+        onClose={() => {
+          setShowWaitlistModal(false);
+          setWaitlistProvider(null);
+        }}
+        onSuccess={handleWaitlistSuccess}
+        userId={user?.id || ''}
+      />
     </div>
   );
 };
