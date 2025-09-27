@@ -99,9 +99,17 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error: any) {
-    console.error('Waitlist error:', error);
+    console.error('Waitlist error details:', {
+      message: error.message,
+      code: error.code,
+      stack: error.stack
+    });
     return NextResponse.json(
-      { success: false, error: "Failed to join waitlist" },
+      {
+        success: false,
+        error: "Failed to join waitlist",
+        details: error.message
+      },
       { status: 500 }
     );
   }
