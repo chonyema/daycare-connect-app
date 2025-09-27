@@ -420,8 +420,8 @@ const MessagingSystem: React.FC<MessagingSystemProps> = ({
   }, [initialParticipantId, initialDaycareId, initialConversationId]);
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-lg w-full max-w-6xl h-[80vh] flex overflow-hidden">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-2 sm:p-4 z-50">
+      <div className="bg-white rounded-lg w-full max-w-6xl h-[95vh] sm:h-[80vh] flex overflow-hidden">
         {/* Conversations List */}
         <div className={`w-1/3 border-r bg-gray-50 flex flex-col ${!showConversationList && selectedConversation ? 'hidden md:flex' : ''}`}>
           {/* Header */}
@@ -631,9 +631,17 @@ const MessagingSystem: React.FC<MessagingSystemProps> = ({
                     )}
                   </div>
                 </div>
-                <button className="p-1 hover:bg-gray-100 rounded-full">
-                  <MoreVertical className="h-5 w-5" />
-                </button>
+                <div className="flex items-center gap-2">
+                  <button className="p-1 hover:bg-gray-100 rounded-full hidden sm:block">
+                    <MoreVertical className="h-5 w-5" />
+                  </button>
+                  <button
+                    onClick={onClose}
+                    className="md:hidden p-1 hover:bg-gray-100 rounded-full"
+                  >
+                    <X className="h-5 w-5" />
+                  </button>
+                </div>
               </div>
 
               {/* Messages */}
