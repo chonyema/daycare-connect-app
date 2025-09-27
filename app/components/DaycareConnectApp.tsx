@@ -1179,7 +1179,10 @@ const DaycareConnectApp: React.FC<DaycareConnectAppProps> = ({ user }) => {
             <FileText className="h-4 w-4" />
             Daily Reports
           </button>
-          <button className="text-gray-500 hover:text-blue-600 px-3 py-4 text-sm font-medium border-b-2 border-transparent transition-colors">
+          <button
+            onClick={() => setShowMessaging(true)}
+            className="text-gray-500 hover:text-blue-600 px-3 py-4 text-sm font-medium border-b-2 border-transparent transition-colors"
+          >
             Messages
           </button>
         </div>
