@@ -140,7 +140,7 @@ const AuthModal: React.FC<AuthModalProps> = ({
                 required
                 value={formData.email}
                 onChange={handleInputChange}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 bg-white"
                 placeholder="Enter your email"
               />
             </div>
@@ -159,7 +159,7 @@ const AuthModal: React.FC<AuthModalProps> = ({
                 minLength={6}
                 value={formData.password}
                 onChange={handleInputChange}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 bg-white"
                 placeholder="Enter your password"
               />
             </div>
