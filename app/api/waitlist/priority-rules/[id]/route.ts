@@ -254,13 +254,13 @@ export async function DELETE(
     }
 
     // Check if rule affects active waitlist entries
-    const affectedEntries = await prisma.waitlistEntry.count({
+    const affectedEntries = currentRule.daycareId ? await prisma.waitlistEntry.count({
       where: {
         daycareId: currentRule.daycareId,
         ...(currentRule.programId ? { programId: currentRule.programId } : {}),
         status: 'ACTIVE'
       }
-    });
+    }) : 0;
 
     if (affectedEntries > 0 && !force) {
       return NextResponse.json(
