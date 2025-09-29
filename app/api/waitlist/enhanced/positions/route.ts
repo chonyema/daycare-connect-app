@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/app/lib/prisma';
 import { WaitlistPriorityEngine } from '@/app/utils/waitlist/priorityEngine';
-import { WaitlistAction } from '@prisma/client';
+import { WaitlistAction, UserType } from '@prisma/client';
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
@@ -158,7 +158,7 @@ export async function PUT(request: NextRequest) {
           action: WaitlistAction.POSITION_CHANGED,
           description: `Position changed from ${update.oldPosition} to ${update.newPosition} (${update.positionChange > 0 ? 'moved up' : 'moved down'} ${Math.abs(update.positionChange)} positions)`,
           performedBy: performedBy || null,
-          performedByType: performedBy ? 'PROVIDER' : null,
+          performedByType: performedBy ? UserType.PROVIDER : null,
           oldValues: JSON.stringify({
             position: update.oldPosition,
             priorityScore: entry.oldScore
