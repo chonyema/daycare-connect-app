@@ -39,7 +39,7 @@ export async function GET(
     }
 
     // Get usage statistics for this rule
-    const affectedEntries = await prisma.waitlistEntry.count({
+    const affectedEntries = priorityRule.daycareId ? await prisma.waitlistEntry.count({
       where: {
         daycareId: priorityRule.daycareId,
         ...(priorityRule.programId ? { programId: priorityRule.programId } : {}),
@@ -52,7 +52,7 @@ export async function GET(
         ...(priorityRule.ruleType === 'CORPORATE_PARTNERSHIP' && { hasCorporatePartnership: true }),
         ...(priorityRule.ruleType === 'SPECIAL_NEEDS' && { hasSpecialNeeds: true })
       }
-    });
+    }) : 0;
 
     return NextResponse.json({
       success: true,
