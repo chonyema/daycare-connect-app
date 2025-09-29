@@ -153,7 +153,10 @@ export async function POST(request: NextRequest) {
         tx.waitlistOffer.count({
           where: {
             waitlistEntry: { daycareId: actualDaycareId },
-            response: { in: ['PENDING', null] },
+            OR: [
+              { response: 'PENDING' },
+              { response: null }
+            ],
             offerExpiresAt: { gt: new Date() }
           }
         })
