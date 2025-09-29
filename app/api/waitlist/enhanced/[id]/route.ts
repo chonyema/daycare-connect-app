@@ -57,7 +57,9 @@ export async function GET(
             hourlyRate: true,
             operatingDays: true,
             operatingHours: true,
-            acceptingWaitlist: true
+            acceptingWaitlist: true,
+            daycareId: true,
+            isActive: true
           }
         },
         auditLogs: {
