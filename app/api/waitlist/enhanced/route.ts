@@ -146,7 +146,25 @@ export async function POST(request: NextRequest) {
           select: { name: true, address: true }
         },
         program: {
-          select: { name: true, description: true }
+          select: {
+            id: true,
+            name: true,
+            description: true,
+            minAgeMonths: true,
+            maxAgeMonths: true,
+            totalCapacity: true,
+            currentEnrollment: true,
+            waitlistCount: true,
+            createdAt: true,
+            updatedAt: true,
+            dailyRate: true,
+            hourlyRate: true,
+            operatingDays: true,
+            operatingHours: true,
+            acceptingWaitlist: true,
+            daycareId: true,
+            isActive: true
+          }
         }
       }
     });
