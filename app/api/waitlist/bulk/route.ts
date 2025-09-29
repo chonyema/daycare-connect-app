@@ -126,7 +126,7 @@ async function handlePositionAdjustment(
     }
 
     // Recalculate positions for affected daycares
-    const daycareIds = [...new Set(entries.map(e => e.daycareId))];
+    const daycareIds = Array.from(new Set(entries.map(e => e.daycareId)));
     for (const daycareId of daycareIds) {
       await WaitlistPriorityEngine.recalculatePositions(daycareId);
     }
@@ -216,7 +216,7 @@ async function handlePriorityBoost(entryIds: string[], boost: number, performedB
     }
 
     // Recalculate positions for affected daycares
-    const daycareIds = [...new Set(entries.map(e => e.daycareId))];
+    const daycareIds = Array.from(new Set(entries.map(e => e.daycareId)));
     for (const daycareId of daycareIds) {
       await WaitlistPriorityEngine.recalculatePositions(daycareId);
     }
