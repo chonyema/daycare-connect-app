@@ -84,7 +84,10 @@ export class CapacityManager {
       // Count pending offers that reserve slots
       const pendingOffersWhere: any = {
         waitlistEntry: { daycareId },
-        response: { in: ['PENDING', null] },
+        OR: [
+          { response: 'PENDING' },
+          { response: null }
+        ],
         offerExpiresAt: { gt: new Date() }
       };
 
