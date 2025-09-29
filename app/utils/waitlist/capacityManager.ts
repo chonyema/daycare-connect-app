@@ -307,7 +307,7 @@ export class CapacityManager {
         await tx.daycare.update({
           where: { id: waitlistEntry.daycareId },
           data: {
-            currentEnrollment: { increment: 1 }
+            currentOccupancy: { increment: 1 }
           }
         });
 
@@ -364,7 +364,7 @@ export class CapacityManager {
    * Check capacity with database locks (internal helper)
    */
   private static async checkCapacityWithLock(
-    tx: PrismaClient,
+    tx: any,
     input: CapacityCheckInput
   ): Promise<CapacityCheckResult> {
     const { daycareId, programId, requiredSlots, excludeOfferId } = input;
@@ -468,7 +468,10 @@ export class CapacityManager {
         const expiredOffers = await tx.waitlistOffer.findMany({
           where: {
             offerExpiresAt: { lt: new Date() },
-            response: { in: ['PENDING', null] }
+            OR: [
+              { response: 'PENDING' },
+              { response: null }
+            ]
           },
           select: { id: true }
         });

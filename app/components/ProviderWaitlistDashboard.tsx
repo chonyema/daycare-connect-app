@@ -454,10 +454,10 @@ const ProviderWaitlistDashboard: React.FC<ProviderWaitlistDashboardProps> = ({
                     <div className="flex items-center gap-2">
                       <span className="text-sm font-medium">{entry.priorityScore}</span>
                       <div className="flex gap-1">
-                        {entry.hasSiblingEnrolled && <UserCheck className="h-3 w-3 text-blue-500" title="Sibling enrolled" />}
-                        {entry.isStaffChild && <Star className="h-3 w-3 text-yellow-500" title="Staff child" />}
-                        {entry.hasSubsidyApproval && <Award className="h-3 w-3 text-green-500" title="Subsidy approved" />}
-                        {entry.hasSpecialNeeds && <AlertTriangle className="h-3 w-3 text-purple-500" title="Special needs" />}
+                        {entry.hasSiblingEnrolled && <span title="Sibling enrolled"><UserCheck className="h-3 w-3 text-blue-500" /></span>}
+                        {entry.isStaffChild && <span title="Staff child"><Star className="h-3 w-3 text-yellow-500" /></span>}
+                        {entry.hasSubsidyApproval && <span title="Subsidy approved"><Award className="h-3 w-3 text-green-500" /></span>}
+                        {entry.hasSpecialNeeds && <span title="Special needs"><AlertTriangle className="h-3 w-3 text-purple-500" /></span>}
                       </div>
                     </div>
                   </td>

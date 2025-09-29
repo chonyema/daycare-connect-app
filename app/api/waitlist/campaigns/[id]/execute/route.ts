@@ -70,7 +70,10 @@ export async function POST(
         },
         offers: {
           where: {
-            response: { in: [OfferResponse.PENDING, null] },
+            OR: [
+              { response: 'PENDING' },
+              { response: null }
+            ],
             offerExpiresAt: { gt: new Date() }
           }
         }
@@ -82,7 +85,7 @@ export async function POST(
     });
 
     // Filter out entries that already have active offers
-    const availableEntries = eligibleEntries.filter(entry => entry.offers.length === 0);
+    const availableEntries = eligibleEntries.filter(entry => (entry as any).offers.length === 0);
 
     if (availableEntries.length === 0) {
       return NextResponse.json(
@@ -94,7 +97,7 @@ export async function POST(
     // Check actual capacity before sending offers
     const capacityCheck = await CapacityManager.checkCapacity({
       daycareId: campaign.daycareId,
-      programId: campaign.programId,
+      programId: campaign.programId || undefined,
       requiredSlots: campaign.spotsRemaining
     });
 
@@ -136,8 +139,8 @@ export async function POST(
       entries: entriesToOffer.map((entry, index) => ({
         entryId: entry.id,
         childName: entry.childName,
-        parentName: entry.parent.name,
-        parentEmail: entry.parent.email,
+        parentName: (entry as any).parent.name,
+        parentEmail: (entry as any).parent.email,
         position: entry.position,
         priorityScore: entry.priorityScore,
         daysOnWaitlist: Math.floor(
@@ -180,7 +183,7 @@ export async function POST(
           // First reserve capacity atomically
           const reservationResult = await CapacityManager.reserveCapacity({
             daycareId: campaign.daycareId,
-            programId: campaign.programId,
+            programId: campaign.programId || undefined,
             slots: 1, // Each offer reserves 1 slot
             offerId: `temp-${entry.id}-${Date.now()}`, // Temporary ID
             expiresAt: offerExpiresAt,

@@ -125,7 +125,7 @@ const EnhancedProviderWaitlistDashboard: React.FC<EnhancedProviderWaitlistDashbo
       const allDaycares = await daycaresResponse.json();
 
       // Filter to only daycares owned by this provider
-      const providerDaycares = allDaycares.filter(daycare => daycare.ownerId === currentUser.id);
+      const providerDaycares = allDaycares.filter((daycare: any) => daycare.ownerId === currentUser.id);
 
       console.log('All daycares:', allDaycares.length, 'Provider daycares:', providerDaycares.length);
 

@@ -42,7 +42,7 @@ export async function GET(
     const affectedEntries = await prisma.waitlistEntry.count({
       where: {
         daycareId: priorityRule.daycareId,
-        ...(priorityRule.programId && { programId: priorityRule.programId }),
+        ...(priorityRule.programId ? { programId: priorityRule.programId } : {}),
         status: 'ACTIVE',
         // Check if this rule would apply based on rule type
         ...(priorityRule.ruleType === 'SIBLING_ENROLLED' && { hasSiblingEnrolled: true }),
@@ -257,7 +257,7 @@ export async function DELETE(
     const affectedEntries = await prisma.waitlistEntry.count({
       where: {
         daycareId: currentRule.daycareId,
-        ...(currentRule.programId && { programId: currentRule.programId }),
+        ...(currentRule.programId ? { programId: currentRule.programId } : {}),
         status: 'ACTIVE'
       }
     });

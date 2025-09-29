@@ -36,7 +36,7 @@ export async function POST(
         waitlistEntry: {
           include: {
             parent: { select: { name: true, email: true } },
-            daycare: { select: { name: true } },
+            daycare: { select: { name: true, dailyRate: true } },
             program: { select: { name: true } }
           }
         },
@@ -165,6 +165,11 @@ export async function POST(
             offerResponseAt: new Date()
           }
         });
+      } else {
+        // Handle any other response types (should not happen, but for safety)
+        newWaitlistStatus = WaitlistStatus.ACTIVE;
+        auditAction = WaitlistAction.BULK_UPDATED;
+        auditDescription = `Offer response: ${response}`;
       }
 
       // Update waitlist entry status

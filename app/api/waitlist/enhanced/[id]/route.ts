@@ -50,7 +50,14 @@ export async function GET(
             maxAgeMonths: true,
             totalCapacity: true,
             currentEnrollment: true,
-            waitlistCount: true
+            waitlistCount: true,
+            createdAt: true,
+            updatedAt: true,
+            dailyRate: true,
+            hourlyRate: true,
+            operatingDays: true,
+            operatingHours: true,
+            acceptingWaitlist: true
           }
         },
         auditLogs: {
@@ -351,10 +358,11 @@ export async function PUT(
     });
 
     // Create audit log
-    let auditAction = WaitlistAction.NOTES_UPDATED;
+    let auditAction: WaitlistAction = WaitlistAction.NOTES_UPDATED;
     if (newValues.status) {
       if (newValues.status === 'PAUSED') auditAction = WaitlistAction.PAUSED;
       else if (oldValues.status === 'PAUSED' && newValues.status === 'ACTIVE') auditAction = WaitlistAction.UNPAUSED;
+      else auditAction = WaitlistAction.STATUS_UPDATED;
     } else if (needsPriorityRecalculation) {
       auditAction = WaitlistAction.PRIORITY_UPDATED;
     }
