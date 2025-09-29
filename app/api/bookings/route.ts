@@ -241,12 +241,34 @@ export async function POST(request: NextRequest) {
 
   } catch (error: any) {
     console.error('Booking creation error:', error);
+
+    // Return more specific error information for debugging
+    let errorMessage = "Failed to create booking. Please try again.";
+    let statusCode = 500;
+
+    if (error.message) {
+      if (error.message.includes('Capacity exceeded')) {
+        errorMessage = error.message;
+        statusCode = 409;
+      } else if (error.message.includes('not found')) {
+        errorMessage = error.message;
+        statusCode = 404;
+      } else if (error.message.includes('Unique constraint') || error.code === 'P2002') {
+        errorMessage = "A booking with these details already exists.";
+        statusCode = 409;
+      } else {
+        // Include actual error message for debugging (remove in production)
+        errorMessage = `Failed to create booking: ${error.message}`;
+      }
+    }
+
     return NextResponse.json(
-      { 
-        success: false, 
-        error: "Failed to create booking. Please try again." 
+      {
+        success: false,
+        error: errorMessage,
+        details: process.env.NODE_ENV === 'development' ? error.stack : undefined
       },
-      { status: 500 }
+      { status: statusCode }
     );
   }
 }
