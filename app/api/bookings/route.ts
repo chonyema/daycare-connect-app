@@ -26,7 +26,9 @@ interface BookingData {
 
 export async function POST(request: NextRequest) {
   try {
+    console.log('=== BOOKING CREATION DEBUG ===');
     const body: BookingData = await request.json();
+    console.log('Request body:', JSON.stringify(body, null, 2));
     
     // Validation
     const errors: string[] = [];
@@ -64,11 +66,14 @@ export async function POST(request: NextRequest) {
     }
     
     if (errors.length > 0) {
+      console.log('Validation errors:', errors);
       return NextResponse.json(
         { success: false, errors },
         { status: 400 }
       );
     }
+
+    console.log('Validation passed, proceeding with daycare ID mapping...');
 
     // Handle daycare ID mapping (frontend uses numeric IDs, database uses string IDs)
     let actualDaycareId = body.daycareId;
@@ -91,11 +96,18 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    console.log('Mapped daycare ID:', actualDaycareId);
+    console.log('Parent ID:', body.parentId);
+
     // Verify that the parent and daycare exist
+    console.log('Verifying parent and daycare exist...');
     const [parent, daycare] = await Promise.all([
       prisma.user.findUnique({ where: { id: body.parentId } }),
       prisma.daycare.findUnique({ where: { id: actualDaycareId } })
     ]);
+
+    console.log('Parent found:', !!parent);
+    console.log('Daycare found:', !!daycare);
 
     if (!parent) {
       return NextResponse.json(
