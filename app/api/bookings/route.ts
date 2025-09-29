@@ -123,7 +123,7 @@ export async function POST(request: NextRequest) {
         {
           success: false,
           error: "No capacity available",
-          details: `Only ${capacityCheck.availableSlots} slots available. Current enrollment: ${capacityCheck.currentEnrollment}/${capacityCheck.totalCapacity}, Pending offers: ${capacityCheck.pendingOffers}`,
+          details: `Only ${capacityCheck.availableSlots} slots available. Current enrollment: ${capacityCheck.currentOccupancy}/${capacityCheck.totalCapacity}, Pending offers: ${capacityCheck.pendingOffers}`,
           capacityInfo: capacityCheck
         },
         { status: 409 } // Conflict status for capacity issues
@@ -135,7 +135,7 @@ export async function POST(request: NextRequest) {
       // Double-check capacity within transaction with locks
       const daycareLocked = await tx.daycare.findUnique({
         where: { id: actualDaycareId },
-        select: { totalCapacity: true, currentEnrollment: true }
+        select: { capacity: true, currentOccupancy: true }
       });
 
       if (!daycareLocked) {
@@ -161,8 +161,8 @@ export async function POST(request: NextRequest) {
 
       const totalOccupied = confirmedBookings + pendingOffers;
 
-      if (totalOccupied >= daycareLocked.totalCapacity) {
-        throw new Error(`Capacity exceeded: ${totalOccupied}/${daycareLocked.totalCapacity} (including pending offers)`);
+      if (totalOccupied >= daycareLocked.capacity) {
+        throw new Error(`Capacity exceeded: ${totalOccupied}/${daycareLocked.capacity} (including pending offers)`);
       }
 
       // Create the booking

@@ -15,7 +15,7 @@ export interface CapacityCheckResult {
   hasCapacity: boolean;
   availableSlots: number;
   totalCapacity: number;
-  currentEnrollment: number;
+  currentOccupancy: number;
   pendingOffers: number;
   reservedSlots: number;
   details: {
@@ -55,8 +55,8 @@ export class CapacityManager {
       const daycare = await tx.daycare.findUnique({
         where: { id: daycareId },
         select: {
-          totalCapacity: true,
-          currentEnrollment: true,
+          capacity: true,
+          currentOccupancy: true,
           name: true
         }
       });
@@ -109,7 +109,7 @@ export class CapacityManager {
       ]);
 
       // Calculate available capacity (total capacity - confirmed bookings - pending offers)
-      const daycareAvailable = daycare.totalCapacity - confirmedBookings - pendingOffers;
+      const daycareAvailable = daycare.capacity - confirmedBookings - pendingOffers;
       const programAvailable = programCapacity
         ? programCapacity.totalCapacity - programCapacity.currentEnrollment - pendingOffers
         : null;
@@ -124,8 +124,8 @@ export class CapacityManager {
       return {
         hasCapacity,
         availableSlots: Math.max(0, availableSlots),
-        totalCapacity: programCapacity?.totalCapacity || daycare.totalCapacity,
-        currentEnrollment: confirmedBookings, // Use actual confirmed bookings
+        totalCapacity: programCapacity?.totalCapacity || daycare.capacity,
+        currentOccupancy: confirmedBookings, // Use actual confirmed bookings
         pendingOffers,
         reservedSlots: pendingOffers,
         details: {
@@ -447,7 +447,7 @@ export class CapacityManager {
       hasCapacity,
       availableSlots: Math.max(0, availableSlots),
       totalCapacity: programData?.totalCapacity || daycareData.totalCapacity,
-      currentEnrollment: programData?.currentEnrollment || daycareData.currentEnrollment,
+      currentOccupancy: programData?.currentEnrollment || daycareData.currentEnrollment,
       pendingOffers,
       reservedSlots: pendingOffers,
       details: {

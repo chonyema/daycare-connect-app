@@ -1,0 +1,323 @@
+// Enhanced Waitlist System Schema Design
+// This file contains the new models and enums needed for the robust waitlist system
+
+// === NEW WAITLIST MODELS ===
+
+model WaitlistEntry {
+  id           String   @id @default(cuid())
+
+  // Core relations
+  parentId     String
+  parent       User     @relation(fields: [parentId], references: [id], onDelete: Cascade)
+  daycareId    String
+  daycare      Daycare  @relation(fields: [daycareId], references: [id], onDelete: Cascade)
+
+  // Child information
+  childName    String
+  childAge     String?
+  childBirthDate DateTime?
+
+  // Waitlist specifics
+  programId    String?  // Which age group/program (Infant, Toddler, etc.)
+  program      Program? @relation(fields: [programId], references: [id])
+
+  // Desired enrollment details
+  desiredStartDate    DateTime
+  preferredDays       String?  // JSON: ["Monday", "Wednesday", "Friday"]
+  careType           CareType
+
+  // Priority and positioning
+  priorityScore      Float    @default(0)
+  position          Int      // Current position in the queue
+  estimatedWaitDays Int?     // Calculated ETA
+
+  // Status and flags
+  status            WaitlistStatus @default(ACTIVE)
+  isPaused          Boolean        @default(false)
+  pausedUntil       DateTime?
+
+  // Priority factors (for scoring calculation)
+  hasSiblingEnrolled Boolean @default(false)
+  isStaffChild      Boolean @default(false)
+  inServiceArea     Boolean @default(true)
+  hasSubsidyApproval Boolean @default(false)
+  hasCorporatePartnership Boolean @default(false)
+  hasSpecialNeeds   Boolean @default(false)
+  providerTags      String? // JSON array of custom provider tags
+
+  // Documentation and notes
+  documents         String? // JSON array of uploaded document URLs
+  parentNotes       String?
+  providerNotes     String?
+
+  // Offer management
+  lastOfferSentAt   DateTime?
+  offerExpiresAt    DateTime?
+  offerResponseAt   DateTime?
+  offerResponse     OfferResponse?
+  offerAttempts     Int @default(0)
+
+  // Audit and tracking
+  joinedAt          DateTime @default(now())
+  lastUpdatedAt     DateTime @updatedAt
+  lastPositionChange DateTime?
+
+  // Relations
+  auditLogs         WaitlistAuditLog[]
+  offers           WaitlistOffer[]
+
+  @@unique([parentId, daycareId, childName]) // Prevent duplicates
+  @@index([daycareId, programId, position])
+  @@index([daycareId, status, priorityScore])
+  @@map("waitlist_entries")
+}
+
+model Program {
+  id          String @id @default(cuid())
+
+  // Basic info
+  daycareId   String
+  daycare     Daycare @relation(fields: [daycareId], references: [id], onDelete: Cascade)
+
+  name        String // "Infant", "Toddler", "Preschool"
+  description String?
+
+  // Age requirements
+  minAgeMonths Int
+  maxAgeMonths Int
+
+  // Capacity
+  totalCapacity    Int
+  currentEnrollment Int @default(0)
+  waitlistCount    Int @default(0)
+
+  // Scheduling
+  operatingDays    String // JSON: ["Monday", "Tuesday"]
+  operatingHours   String // JSON: {"start": "7:00", "end": "18:00"}
+
+  // Pricing (can override daycare defaults)
+  dailyRate       Float?
+  hourlyRate      Float?
+
+  // Status
+  isActive        Boolean @default(true)
+  acceptingWaitlist Boolean @default(true)
+
+  // Relations
+  waitlistEntries WaitlistEntry[]
+  priorityRules   PriorityRule[]
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@map("programs")
+}
+
+model PriorityRule {
+  id          String @id @default(cuid())
+
+  // Scope
+  daycareId   String?
+  daycare     Daycare? @relation(fields: [daycareId], references: [id], onDelete: Cascade)
+  programId   String?
+  program     Program? @relation(fields: [programId], references: [id], onDelete: Cascade)
+
+  // Rule definition
+  name        String
+  description String?
+  ruleType    PriorityRuleType
+
+  // Scoring
+  points      Float
+  isActive    Boolean @default(true)
+
+  // Conditions (JSON configuration)
+  conditions  String? // JSON object defining when rule applies
+
+  // Ordering
+  sortOrder   Int @default(0)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("priority_rules")
+}
+
+model WaitlistOffer {
+  id            String @id @default(cuid())
+
+  // Relations
+  waitlistEntryId String
+  waitlistEntry   WaitlistEntry @relation(fields: [waitlistEntryId], references: [id], onDelete: Cascade)
+
+  // Offer details
+  spotAvailableDate DateTime
+  offerSentAt       DateTime @default(now())
+  offerExpiresAt    DateTime
+
+  // Response tracking
+  respondedAt       DateTime?
+  response          OfferResponse?
+  responseNotes     String?
+
+  // Offer context
+  campaignId        String? // If part of bulk campaign
+  isAutomated       Boolean @default(false)
+  priorityAtOffer   Float   // Priority score when offer was made
+  positionAtOffer   Int     // Position when offer was made
+
+  // Admin info
+  createdBy         String? // User ID who triggered offer
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@map("waitlist_offers")
+}
+
+model WaitlistAuditLog {
+  id              String @id @default(cuid())
+
+  // Relations
+  waitlistEntryId String?
+  waitlistEntry   WaitlistEntry? @relation(fields: [waitlistEntryId], references: [id], onDelete: Cascade)
+  daycareId       String
+  daycare         Daycare @relation(fields: [daycareId], references: [id], onDelete: Cascade)
+
+  // Action details
+  action          WaitlistAction
+  description     String
+
+  // Context
+  performedBy     String? // User ID
+  performedByType UserType?
+
+  // Data changes
+  oldValues       String? // JSON of previous values
+  newValues       String? // JSON of new values
+
+  // Additional context
+  metadata        String? // JSON for additional context
+
+  createdAt       DateTime @default(now())
+
+  @@index([daycareId, createdAt])
+  @@index([waitlistEntryId, createdAt])
+  @@map("waitlist_audit_logs")
+}
+
+model WaitlistCampaign {
+  id          String @id @default(cuid())
+
+  // Basic info
+  daycareId   String
+  daycare     Daycare @relation(fields: [daycareId], references: [id], onDelete: Cascade)
+  programId   String?
+  program     Program? @relation(fields: [programId], references: [id])
+
+  name        String
+  description String?
+
+  // Campaign details
+  spotsAvailable    Int
+  spotAvailableDate DateTime
+
+  // Offer settings
+  offerWindowHours  Int @default(48) // How long offers are valid
+  maxOfferAttempts  Int @default(3)  // How many people to offer before giving up
+
+  // Status
+  status      CampaignStatus @default(DRAFT)
+  startedAt   DateTime?
+  completedAt DateTime?
+
+  // Results
+  totalOffered     Int @default(0)
+  totalAccepted    Int @default(0)
+  totalDeclined    Int @default(0)
+  totalExpired     Int @default(0)
+  spotsRemaining   Int
+
+  // Relations
+  offers      WaitlistOffer[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  createdBy   String // User ID who created campaign
+
+  @@map("waitlist_campaigns")
+}
+
+// === NEW ENUMS ===
+
+enum WaitlistStatus {
+  ACTIVE       // Active on waitlist
+  PAUSED       // Temporarily paused
+  OFFERED      // Currently has an active offer
+  ACCEPTED     // Accepted offer, converting to enrollment
+  DECLINED     // Declined offer, back to waitlist
+  WITHDRAWN    // Left waitlist voluntarily
+  EXPIRED      // Offer expired, back to waitlist
+  ENROLLED     // Successfully enrolled (remove from waitlist)
+}
+
+enum PriorityRuleType {
+  SIBLING_ENROLLED
+  STAFF_CHILD
+  SERVICE_AREA
+  SUBSIDY_APPROVED
+  CORPORATE_PARTNERSHIP
+  SPECIAL_NEEDS
+  TIME_ON_LIST
+  PROVIDER_CUSTOM
+  FIRST_TIME_PARENT
+  MILITARY_FAMILY
+}
+
+enum OfferResponse {
+  ACCEPTED
+  DECLINED
+  EXPIRED
+  PENDING
+}
+
+enum WaitlistAction {
+  JOINED
+  POSITION_CHANGED
+  PRIORITY_UPDATED
+  OFFER_SENT
+  OFFER_ACCEPTED
+  OFFER_DECLINED
+  OFFER_EXPIRED
+  PAUSED
+  UNPAUSED
+  WITHDRAWN
+  DOCUMENTS_UPLOADED
+  NOTES_UPDATED
+  BULK_UPDATED
+  CAMPAIGN_CREATED
+  CAMPAIGN_EXECUTED
+}
+
+enum CampaignStatus {
+  DRAFT
+  ACTIVE
+  COMPLETED
+  CANCELLED
+}
+
+// === ENHANCED EXISTING MODELS ===
+// These would be additions to existing models:
+
+// Add to Daycare model:
+// programs          Program[]
+// waitlistEntries   WaitlistEntry[]
+// priorityRules     PriorityRule[]
+// auditLogs         WaitlistAuditLog[]
+// campaigns         WaitlistCampaign[]
+
+// Add to User model:
+// waitlistEntries   WaitlistEntry[]
+
+// Add to existing BookingStatus enum:
+// WAITLIST_CONVERTED // When waitlist entry becomes booking
