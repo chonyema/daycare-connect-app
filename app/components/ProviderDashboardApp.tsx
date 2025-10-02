@@ -21,6 +21,7 @@ import {
   TrendingUp,
   Mail,
   FileText,
+  UserCheck,
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import DaycareForm from './DaycareForm';
@@ -30,6 +31,9 @@ import BookingManagement from './BookingManagement';
 import MessagingSystem from './MessagingSystem';
 import EnhancedProviderWaitlistDashboard from './EnhancedProviderWaitlistDashboard';
 import DailyReports from './DailyReports';
+import TodayAttendance from './attendance/TodayAttendance';
+import AttendanceHistory from './attendance/AttendanceHistory';
+import { getBookingStatusLabel, getBookingStatusColor } from '@/app/utils/bookingStatus';
 
 interface Daycare {
   id: string;
@@ -70,6 +74,7 @@ const ProviderDashboardApp = () => {
   const [showDaycareForm, setShowDaycareForm] = useState(false);
   const [editingDaycare, setEditingDaycare] = useState<Daycare | null>(null);
   const [showMessaging, setShowMessaging] = useState(false);
+  const [selectedAttendanceDaycareId, setSelectedAttendanceDaycareId] = useState<string>('');
   const [stats, setStats] = useState({
     totalRevenue: 0,
     activeBookings: 0,
@@ -97,6 +102,10 @@ const ProviderDashboardApp = () => {
       if (daycaresRes.ok) {
         const daycaresData = await daycaresRes.json();
         setDaycares(daycaresData);
+        // Set first daycare as default for attendance
+        if (daycaresData.length > 0 && !selectedAttendanceDaycareId) {
+          setSelectedAttendanceDaycareId(daycaresData[0].id);
+        }
       }
 
       if (bookingsRes.ok) {
@@ -194,6 +203,7 @@ const ProviderDashboardApp = () => {
             { id: 'dashboard', label: 'Dashboard', icon: BarChart3 },
             { id: 'daycares', label: 'My Daycares', icon: Home },
             { id: 'bookings', label: 'Bookings', icon: Calendar },
+            { id: 'attendance', label: 'Attendance', icon: UserCheck },
             { id: 'waitlist', label: 'Waitlist', icon: Users },
             { id: 'daily-reports', label: 'Daily Reports', icon: FileText },
             { id: 'analytics', label: 'Analytics', icon: TrendingUp },
@@ -280,12 +290,8 @@ const ProviderDashboardApp = () => {
                   </div>
                   <div className="text-right">
                     <p className="font-semibold">${booking.totalCost}</p>
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                      booking.status === 'CONFIRMED' ? 'bg-green-100 text-green-800' :
-                      booking.status === 'PENDING' ? 'bg-yellow-100 text-yellow-800' :
-                      'bg-gray-100 text-gray-800'
-                    }`}>
-                      {booking.status}
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getBookingStatusColor(booking.status)}`}>
+                      {getBookingStatusLabel(booking.status)}
                     </span>
                   </div>
                 </div>
@@ -339,7 +345,11 @@ const ProviderDashboardApp = () => {
                   </div>
                 </div>
                 <div className="flex gap-2">
-                  <button className="p-2 text-blue-600 hover:bg-blue-50 rounded">
+                  <button
+                    onClick={() => handleEditDaycare(daycare)}
+                    className="p-2 text-blue-600 hover:bg-blue-50 rounded"
+                    title="View/Edit Details"
+                  >
                     <Eye className="h-4 w-4" />
                   </button>
                   <button
@@ -403,6 +413,59 @@ const ProviderDashboardApp = () => {
         {activeTab === 'dashboard' && <DashboardView />}
         {activeTab === 'daycares' && <DaycaresView />}
         {activeTab === 'bookings' && <BookingManagement />}
+        {activeTab === 'attendance' && daycares.length > 0 && selectedAttendanceDaycareId && (
+          <div className="space-y-6">
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">Attendance Tracking</h2>
+              <p className="text-gray-600">Manage daily check-in and check-out for children</p>
+            </div>
+
+            {/* Daycare Selector */}
+            {daycares.length > 1 && (
+              <div className="bg-white p-4 rounded-lg shadow">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Select Daycare
+                </label>
+                <select
+                  value={selectedAttendanceDaycareId}
+                  onChange={(e) => setSelectedAttendanceDaycareId(e.target.value)}
+                  className="w-full md:w-64 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                >
+                  {daycares.map(daycare => (
+                    <option key={daycare.id} value={daycare.id}>
+                      {daycare.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+
+            {/* Today's Attendance */}
+            <div>
+              <h3 className="text-xl font-semibold mb-4">Today's Attendance</h3>
+              <TodayAttendance daycareId={selectedAttendanceDaycareId} />
+            </div>
+
+            {/* Attendance History */}
+            <div>
+              <h3 className="text-xl font-semibold mb-4">Attendance History</h3>
+              <AttendanceHistory daycareId={selectedAttendanceDaycareId} />
+            </div>
+          </div>
+        )}
+        {activeTab === 'attendance' && daycares.length === 0 && (
+          <div className="bg-white rounded-lg shadow p-8 text-center">
+            <UserCheck className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">No Daycares Yet</h3>
+            <p className="text-gray-600 mb-4">Create a daycare to start tracking attendance</p>
+            <button
+              onClick={() => setActiveTab('daycares')}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            >
+              Go to My Daycares
+            </button>
+          </div>
+        )}
         {activeTab === 'daily-reports' && user && (
           <DailyReports
             userType="PROVIDER"

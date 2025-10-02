@@ -37,6 +37,9 @@ model User {
   // Enhanced waitlist relations
   waitlistEntries      WaitlistEntry[]
 
+  // Attendance tracking
+  attendanceRecords    Attendance[]
+
   @@map("users")
 }
 
@@ -96,6 +99,9 @@ model Daycare {
   auditLogs      WaitlistAuditLog[]
   campaigns      WaitlistCampaign[]
 
+  // Attendance tracking
+  attendanceRecords Attendance[]
+
   createdAt      DateTime    @default(now())
   updatedAt      DateTime    @updatedAt
 
@@ -131,6 +137,9 @@ model Booking {
 
   // Daily reports relation
   dailyReports DailyReport[]
+
+  // Attendance records
+  attendanceRecords Attendance[]
 
   createdAt  DateTime      @default(now())
   updatedAt  DateTime      @updatedAt
@@ -205,7 +214,7 @@ enum BookingStatus {
   PENDING
   CONFIRMED
   CANCELLED
-  COMPLETED
+  COMPLETED  // Child has left the daycare (displays as "Offboarded" in UI)
   WAITLIST
   WAITLIST_CONVERTED  // When waitlist entry becomes booking
 }
@@ -702,4 +711,65 @@ enum CampaignStatus {
   ACTIVE
   COMPLETED
   CANCELLED
+}
+
+// === ATTENDANCE TRACKING MODELS ===
+
+model Attendance {
+  id          String   @id @default(cuid())
+
+  // Child and booking info
+  bookingId   String
+  booking     Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+
+  // Daycare relation
+  daycareId   String
+  daycare     Daycare  @relation(fields: [daycareId], references: [id], onDelete: Cascade)
+
+  // Child details (denormalized for quick access)
+  childName   String
+
+  // Check-in/Check-out details
+  checkInTime  DateTime
+  checkInBy    String   // User ID who performed check-in
+  checkInUser  User     @relation(fields: [checkInBy], references: [id])
+  checkInNotes String?
+
+  checkOutTime DateTime?
+  checkOutBy   String?  // User ID who performed check-out
+  checkOutNotes String?
+
+  // Calculated duration
+  totalHours   Float?   // Calculated from check-in to check-out
+
+  // Status
+  status       AttendanceStatus @default(CHECKED_IN)
+
+  // Additional tracking
+  temperature  Float?   // Optional health check
+  mood         String?  // Happy, Fussy, Sleepy, etc.
+  emergencyContact String? // Contact info for the day
+
+  // Late pickup tracking
+  scheduledPickupTime DateTime?
+  isLatePickup        Boolean @default(false)
+  lateMinutes         Int?
+
+  // Audit
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([bookingId, checkInTime])
+  @@index([daycareId, checkInTime])
+  @@index([daycareId, status])
+  @@map("attendance")
+}
+
+// === ATTENDANCE ENUMS ===
+
+enum AttendanceStatus {
+  CHECKED_IN
+  CHECKED_OUT
+  ABSENT
+  LATE
 }

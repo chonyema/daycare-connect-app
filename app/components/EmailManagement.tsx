@@ -27,6 +27,9 @@ const EmailManagement = () => {
     marketingEmails: false,
   });
 
+  const [editingTemplate, setEditingTemplate] = useState<EmailTemplate | null>(null);
+  const [showEditModal, setShowEditModal] = useState(false);
+
   const [templates] = useState<EmailTemplate[]>([
     {
       id: '1',
@@ -65,11 +68,21 @@ const EmailManagement = () => {
     setEmailSettings(prev => ({ ...prev, [setting]: value }));
   };
 
+  const handleEditTemplate = (template: EmailTemplate) => {
+    setEditingTemplate(template);
+    setShowEditModal(true);
+  };
+
+  const handleCloseEditModal = () => {
+    setShowEditModal(false);
+    setEditingTemplate(null);
+  };
+
   const sendTestEmail = async () => {
     if (!testEmail) return;
-    
+
     setTestStatus('sending');
-    
+
     try {
       const response = await fetch('/api/emails', {
         method: 'POST',
@@ -126,7 +139,10 @@ const EmailManagement = () => {
                     Enabled
                   </label>
                 </div>
-                <button className="text-blue-600 hover:text-blue-700 text-sm font-medium">
+                <button
+                  onClick={() => handleEditTemplate(template)}
+                  className="text-blue-600 hover:text-blue-700 text-sm font-medium"
+                >
                   Edit
                 </button>
               </div>
@@ -303,6 +319,96 @@ const EmailManagement = () => {
         {activeTab === 'settings' && <SettingsTab />}
         {activeTab === 'test' && <TestTab />}
       </div>
+
+      {/* Edit Template Modal */}
+      {showEditModal && editingTemplate && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-xl font-bold text-gray-900">Edit Email Template</h3>
+                <button
+                  onClick={handleCloseEditModal}
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  <X className="h-6 w-6" />
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Template Name
+                  </label>
+                  <input
+                    type="text"
+                    value={editingTemplate.name}
+                    readOnly
+                    className="w-full p-3 border border-gray-300 rounded-lg bg-gray-50"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Subject Line
+                  </label>
+                  <input
+                    type="text"
+                    defaultValue={editingTemplate.subject}
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Use variables like {'{{daycareName}}'}, {'{{childName}}'}, {'{{status}}'}
+                  </p>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Email Body
+                  </label>
+                  <textarea
+                    rows={10}
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    placeholder="Enter email template body..."
+                    defaultValue={`Hello {{parentName}},\n\nThis is a sample email template for ${editingTemplate.name}.\n\nYou can customize this content to match your needs.\n\nBest regards,\nDaycare Connect Team`}
+                  />
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    id="edit-enabled"
+                    defaultChecked={editingTemplate.enabled}
+                    className="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+                  />
+                  <label htmlFor="edit-enabled" className="text-sm text-gray-700">
+                    Enable this template
+                  </label>
+                </div>
+
+                <div className="flex gap-3 pt-4">
+                  <button
+                    onClick={handleCloseEditModal}
+                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={() => {
+                      // TODO: Implement save functionality
+                      alert('Email template editing will be implemented with backend API');
+                      handleCloseEditModal();
+                    }}
+                    className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                  >
+                    Save Changes
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

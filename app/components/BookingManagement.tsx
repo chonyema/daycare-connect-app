@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { 
+import {
   Calendar,
   Users,
   Clock,
@@ -20,6 +20,7 @@ import {
   RefreshCw
 } from 'lucide-react';
 import { format } from 'date-fns';
+import { getBookingStatusLabel, getBookingStatusColor } from '@/app/utils/bookingStatus';
 
 interface Booking {
   id: string;
@@ -164,16 +165,6 @@ const BookingManagement = () => {
     }
   };
 
-  const getStatusColor = (status: string) => {
-    const colors = {
-      PENDING: 'bg-yellow-100 text-yellow-800',
-      CONFIRMED: 'bg-green-100 text-green-800',
-      CANCELLED: 'bg-red-100 text-red-800',
-      COMPLETED: 'bg-blue-100 text-blue-800',
-      WAITLIST: 'bg-purple-100 text-purple-800',
-    };
-    return colors[status as keyof typeof colors] || 'bg-gray-100 text-gray-800';
-  };
 
   const getStatusIcon = (status: string) => {
     const icons = {
@@ -235,7 +226,7 @@ const BookingManagement = () => {
               }`}
             >
               <p className="text-2xl font-bold text-gray-900">{count}</p>
-              <p className="text-sm text-gray-600">{status === 'ALL' ? 'Total' : status}</p>
+              <p className="text-sm text-gray-600">{status === 'ALL' ? 'Total' : getBookingStatusLabel(status)}</p>
             </button>
           ))}
         </div>
@@ -294,7 +285,7 @@ const BookingManagement = () => {
                     Daycare
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Dates
+                    Start Date
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Status
@@ -339,9 +330,9 @@ const BookingManagement = () => {
                       <div className="text-xs text-gray-400">{booking.careType.replace('_', ' ')}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(booking.status)}`}>
+                      <div className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${getBookingStatusColor(booking.status)}`}>
                         {getStatusIcon(booking.status)}
-                        {booking.status}
+                        {getBookingStatusLabel(booking.status)}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
@@ -387,7 +378,7 @@ const BookingManagement = () => {
                             onClick={() => updateBookingStatus(booking.id, 'COMPLETED')}
                             disabled={updating === booking.id}
                             className="p-1 text-blue-600 hover:text-blue-800 disabled:opacity-50"
-                            title="Mark Complete"
+                            title="Mark as Offboarded"
                           >
                             <CheckCircle className="h-4 w-4" />
                           </button>
@@ -500,9 +491,9 @@ const BookingManagement = () => {
                   </div>
                   <div>
                     <span className="text-gray-600">Status:</span>
-                    <span className={`ml-2 inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(selectedBooking.status)}`}>
+                    <span className={`ml-2 inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${getBookingStatusColor(selectedBooking.status)}`}>
                       {getStatusIcon(selectedBooking.status)}
-                      {selectedBooking.status}
+                      {getBookingStatusLabel(selectedBooking.status)}
                     </span>
                   </div>
                   <div>
@@ -556,7 +547,7 @@ const BookingManagement = () => {
                     }}
                     className="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
                   >
-                    Mark as Completed
+                    Mark as Offboarded
                   </button>
                 )}
               </div>

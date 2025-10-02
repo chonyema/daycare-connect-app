@@ -44,7 +44,7 @@ export async function GET(request: NextRequest) {
     console.log(`Found ${daycares.length} daycares in database`)
 
     // Transform database data to match frontend expectations
-    const transformedDaycares = daycares.map(daycare => {
+    const transformedDaycares = await Promise.all(daycares.map(async (daycare) => {
       // Calculate average rating
       const averageRating = daycare.reviews.length > 0
         ? daycare.reviews.reduce((sum, review) => sum + review.rating, 0) / daycare.reviews.length
@@ -57,6 +57,16 @@ export async function GET(request: NextRequest) {
 
       // Calculate available spots
       const availableSpots = Math.max(0, daycare.capacity - daycare.currentOccupancy)
+
+      // Calculate real-time waitlist count
+      const waitlistCount = await prisma.waitlistEntry.count({
+        where: {
+          daycareId: daycare.id,
+          status: 'ACTIVE'
+        }
+      })
+
+      console.log(`Parent API - ${daycare.name}: waitlistCount = ${waitlistCount}`);
 
       return {
         id: daycare.id,
@@ -88,14 +98,15 @@ export async function GET(request: NextRequest) {
         operatingDays,
         image: daycare.images ? JSON.parse(daycare.images)[0] : "https://images.unsplash.com/photo-1587654780291-39c9404d746b?w=400&h=300&fit=crop",
         verified: daycare.verified,
-        waitlist: 0, // TODO: Calculate from bookings with WAITLIST status
+        waitlist: waitlistCount,
+        waitlistCount: waitlistCount,
         features,
         owner: daycare.owner,
         ownerId: daycare.ownerId,
         createdAt: daycare.createdAt,
         updatedAt: daycare.updatedAt
       }
-    })
+    }))
 
     return NextResponse.json(transformedDaycares)
 

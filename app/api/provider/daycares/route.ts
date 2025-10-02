@@ -32,7 +32,25 @@ export async function GET(request: NextRequest) {
       },
     });
 
-    return NextResponse.json(daycares);
+    // Calculate real-time waitlist count for each daycare
+    const daycaresWithWaitlist = await Promise.all(
+      daycares.map(async (daycare) => {
+        const waitlistCount = await prisma.waitlistEntry.count({
+          where: {
+            daycareId: daycare.id,
+            status: 'ACTIVE'
+          }
+        });
+        console.log(`${daycare.name}: waitlistCount = ${waitlistCount}`);
+        return {
+          ...daycare,
+          waitlistCount
+        };
+      })
+    );
+
+    console.log('Returning provider daycares with waitlist counts');
+    return NextResponse.json(daycaresWithWaitlist);
   } catch (error: any) {
     console.error('Provider daycares fetch error:', error);
     

@@ -1,13 +1,15 @@
 'use client';
 
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { Search, MapPin, Star, Clock, Users, Phone, Mail, Calendar, DollarSign, Heart, X, MessageCircle, Filter, CheckCircle, Loader2, AlertCircle, Upload, FileText, List } from 'lucide-react';
+import { Search, MapPin, Star, Clock, Users, Phone, Mail, Calendar, DollarSign, Heart, X, MessageCircle, Filter, CheckCircle, Loader2, AlertCircle, Upload, FileText, List, UserCheck } from 'lucide-react';
 import MessageButton from './MessageButton';
 import DocumentUpload from './DocumentUpload';
 import DailyReports from './DailyReports';
 import MessagingSystem from './MessagingSystem';
 import ParentWaitlistManager from './ParentWaitlistManager';
 import EnhancedWaitlistModal from './EnhancedWaitlistModal';
+import AttendanceHistory from './attendance/AttendanceHistory';
+import { getBookingStatusLabel, getBookingStatusColor } from '@/app/utils/bookingStatus';
 
 // MOVE SEARCHVIEW OUTSIDE THE MAIN COMPONENT - THIS IS THE KEY FIX!
 const SearchView = React.memo(({
@@ -173,7 +175,7 @@ const ProviderCard = React.memo(({ provider, setSelectedProvider, setCurrentView
       )}
       {provider.availableSpots === 0 && (
         <div className="absolute top-3 left-3 bg-orange-500 text-white px-2 py-1 rounded-full text-xs font-medium">
-          Waitlist ({provider.waitlist})
+          Waitlist ({provider.waitlistCount || provider.waitlist || 0})
         </div>
       )}
     </div>
@@ -965,19 +967,15 @@ const DaycareConnectApp: React.FC<DaycareConnectAppProps> = ({ user }) => {
             <div key={booking.id} className="bg-white rounded-lg shadow-md p-6">
               <div className="flex justify-between items-start mb-4">
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900">{booking.providerName}</h3>
+                  <h3 className="text-lg font-semibold text-gray-900">{booking.daycare?.name || booking.providerName}</h3>
                   <p className="text-gray-600">Child: {booking.childName}</p>
                   <p className="text-sm text-gray-500">Start Date: {new Date(booking.startDate).toLocaleDateString()}</p>
                 </div>
                 <div className="text-right">
-                  <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${
-                    booking.status === 'confirmed' ? 'bg-green-100 text-green-800' :
-                    booking.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                    'bg-red-100 text-red-800'
-                  }`}>
-                    {booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
+                  <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${getBookingStatusColor(booking.status)}`}>
+                    {getBookingStatusLabel(booking.status)}
                   </span>
-                  <p className="text-lg font-bold text-blue-600 mt-1">{booking.dailyRate}</p>
+                  <p className="text-lg font-bold text-blue-600 mt-1">${booking.dailyRate || booking.daycare?.dailyRate}/day</p>
                 </div>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -1046,7 +1044,7 @@ const DaycareConnectApp: React.FC<DaycareConnectAppProps> = ({ user }) => {
                 </div>
               ) : (
                 <div className="bg-orange-100 text-orange-800 px-3 py-1 rounded-full text-sm font-medium mb-2">
-                  Waitlist: {selectedProvider?.waitlist} families
+                  Waitlist: {selectedProvider?.waitlistCount || selectedProvider?.waitlist || 0} families
                 </div>
               )}
               <div className="text-2xl font-bold text-blue-600">{selectedProvider?.pricing}</div>
@@ -1179,6 +1177,13 @@ const DaycareConnectApp: React.FC<DaycareConnectAppProps> = ({ user }) => {
             My Bookings
           </button>
           <button
+            onClick={() => setCurrentView('attendance')}
+            className={`${currentView === 'attendance' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 border-b-2 border-transparent'} hover:text-blue-600 px-3 py-4 text-sm font-medium transition-colors flex items-center gap-2`}
+          >
+            <UserCheck className="h-4 w-4" />
+            Attendance
+          </button>
+          <button
             onClick={() => setCurrentView('waitlist')}
             className={`${currentView === 'waitlist' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 border-b-2 border-transparent'} hover:text-blue-600 px-3 py-4 text-sm font-medium transition-colors flex items-center gap-2`}
           >
@@ -1233,6 +1238,62 @@ const DaycareConnectApp: React.FC<DaycareConnectAppProps> = ({ user }) => {
           />
         )}
         {currentView === 'bookings' && <BookingsView />}
+        {currentView === 'attendance' && user && (
+          <div className="space-y-6">
+            <div className="flex justify-between items-center">
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900">My Children's Attendance</h2>
+                <p className="text-gray-600 mt-1">View check-in and check-out history for your children</p>
+              </div>
+            </div>
+
+            {userBookings.length > 0 ? (
+              <div className="space-y-6">
+                {userBookings.filter((b: any) => b.status === 'CONFIRMED').map((booking: any) => (
+                  <div key={booking.id} className="bg-white rounded-lg shadow p-6">
+                    <div className="mb-4">
+                      <h3 className="text-lg font-semibold text-gray-900">{booking.childName}</h3>
+                      <p className="text-sm text-gray-600">
+                        {booking.daycare?.name || 'Daycare'} • Age: {booking.childAge || 'N/A'}
+                      </p>
+                    </div>
+                    <AttendanceHistory bookingId={booking.id} showFilters={true} />
+                  </div>
+                ))}
+
+                {userBookings.filter((b: any) => b.status === 'CONFIRMED').length === 0 && (
+                  <div className="bg-white rounded-lg shadow p-8 text-center">
+                    <UserCheck className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">No Active Bookings</h3>
+                    <p className="text-gray-600 mb-4">
+                      You need confirmed bookings to view attendance records
+                    </p>
+                    <button
+                      onClick={() => setCurrentView('search')}
+                      className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                    >
+                      Find Childcare
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="bg-white rounded-lg shadow p-8 text-center">
+                <UserCheck className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">No Bookings Yet</h3>
+                <p className="text-gray-600 mb-4">
+                  Book childcare to start tracking attendance for your children
+                </p>
+                <button
+                  onClick={() => setCurrentView('search')}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                >
+                  Find Childcare
+                </button>
+              </div>
+            )}
+          </div>
+        )}
         {currentView === 'waitlist' && user && (
           <ParentWaitlistManager
             userId={user.id}
