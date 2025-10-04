@@ -5,6 +5,7 @@
 
 import { sendEmail } from '../email';
 import { WaitlistOffer, WaitlistEntry, User, Daycare } from '@prisma/client';
+import { prisma } from '@/app/lib/prisma';
 
 interface OfferNotificationData {
   offer: WaitlistOffer & {
@@ -245,7 +246,7 @@ export async function sendOfferAcceptanceConfirmation(
   });
 
   // Also notify the provider
-  const owner = await prisma?.user.findUnique({
+  const owner = await prisma.user.findUnique({
     where: { id: daycare.ownerId },
   });
 
