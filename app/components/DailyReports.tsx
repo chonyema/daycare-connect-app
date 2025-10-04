@@ -238,7 +238,7 @@ const DailyReports: React.FC<DailyReportsProps> = ({ userType, currentUser }) =>
             placeholder="Search reports..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
           />
         </div>
 
@@ -335,7 +335,7 @@ const DailyReports: React.FC<DailyReportsProps> = ({ userType, currentUser }) =>
 
                     {/* Activities Summary */}
                     <div className="mb-4">
-                      <h5 className="text-sm font-medium text-gray-700 mb-2">
+                      <h5 className="text-sm font-semibold text-gray-700 mb-2">
                         Activities ({report.activities.length})
                       </h5>
                       <div className="flex flex-wrap gap-1">
@@ -386,7 +386,7 @@ const DailyReports: React.FC<DailyReportsProps> = ({ userType, currentUser }) =>
                         setDetailReport(report);
                         setShowDetailModal(true);
                       }}
-                      className="w-full mt-4 px-3 py-2 border border-gray-300 rounded-md hover:bg-gray-50 text-sm font-medium transition-colors"
+                      className="w-full mt-4 px-3 py-2 border border-gray-300 rounded-md hover:bg-gray-50 text-sm font-medium text-gray-700 transition-colors"
                     >
                       <Eye className="h-4 w-4 inline mr-1" />
                       View Details
@@ -413,7 +413,7 @@ const DailyReports: React.FC<DailyReportsProps> = ({ userType, currentUser }) =>
                       onClick={() => setSelectedBooking(booking)}
                       className="w-full text-left p-3 border border-gray-200 rounded-lg hover:bg-gray-50"
                     >
-                      <div className="font-medium">{booking.childName}</div>
+                      <div className="font-semibold text-gray-900">{booking.childName}</div>
                       <div className="text-sm text-gray-600">{booking.daycare.name}</div>
                       <div className="text-xs text-gray-500">Age: {booking.childAge}</div>
                     </button>
@@ -519,7 +519,7 @@ const DailyReports: React.FC<DailyReportsProps> = ({ userType, currentUser }) =>
 
               {/* Activities */}
               <div>
-                <h3 className="font-semibold text-gray-900 mb-4">Activities ({detailReport.activities.length})</h3>
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Activities ({detailReport.activities.length})</h3>
                 <div className="space-y-4">
                   {detailReport.activities.map((activity: any, index: number) => (
                     <div key={index} className="bg-white border border-gray-200 p-4 rounded-lg">
@@ -539,8 +539,8 @@ const DailyReports: React.FC<DailyReportsProps> = ({ userType, currentUser }) =>
                           )}
 
                           {/* Meal specific details */}
-                          {activity.activityType === 'MEAL' && (
-                            <div className="bg-green-50 p-3 rounded text-sm">
+                {activity.activityType === 'MEAL' && (
+                            <div className="bg-green-50 p-3 rounded text-sm text-gray-700">
                               {activity.mealType && <p><strong>Meal Type:</strong> {activity.mealType}</p>}
                               {activity.foodItems && (
                                 <p><strong>Food Items:</strong> {JSON.parse(activity.foodItems).join(', ')}</p>
@@ -551,7 +551,7 @@ const DailyReports: React.FC<DailyReportsProps> = ({ userType, currentUser }) =>
 
                           {/* Nap specific details */}
                           {activity.activityType === 'NAP' && activity.napQuality && (
-                            <div className="bg-blue-50 p-3 rounded text-sm">
+                            <div className="bg-blue-50 p-3 rounded text-sm text-gray-700">
                               <p><strong>Nap Quality:</strong> {activity.napQuality}</p>
                               {activity.duration && <p><strong>Duration:</strong> {activity.duration} minutes</p>}
                             </div>

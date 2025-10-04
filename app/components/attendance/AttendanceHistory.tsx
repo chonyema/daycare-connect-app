@@ -166,7 +166,7 @@ export default function AttendanceHistory({
         <div className="bg-white rounded-lg shadow p-4">
           <div className="flex items-center gap-2 mb-4">
             <Filter size={20} />
-            <h3 className="font-semibold">Filters</h3>
+            <h3 className="font-semibold text-gray-900">Filters</h3>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div>
@@ -231,7 +231,7 @@ export default function AttendanceHistory({
       {/* Attendance Records */}
       <div className="bg-white rounded-lg shadow">
         <div className="p-4 border-b border-gray-200">
-          <h3 className="text-xl font-semibold">Attendance History</h3>
+          <h3 className="text-xl font-semibold text-gray-900">Attendance History</h3>
         </div>
 
         {filteredRecords.length > 0 ? (
@@ -241,7 +241,7 @@ export default function AttendanceHistory({
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
-                      <p className="font-semibold text-lg">{record.childName}</p>
+                      <p className="font-semibold text-lg text-gray-900">{record.childName}</p>
                       <span
                         className={`px-2 py-1 rounded-full text-xs ${
                           record.status === 'CHECKED_IN'
@@ -268,7 +268,7 @@ export default function AttendanceHistory({
                         <Clock className="inline mr-1" size={16} />
                         Out: {record.checkOutTime ? formatTime(record.checkOutTime) : 'N/A'}
                       </div>
-                      <div className="font-semibold">
+                      <div className="font-semibold text-gray-900">
                         Total: {record.totalHours?.toFixed(2) || 'N/A'} hrs
                       </div>
                     </div>

@@ -182,7 +182,7 @@ const DailyReportForm: React.FC<DailyReportFormProps> = ({
               Daily Report - {booking.childName}
             </h2>
             <p className="text-gray-600">
-              {booking.daycare.name} • {new Date().toLocaleDateString()}
+              {booking.daycare?.name || 'Daycare'} • {new Date().toLocaleDateString()}
             </p>
           </div>
           <button
@@ -221,7 +221,7 @@ const DailyReportForm: React.FC<DailyReportFormProps> = ({
           {/* Activities */}
           <div>
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-medium text-gray-900">Activities</h3>
+              <h3 className="text-lg font-semibold text-gray-900">Activities</h3>
               <div className="flex flex-wrap gap-2">
                 {activityTypes.map((type) => {
                   const IconComponent = type.icon;
@@ -229,7 +229,7 @@ const DailyReportForm: React.FC<DailyReportFormProps> = ({
                     <button
                       key={type.value}
                       onClick={() => addActivity(type.value as DailyReportActivity['activityType'])}
-                      className="flex items-center gap-1 px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 rounded-full transition-colors"
+                      className="flex items-center gap-1 px-3 py-1 text-sm text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-full transition-colors"
                       title={`Add ${type.label}`}
                     >
                       <IconComponent className={`h-4 w-4 ${type.color}`} />
@@ -273,7 +273,7 @@ const DailyReportForm: React.FC<DailyReportFormProps> = ({
                         type="datetime-local"
                         value={activity.startTime}
                         onChange={(e) => updateActivity(index, { startTime: e.target.value })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm text-gray-900 bg-white"
                       />
                     </div>
 
@@ -285,7 +285,7 @@ const DailyReportForm: React.FC<DailyReportFormProps> = ({
                         type="datetime-local"
                         value={activity.endTime || ''}
                         onChange={(e) => updateActivity(index, { endTime: e.target.value })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm text-gray-900 bg-white"
                       />
                     </div>
 
@@ -299,7 +299,7 @@ const DailyReportForm: React.FC<DailyReportFormProps> = ({
                           <select
                             value={activity.mealType || ''}
                             onChange={(e) => updateActivity(index, { mealType: e.target.value as any })}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm text-gray-900 bg-white"
                           >
                             <option value="">Select meal type</option>
                             <option value="BREAKFAST">Breakfast</option>
@@ -316,7 +316,7 @@ const DailyReportForm: React.FC<DailyReportFormProps> = ({
                           <select
                             value={activity.amountEaten || ''}
                             onChange={(e) => updateActivity(index, { amountEaten: e.target.value as any })}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm text-gray-900 bg-white"
                           >
                             <option value="">Select amount</option>
                             <option value="ALL">All</option>
@@ -338,7 +338,7 @@ const DailyReportForm: React.FC<DailyReportFormProps> = ({
                         <select
                           value={activity.napQuality || ''}
                           onChange={(e) => updateActivity(index, { napQuality: e.target.value as any })}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm text-gray-900 bg-white"
                         >
                           <option value="">Select quality</option>
                           <option value="EXCELLENT">Excellent</option>
@@ -358,7 +358,7 @@ const DailyReportForm: React.FC<DailyReportFormProps> = ({
                     <textarea
                       value={activity.description || ''}
                       onChange={(e) => updateActivity(index, { description: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm text-gray-900 bg-white"
                       rows={2}
                       placeholder="Describe the activity..."
                     />
@@ -407,13 +407,13 @@ const DailyReportForm: React.FC<DailyReportFormProps> = ({
 
                   {/* Notes */}
                   <div className="mt-3">
-                    <label className="block text-xs font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
                       Additional Notes
                     </label>
                     <textarea
                       value={activity.notes || ''}
                       onChange={(e) => updateActivity(index, { notes: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm text-gray-900 bg-white"
                       rows={2}
                       placeholder="Any additional notes..."
                     />
@@ -431,7 +431,7 @@ const DailyReportForm: React.FC<DailyReportFormProps> = ({
             <textarea
               value={generalNotes}
               onChange={(e) => setGeneralNotes(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md text-gray-900 bg-white"
               rows={3}
               placeholder="Any general notes about the day..."
             />

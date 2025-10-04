@@ -154,7 +154,7 @@ export default function TodayAttendance({ daycareId }: TodayAttendanceProps) {
 
       {/* Currently Checked In */}
       <div className="bg-white rounded-lg shadow p-6">
-        <h3 className="text-xl font-semibold mb-4">Currently Checked In</h3>
+        <h3 className="text-xl font-semibold text-gray-900 mb-4">Currently Checked In</h3>
         {data?.attendance?.checkedIn?.length > 0 ? (
           <div className="space-y-3">
             {data.attendance.checkedIn.map((record: AttendanceRecord) => (
@@ -163,7 +163,7 @@ export default function TodayAttendance({ daycareId }: TodayAttendanceProps) {
                 className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50"
               >
                 <div className="flex-1">
-                  <p className="font-semibold">{record.booking.childName}</p>
+                  <p className="font-semibold text-gray-900">{record.booking.childName}</p>
                   <p className="text-sm text-gray-600">
                     Parent: {record.booking.parent.name}
                   </p>
@@ -190,7 +190,7 @@ export default function TodayAttendance({ daycareId }: TodayAttendanceProps) {
 
       {/* Checked Out Today */}
       <div className="bg-white rounded-lg shadow p-6">
-        <h3 className="text-xl font-semibold mb-4">Checked Out Today</h3>
+        <h3 className="text-xl font-semibold text-gray-900 mb-4">Checked Out Today</h3>
         {data?.attendance?.checkedOut?.length > 0 ? (
           <div className="space-y-3">
             {data.attendance.checkedOut.map((record: AttendanceRecord) => (
@@ -199,7 +199,7 @@ export default function TodayAttendance({ daycareId }: TodayAttendanceProps) {
                 className="flex items-center justify-between p-4 border border-gray-200 rounded-lg bg-gray-50"
               >
                 <div className="flex-1">
-                  <p className="font-semibold">{record.booking.childName}</p>
+                  <p className="font-semibold text-gray-900">{record.booking.childName}</p>
                   <p className="text-sm text-gray-600">
                     {formatTime(record.checkInTime)} - {formatTime(record.checkOutTime || '')}
                   </p>
@@ -223,7 +223,7 @@ export default function TodayAttendance({ daycareId }: TodayAttendanceProps) {
       {/* Absent/Expected */}
       {data?.attendance?.absent?.length > 0 && (
         <div className="bg-white rounded-lg shadow p-6">
-          <h3 className="text-xl font-semibold mb-4">Expected But Not Checked In</h3>
+          <h3 className="text-xl font-semibold text-gray-900 mb-4">Expected But Not Checked In</h3>
           <div className="space-y-3">
             {data.attendance.absent.map((item: any, index: number) => (
               <div
@@ -231,7 +231,7 @@ export default function TodayAttendance({ daycareId }: TodayAttendanceProps) {
                 className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50"
               >
                 <div className="flex-1">
-                  <p className="font-semibold">{item.booking.childName}</p>
+                  <p className="font-semibold text-gray-900">{item.booking.childName}</p>
                   <p className="text-sm text-gray-600">
                     Parent: {item.booking.parent.name}
                   </p>

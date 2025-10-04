@@ -270,7 +270,16 @@ const BookingManagement = () => {
         <div className="text-center py-12">
           <Calendar className="h-12 w-12 text-gray-400 mx-auto mb-4" />
           <h3 className="text-lg font-medium text-gray-900 mb-2">No bookings found</h3>
-          <p className="text-gray-600">No bookings match your current filters.</p>
+          {statusFilter === 'WAITLIST' ? (
+            <div className="text-gray-600 space-y-2">
+              <p>Waitlist entries are managed in the separate Waitlist Management tab.</p>
+              <p className="text-sm text-blue-600">
+                Please use the "Waitlist Management" tab to view and manage waitlist entries.
+              </p>
+            </div>
+          ) : (
+            <p className="text-gray-600">No bookings match your current filters.</p>
+          )}
         </div>
       ) : (
         <div className="bg-white rounded-lg border overflow-hidden">
@@ -427,7 +436,7 @@ const BookingManagement = () => {
           <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="p-6 border-b">
               <div className="flex justify-between items-center">
-                <h2 className="text-xl font-bold">Booking Details</h2>
+                <h2 className="text-xl font-bold text-gray-900">Booking Details</h2>
                 <button
                   onClick={() => setShowDetails(false)}
                   className="text-gray-500 hover:text-gray-700"
@@ -443,30 +452,30 @@ const BookingManagement = () => {
                 <h3 className="font-semibold text-gray-900 mb-2">Child Information</h3>
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   <div>
-                    <span className="text-gray-600">Name:</span> {selectedBooking.childName}
+                    <span className="text-gray-600">Name:</span> <span className="text-gray-900">{selectedBooking.childName}</span>
                   </div>
                   <div>
-                    <span className="text-gray-600">Age:</span> {selectedBooking.childAge}
+                    <span className="text-gray-600">Age:</span> <span className="text-gray-900">{selectedBooking.childAge}</span>
                   </div>
                 </div>
               </div>
 
               {/* Parent Information */}
               <div>
-                <h3 className="font-semibold text-gray-900 mb-2">Parent Information</h3>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">Parent Information</h3>
                 <div className="space-y-2 text-sm">
                   <div className="flex items-center gap-2">
                     <Users className="h-4 w-4 text-gray-500" />
-                    {selectedBooking.parent.name}
+                    <span className="text-gray-900">{selectedBooking.parent.name}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Mail className="h-4 w-4 text-gray-500" />
-                    {selectedBooking.parent.email}
+                    <span className="text-gray-900">{selectedBooking.parent.email}</span>
                   </div>
                   {selectedBooking.parent.phone && (
                     <div className="flex items-center gap-2">
                       <Phone className="h-4 w-4 text-gray-500" />
-                      {selectedBooking.parent.phone}
+                      <span className="text-gray-900">{selectedBooking.parent.phone}</span>
                     </div>
                   )}
                 </div>
@@ -474,11 +483,11 @@ const BookingManagement = () => {
 
               {/* Booking Details */}
               <div>
-                <h3 className="font-semibold text-gray-900 mb-2">Booking Details</h3>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">Booking Details</h3>
                 <div className="space-y-2 text-sm">
                   <div className="flex items-center gap-2">
                     <MapPin className="h-4 w-4 text-gray-500" />
-                    {selectedBooking.daycare.name} - {selectedBooking.daycare.address}
+                    <span className="text-gray-900">{selectedBooking.daycare.name} - {selectedBooking.daycare.address}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Calendar className="h-4 w-4 text-gray-500" />
@@ -487,7 +496,7 @@ const BookingManagement = () => {
                   </div>
                   <div className="flex items-center gap-2">
                     <Clock className="h-4 w-4 text-gray-500" />
-                    {selectedBooking.careType.replace('_', ' ')}
+                    <span className="text-gray-900">{selectedBooking.careType.replace('_', ' ')}</span>
                   </div>
                   <div>
                     <span className="text-gray-600">Status:</span>
@@ -497,17 +506,17 @@ const BookingManagement = () => {
                     </span>
                   </div>
                   <div>
-                    <span className="text-gray-600">Daily Rate:</span> ${selectedBooking.dailyRate}
+                    <span className="text-gray-600">Daily Rate:</span> <span className="text-gray-900">${selectedBooking.dailyRate}</span>
                   </div>
                   <div>
-                    <span className="text-gray-600">Total Cost:</span> <span className="font-semibold">${selectedBooking.totalCost}</span>
+                    <span className="text-gray-600">Total Cost:</span> <span className="font-semibold text-gray-900">${selectedBooking.totalCost}</span>
                   </div>
                 </div>
               </div>
 
               {selectedBooking.notes && (
                 <div>
-                  <h3 className="font-semibold text-gray-900 mb-2">Notes</h3>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">Notes</h3>
                   <p className="text-sm text-gray-700 bg-gray-50 p-3 rounded-md">
                     {selectedBooking.notes}
                   </p>

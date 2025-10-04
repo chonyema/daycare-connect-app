@@ -38,6 +38,7 @@ import {
 } from 'lucide-react';
 import BulkWaitlistActions from './BulkWaitlistActions';
 import AdvancedWaitlistFilters from './AdvancedWaitlistFilters';
+import WaitlistOfferManager from './provider/WaitlistOfferManager';
 
 interface WaitlistEntry {
   id: string;
@@ -105,8 +106,10 @@ interface EnhancedProviderWaitlistDashboardProps {
 const EnhancedProviderWaitlistDashboard: React.FC<EnhancedProviderWaitlistDashboardProps> = ({
   currentUser
 }) => {
+  const [activeTab, setActiveTab] = useState<'waitlist' | 'offers'>('waitlist');
   const [entries, setEntries] = useState<WaitlistEntry[]>([]);
   const [programs, setPrograms] = useState<Array<{ id: string; name: string }>>([]);
+  const [daycareId, setDaycareId] = useState<string>('');
   const [loading, setLoading] = useState(true);
   const [selectedEntries, setSelectedEntries] = useState<string[]>([]);
   const [currentFilters, setCurrentFilters] = useState<FilterCriteria | null>(null);
@@ -134,6 +137,11 @@ const EnhancedProviderWaitlistDashboard: React.FC<EnhancedProviderWaitlistDashbo
         setEntries([]);
         setPrograms([]);
         return;
+      }
+
+      // Set first daycare as default for offers
+      if (providerDaycares.length > 0) {
+        setDaycareId(providerDaycares[0].id);
       }
 
       // Get waitlist entries for all provider's daycares
@@ -400,46 +408,80 @@ const EnhancedProviderWaitlistDashboard: React.FC<EnhancedProviderWaitlistDashbo
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {/* Header with Tabs */}
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Enhanced Waitlist Management</h2>
-          <p className="text-gray-600 mt-1">
-            Manage {entries.length} waitlist entries with advanced filtering and bulk actions
-          </p>
+          <h2 className="text-2xl font-bold text-gray-900">Waitlist Management</h2>
+          <div className="mt-4 border-b border-gray-200">
+            <nav className="-mb-px flex space-x-8">
+              <button
+                onClick={() => setActiveTab('waitlist')}
+                className={`${
+                  activeTab === 'waitlist'
+                    ? 'border-blue-500 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                } whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm`}
+              >
+                Waitlist Entries
+              </button>
+              <button
+                onClick={() => setActiveTab('offers')}
+                className={`${
+                  activeTab === 'offers'
+                    ? 'border-blue-500 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                } whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm`}
+              >
+                Spot Offers
+              </button>
+            </nav>
+          </div>
         </div>
 
-        <button
-          onClick={loadWaitlistData}
-          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-        >
-          <BarChart3 className="h-4 w-4" />
-          Refresh Data
-        </button>
+        {activeTab === 'waitlist' && (
+          <button
+            onClick={loadWaitlistData}
+            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+          >
+            <BarChart3 className="h-4 w-4" />
+            Refresh Data
+          </button>
+        )}
       </div>
 
-      {/* Advanced Filters */}
-      <AdvancedWaitlistFilters
-        onFilterChange={setCurrentFilters}
-        onExportFiltered={() => handleBulkAction('export')}
-        programs={programs}
-        totalEntries={entries.length}
-        filteredCount={filteredEntries.length}
-      />
+      {/* Waitlist Tab Content */}
+      {activeTab === 'waitlist' && (
+        <>
+          {/* Advanced Filters */}
+          <AdvancedWaitlistFilters
+            onFilterChange={setCurrentFilters}
+            onExportFiltered={() => handleBulkAction('export')}
+            programs={programs}
+            totalEntries={entries.length}
+            filteredCount={filteredEntries.length}
+          />
 
-      {/* Bulk Actions */}
-      <BulkWaitlistActions
-        selectedEntries={selectedEntries}
-        totalEntries={filteredEntries.length}
-        onSelectAll={handleSelectAll}
-        onClearSelection={() => setSelectedEntries([])}
-        onBulkAction={handleBulkAction}
-        onBulkCommunication={handleBulkCommunication}
-        isLoading={bulkActionLoading}
-      />
+          {/* Bulk Actions */}
+          <BulkWaitlistActions
+            selectedEntries={selectedEntries}
+            totalEntries={filteredEntries.length}
+            onSelectAll={handleSelectAll}
+            onClearSelection={() => setSelectedEntries([])}
+            onBulkAction={handleBulkAction}
+            onBulkCommunication={handleBulkCommunication}
+            isLoading={bulkActionLoading}
+          />
+        </>
+      )}
+
+      {/* Offers Tab Content */}
+      {activeTab === 'offers' && daycareId && (
+        <WaitlistOfferManager daycareId={daycareId} />
+      )}
 
       {/* Waitlist Table */}
-      <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+      {activeTab === 'waitlist' && (
+        <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
         {filteredEntries.length === 0 ? (
           <div className="text-center py-12">
             <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
@@ -601,10 +643,12 @@ const EnhancedProviderWaitlistDashboard: React.FC<EnhancedProviderWaitlistDashbo
             </table>
           </div>
         )}
-      </div>
+        </div>
+      )}
 
       {/* Summary Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      {activeTab === 'waitlist' && (
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div className="bg-white p-4 rounded-lg border border-gray-200">
           <div className="flex items-center justify-between">
             <div>
@@ -647,6 +691,7 @@ const EnhancedProviderWaitlistDashboard: React.FC<EnhancedProviderWaitlistDashbo
           </div>
         </div>
       </div>
+      )}
     </div>
   );
 };

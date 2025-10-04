@@ -439,8 +439,8 @@ const BookingModal = ({ selectedProvider, showBookingModal, setShowBookingModal,
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-lg max-w-md w-full max-h-[90vh] overflow-y-auto">
         <div className="flex justify-between items-center p-6 border-b border-gray-200">
-          <h3 className="text-lg font-semibold">Book Childcare</h3>
-          <button 
+          <h3 className="text-lg font-semibold text-gray-900">Book Childcare</h3>
+          <button
             onClick={handleClose}
             disabled={isSubmitting}
             className="text-gray-400 hover:text-gray-600 disabled:opacity-50"
@@ -462,7 +462,7 @@ const BookingModal = ({ selectedProvider, showBookingModal, setShowBookingModal,
                   Parent Account
                 </label>
                 <div className="w-full border border-gray-300 rounded-md px-3 py-2 bg-gray-50">
-                  <span className="font-medium">{user.name}</span>
+                  <span className="font-medium text-gray-900">{user.name}</span>
                   <span className="text-gray-600 ml-2">({user.email})</span>
                 </div>
                 <p className="text-xs text-gray-500 mt-1">Booking will be created for your account</p>
@@ -660,7 +660,7 @@ const BookingModal = ({ selectedProvider, showBookingModal, setShowBookingModal,
               <button
                 type="button"
                 onClick={() => setShowDocumentUpload(true)}
-                className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-gray-700"
               >
                 <Upload className="h-4 w-4" />
                 Upload Document
@@ -694,24 +694,24 @@ const BookingModal = ({ selectedProvider, showBookingModal, setShowBookingModal,
 
             <div className="bg-gray-50 p-4 rounded-md">
               <div className="flex justify-between items-center mb-2">
-                <span>Daily Rate:</span>
-                <span className="font-medium">{selectedProvider?.pricing}</span>
+                <span className="text-gray-700">Daily Rate:</span>
+                <span className="font-medium text-gray-900">{selectedProvider?.pricing}</span>
               </div>
               {formData.careType === 'FULL_TIME' && (
                 <div className="flex justify-between items-center mb-2">
-                  <span>Weekly Rate (5 days):</span>
-                  <span className="font-medium">${weeklyRate}</span>
+                  <span className="text-gray-700">Weekly Rate (5 days):</span>
+                  <span className="font-medium text-gray-900">${weeklyRate}</span>
                 </div>
               )}
               {formData.careType === 'PART_TIME' && (
                 <div className="flex justify-between items-center mb-2">
-                  <span>Weekly Rate (3 days):</span>
-                  <span className="font-medium">${dailyRate * 3}</span>
+                  <span className="text-gray-700">Weekly Rate (3 days):</span>
+                  <span className="font-medium text-gray-900">${dailyRate * 3}</span>
                 </div>
               )}
-              <div className="flex justify-between items-center border-t pt-2">
-                <span>Registration Fee:</span>
-                <span className="font-medium">${registrationFee}</span>
+              <div className="flex justify-between items-center border-t border-gray-300 pt-2">
+                <span className="text-gray-700">Registration Fee:</span>
+                <span className="font-medium text-gray-900">${registrationFee}</span>
               </div>
             </div>
 

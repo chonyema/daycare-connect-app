@@ -311,7 +311,7 @@ const ProviderDashboardApp = () => {
   const DaycaresView = () => (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold">My Daycares</h2>
+        <h2 className="text-2xl font-bold text-gray-900">My Daycares</h2>
         <button
           onClick={handleAddDaycare}
           className="bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-blue-700"
@@ -328,7 +328,7 @@ const ProviderDashboardApp = () => {
               <div className="flex justify-between items-start mb-4">
                 <div>
                   <div className="flex items-center gap-2 mb-2">
-                    <h3 className="text-xl font-semibold">{daycare.name}</h3>
+                    <h3 className="text-xl font-semibold text-gray-900">{daycare.name}</h3>
                     {daycare.verified && (
                       <CheckCircle className="h-5 w-5 text-green-500" />
                     )}
@@ -337,7 +337,7 @@ const ProviderDashboardApp = () => {
                   <div className="flex items-center gap-4 mt-2">
                     <div className="flex items-center gap-1">
                       <Star className="h-4 w-4 text-yellow-500 fill-current" />
-                      <span className="text-sm">{daycare.averageRating} ({daycare.totalReviews} reviews)</span>
+                      <span className="text-sm text-gray-700">{daycare.averageRating} ({daycare.totalReviews} reviews)</span>
                     </div>
                     <span className="text-sm text-gray-500">
                       {daycare.currentOccupancy}/{daycare.capacity} capacity
@@ -442,13 +442,13 @@ const ProviderDashboardApp = () => {
 
             {/* Today's Attendance */}
             <div>
-              <h3 className="text-xl font-semibold mb-4">Today's Attendance</h3>
+              <h3 className="text-xl font-semibold text-gray-900 mb-4">Today's Attendance</h3>
               <TodayAttendance daycareId={selectedAttendanceDaycareId} />
             </div>
 
             {/* Attendance History */}
             <div>
-              <h3 className="text-xl font-semibold mb-4">Attendance History</h3>
+              <h3 className="text-xl font-semibold text-gray-900 mb-4">Attendance History</h3>
               <AttendanceHistory daycareId={selectedAttendanceDaycareId} />
             </div>
           </div>

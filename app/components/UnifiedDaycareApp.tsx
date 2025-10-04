@@ -136,6 +136,7 @@ const UnifiedDaycareApp = () => {
                   title="Logout"
                 >
                   <LogOut className="h-5 w-5" />
+                  <span className="hidden sm:inline">Sign Out</span>
                 </button>
                 <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
                   <span className="text-white text-sm font-medium">

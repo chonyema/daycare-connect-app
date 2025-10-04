@@ -96,7 +96,7 @@ export default function CheckInOutModal({
         <div className="p-6">
           {/* Header */}
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-2xl font-bold">
+            <h2 className="text-2xl font-bold text-gray-900">
               {mode === 'check-in' ? 'Check In' : 'Check Out'}
             </h2>
             <button
@@ -109,7 +109,7 @@ export default function CheckInOutModal({
 
           {/* Child Info */}
           <div className="mb-4 p-4 bg-blue-50 rounded-lg">
-            <p className="font-semibold text-lg">{booking.childName}</p>
+            <p className="font-semibold text-lg text-gray-900">{booking.childName}</p>
             {booking.childAge && (
               <p className="text-gray-600">Age: {booking.childAge}</p>
             )}

@@ -181,7 +181,7 @@ const DaycareForm: React.FC<DaycareFormProps> = ({
         <form onSubmit={handleSubmit} className="p-6 space-y-8">
           {/* Basic Information */}
           <div className="space-y-6">
-            <h3 className="text-lg font-semibold flex items-center gap-2">
+            <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
               <Users className="h-5 w-5" />
               Basic Information
             </h3>
@@ -239,7 +239,7 @@ const DaycareForm: React.FC<DaycareFormProps> = ({
 
           {/* Location */}
           <div className="space-y-6">
-            <h3 className="text-lg font-semibold flex items-center gap-2">
+            <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
               <MapPin className="h-5 w-5" />
               Location
             </h3>
@@ -311,7 +311,7 @@ const DaycareForm: React.FC<DaycareFormProps> = ({
 
           {/* Contact & Pricing */}
           <div className="space-y-6">
-            <h3 className="text-lg font-semibold flex items-center gap-2">
+            <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
               <DollarSign className="h-5 w-5" />
               Contact & Pricing
             </h3>
@@ -414,7 +414,7 @@ const DaycareForm: React.FC<DaycareFormProps> = ({
 
           {/* Hours & Days */}
           <div className="space-y-6">
-            <h3 className="text-lg font-semibold flex items-center gap-2">
+            <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
               <Clock className="h-5 w-5" />
               Operating Hours
             </h3>
@@ -462,7 +462,7 @@ const DaycareForm: React.FC<DaycareFormProps> = ({
                       onChange={() => handleArrayToggle(formData.operatingDays, day, 'operatingDays')}
                       className="mr-2"
                     />
-                    <span className="text-sm">{day}</span>
+                    <span className="text-sm text-gray-700">{day}</span>
                   </label>
                 ))}
               </div>
@@ -484,7 +484,7 @@ const DaycareForm: React.FC<DaycareFormProps> = ({
                       onChange={() => handleArrayToggle(formData.ageGroups, age, 'ageGroups')}
                       className="mr-2"
                     />
-                    <span className="text-sm">{age}</span>
+                    <span className="text-sm text-gray-700">{age}</span>
                   </label>
                 ))}
               </div>
@@ -503,7 +503,7 @@ const DaycareForm: React.FC<DaycareFormProps> = ({
                       onChange={() => handleArrayToggle(formData.features, feature, 'features')}
                       className="mr-2"
                     />
-                    <span className="text-sm">{feature}</span>
+                    <span className="text-sm text-gray-700">{feature}</span>
                   </label>
                 ))}
               </div>
@@ -527,7 +527,7 @@ const DaycareForm: React.FC<DaycareFormProps> = ({
                 <button
                   type="button"
                   onClick={() => setShowCamera(true)}
-                  className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                  className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-gray-700"
                 >
                   <Camera className="h-4 w-4" />
                   Take Photo
@@ -535,7 +535,7 @@ const DaycareForm: React.FC<DaycareFormProps> = ({
                 <button
                   type="button"
                   onClick={() => setShowFileUpload(true)}
-                  className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                  className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-gray-700"
                 >
                   <Upload className="h-4 w-4" />
                   Upload Photo

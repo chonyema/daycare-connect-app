@@ -73,37 +73,24 @@ const EnhancedWaitlistModal: React.FC<EnhancedWaitlistModalProps> = ({
   const loadPrograms = async () => {
     try {
       setLoading(true);
-      // For now, create mock programs based on provider info
-      // In production, you'd fetch actual programs from the API
-      const mockPrograms = [
-        {
-          id: `${provider.id}-infant`,
-          name: 'Infant Program (0-18 months)',
-          description: 'Specialized care for infants',
-          minAge: 0,
-          maxAge: 18,
-          totalCapacity: 12
-        },
-        {
-          id: `${provider.id}-toddler`,
-          name: 'Toddler Program (18 months - 3 years)',
-          description: 'Active learning for toddlers',
-          minAge: 18,
-          maxAge: 36,
-          totalCapacity: 16
-        },
-        {
-          id: `${provider.id}-preschool`,
-          name: 'Preschool Program (3-5 years)',
-          description: 'School readiness program',
-          minAge: 36,
-          maxAge: 60,
-          totalCapacity: 20
-        }
-      ];
-      setPrograms(mockPrograms);
+      const res = await fetch(`/api/programs?daycareId=${provider.id}`);
+      const data = await res.json();
+
+      if (data.success && data.programs) {
+        // Format programs with age ranges
+        const formattedPrograms = data.programs.map((program: any) => ({
+          ...program,
+          description: `Ages ${Math.floor(program.minAgeMonths / 12)}y ${program.minAgeMonths % 12}m - ${Math.floor(program.maxAgeMonths / 12)}y ${program.maxAgeMonths % 12}m`,
+          minAge: program.minAgeMonths,
+          maxAge: program.maxAgeMonths
+        }));
+        setPrograms(formattedPrograms);
+      } else {
+        setPrograms([]);
+      }
     } catch (error) {
       console.error('Failed to load programs:', error);
+      setPrograms([]);
     } finally {
       setLoading(false);
     }
@@ -294,7 +281,7 @@ const EnhancedWaitlistModal: React.FC<EnhancedWaitlistModalProps> = ({
                     type="text"
                     value={formData.childName}
                     onChange={(e) => handleInputChange('childName', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
                     placeholder="Enter child's name"
                   />
                 </div>
@@ -307,7 +294,7 @@ const EnhancedWaitlistModal: React.FC<EnhancedWaitlistModalProps> = ({
                     type="text"
                     value={formData.childAge}
                     onChange={(e) => handleInputChange('childAge', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
                     placeholder="e.g., 2 years, 18 months"
                   />
                 </div>
@@ -320,7 +307,7 @@ const EnhancedWaitlistModal: React.FC<EnhancedWaitlistModalProps> = ({
                     type="date"
                     value={formData.childBirthDate}
                     onChange={(e) => handleInputChange('childBirthDate', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
                   />
                 </div>
 
@@ -332,7 +319,7 @@ const EnhancedWaitlistModal: React.FC<EnhancedWaitlistModalProps> = ({
                     type="date"
                     value={formData.desiredStartDate}
                     onChange={(e) => handleInputChange('desiredStartDate', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
                     min={new Date().toISOString().split('T')[0]}
                   />
                 </div>
@@ -357,7 +344,7 @@ const EnhancedWaitlistModal: React.FC<EnhancedWaitlistModalProps> = ({
                         onChange={(e) => setSelectedProgram(e.target.value)}
                         className="text-blue-600"
                       />
-                      <span className="font-medium">Any available program</span>
+                      <span className="font-medium text-gray-700">Any available program</span>
                     </label>
                   </div>
 
@@ -372,7 +359,7 @@ const EnhancedWaitlistModal: React.FC<EnhancedWaitlistModalProps> = ({
                           className="text-blue-600 mt-1"
                         />
                         <div className="flex-1">
-                          <span className="font-medium">{program.name}</span>
+                          <span className="font-semibold text-gray-900">{program.name}</span>
                           <p className="text-sm text-gray-600 mt-1">{program.description}</p>
                           <p className="text-xs text-gray-500">Capacity: {program.totalCapacity} children</p>
                         </div>
@@ -405,7 +392,7 @@ const EnhancedWaitlistModal: React.FC<EnhancedWaitlistModalProps> = ({
                           onChange={(e) => handleInputChange('careType', e.target.value)}
                           className="text-blue-600"
                         />
-                        <span>{type.label}</span>
+                        <span className="text-gray-700">{type.label}</span>
                       </label>
                     ))}
                   </div>
@@ -461,7 +448,7 @@ const EnhancedWaitlistModal: React.FC<EnhancedWaitlistModalProps> = ({
                         onChange={(e) => handleInputChange(factor.key, e.target.checked)}
                         className="text-blue-600"
                       />
-                      <span className="text-sm">{factor.label}</span>
+                      <span className="text-sm text-gray-700">{factor.label}</span>
                     </div>
                     <span className="text-xs text-gray-500 font-medium">{factor.points}</span>
                   </label>
@@ -490,7 +477,7 @@ const EnhancedWaitlistModal: React.FC<EnhancedWaitlistModalProps> = ({
               <textarea
                 value={formData.parentNotes}
                 onChange={(e) => handleInputChange('parentNotes', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
                 rows={3}
                 placeholder="Any special requirements, preferences, or additional information..."
               />

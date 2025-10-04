@@ -242,7 +242,7 @@ const EmailManagement = () => {
               value={testEmail}
               onChange={(e) => setTestEmail(e.target.value)}
               placeholder="Enter email address to test"
-              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 bg-white"
             />
           </div>
           
@@ -344,7 +344,7 @@ const EmailManagement = () => {
                     type="text"
                     value={editingTemplate.name}
                     readOnly
-                    className="w-full p-3 border border-gray-300 rounded-lg bg-gray-50"
+                    className="w-full p-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-900"
                   />
                 </div>
 
@@ -355,7 +355,7 @@ const EmailManagement = () => {
                   <input
                     type="text"
                     defaultValue={editingTemplate.subject}
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
                   />
                   <p className="text-xs text-gray-500 mt-1">
                     Use variables like {'{{daycareName}}'}, {'{{childName}}'}, {'{{status}}'}
@@ -368,7 +368,7 @@ const EmailManagement = () => {
                   </label>
                   <textarea
                     rows={10}
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
                     placeholder="Enter email template body..."
                     defaultValue={`Hello {{parentName}},\n\nThis is a sample email template for ${editingTemplate.name}.\n\nYou can customize this content to match your needs.\n\nBest regards,\nDaycare Connect Team`}
                   />

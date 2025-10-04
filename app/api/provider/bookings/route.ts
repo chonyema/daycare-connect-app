@@ -82,13 +82,23 @@ export async function GET(request: NextRequest) {
       }
     });
 
+    // Get actual waitlist count from waitlistEntry table
+    const waitlistCount = await prisma.waitlistEntry.count({
+      where: {
+        daycare: {
+          ownerId: providerId
+        },
+        status: 'ACTIVE'
+      }
+    });
+
     const statusSummary = {
       ALL: totalCount,
       PENDING: 0,
       CONFIRMED: 0,
       CANCELLED: 0,
       COMPLETED: 0,
-      WAITLIST: 0
+      WAITLIST: waitlistCount
     };
 
     statusCounts.forEach(item => {

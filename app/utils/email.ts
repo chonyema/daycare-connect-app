@@ -248,3 +248,8 @@ class EmailService {
 }
 
 export const emailService = new EmailService();
+
+// Export a standalone sendEmail function for direct use
+export async function sendEmail(options: EmailOptions): Promise<boolean> {
+  return emailService['sendEmail'](options);
+}

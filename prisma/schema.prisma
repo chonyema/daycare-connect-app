@@ -102,6 +102,9 @@ model Daycare {
   // Attendance tracking
   attendanceRecords Attendance[]
 
+  // Waitlist settings
+  waitlistSettings WaitlistSettings?
+
   createdAt      DateTime    @default(now())
   updatedAt      DateTime    @updatedAt
 
@@ -558,6 +561,15 @@ model WaitlistOffer {
   offerSentAt       DateTime @default(now())
   offerExpiresAt    DateTime
 
+  // Deposit requirements
+  depositRequired   Boolean @default(false)
+  depositAmount     Float?
+  depositPaid       Boolean @default(false)
+  depositPaidAt     DateTime?
+
+  // Required documents
+  requiredDocuments String? // JSON array of required document types
+
   // Response tracking
   respondedAt       DateTime?
   response          OfferResponse?
@@ -569,6 +581,9 @@ model WaitlistOffer {
   isAutomated       Boolean @default(false)
   priorityAtOffer   Float   // Priority score when offer was made
   positionAtOffer   Int     // Position when offer was made
+
+  // Seat reservation
+  seatId            String? // Reference to specific seat/spot if applicable
 
   // Admin info
   createdBy         String? // User ID who triggered offer
@@ -650,6 +665,49 @@ model WaitlistCampaign {
   createdBy   String // User ID who created campaign
 
   @@map("waitlist_campaigns")
+}
+
+model WaitlistSettings {
+  id          String @id @default(cuid())
+
+  // Relations
+  daycareId   String  @unique
+  daycare     Daycare @relation(fields: [daycareId], references: [id], onDelete: Cascade)
+
+  // Offer window configuration
+  defaultOfferWindowHours Int @default(48) // Default 48 hours
+  minOfferWindowHours     Int @default(12) // Minimum 12 hours
+  maxOfferWindowHours     Int @default(72) // Maximum 72 hours (3 days)
+
+  // Deposit settings
+  requireDeposit          Boolean @default(false)
+  defaultDepositAmount    Float?
+  depositRefundable       Boolean @default(true)
+
+  // Auto-advance settings
+  autoAdvanceEnabled      Boolean @default(true) // Automatically move to next candidate
+  requireManualApproval   Boolean @default(false) // Staff must approve each offer
+
+  // Notification preferences
+  sendEmailNotifications  Boolean @default(true)
+  sendSMSNotifications    Boolean @default(false)
+  sendPushNotifications   Boolean @default(true)
+
+  // Required documents
+  defaultRequiredDocuments String? // JSON array ["immunization", "subsidy_approval", etc.]
+
+  // Override settings
+  allowProviderOverride   Boolean @default(true) // Provider can skip candidates
+  requireOverrideReason   Boolean @default(true) // Must provide reason for override
+
+  // Public availability
+  offerToWaitlistFirst    Boolean @default(true) // Always offer to waitlist before public
+  daysBeforePublic        Int @default(7) // How many days to exhaust waitlist before going public
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("waitlist_settings")
 }
 
 // === ENHANCED WAITLIST ENUMS ===

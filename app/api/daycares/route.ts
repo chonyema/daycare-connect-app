@@ -11,11 +11,47 @@ export async function GET(request: NextRequest) {
     console.log('Has DATABASE_URL:', !!process.env.DATABASE_URL)
     console.log('Fetching daycares from database (updated)...')
 
+    // Get query parameters
+    const { searchParams } = new URL(request.url);
+    const search = searchParams.get('search');
+    const location = searchParams.get('location');
+    const ageGroup = searchParams.get('ageGroup');
+    const sortBy = searchParams.get('sortBy');
+
+    console.log('Full URL:', request.url);
+    console.log('Search params:', { search, location, ageGroup, sortBy });
+
+    // Build where clause
+    const whereClause: any = {
+      active: true
+    };
+
+    // Add search filter (using case-insensitive pattern matching)
+    if (search) {
+      console.log('Adding search filter for:', search);
+      const searchLower = search.toLowerCase();
+      // We'll filter after fetching since Prisma text search has limitations
+    }
+
+    // Add location filter
+    if (location && location !== 'Toronto, ON') {
+      whereClause.city = { contains: location.split(',')[0].trim(), mode: 'insensitive' };
+    }
+
+    // Build orderBy clause
+    let orderBy: any = { createdAt: 'desc' };
+    if (sortBy === 'rating') {
+      // We'll sort by rating after fetching
+      orderBy = { createdAt: 'desc' };
+    } else if (sortBy === 'price-low') {
+      orderBy = { dailyRate: 'asc' };
+    } else if (sortBy === 'price-high') {
+      orderBy = { dailyRate: 'desc' };
+    }
+
     // Get all active daycares from database
     const daycares = await prisma.daycare.findMany({
-      where: {
-        active: true
-      },
+      where: whereClause,
       include: {
         owner: {
           select: {
@@ -36,12 +72,13 @@ export async function GET(request: NextRequest) {
           }
         }
       },
-      orderBy: {
-        createdAt: 'desc'
-      }
+      orderBy
     })
 
     console.log(`Found ${daycares.length} daycares in database`)
+    if (search) {
+      console.log(`Applied search filter for: "${search}"`);
+    }
 
     // Transform database data to match frontend expectations
     const transformedDaycares = await Promise.all(daycares.map(async (daycare) => {
@@ -108,7 +145,32 @@ export async function GET(request: NextRequest) {
       }
     }))
 
-    return NextResponse.json(transformedDaycares)
+    // Filter by search term if specified
+    let filteredDaycares = transformedDaycares;
+    if (search) {
+      const searchLower = search.toLowerCase();
+      filteredDaycares = transformedDaycares.filter((daycare: any) =>
+        daycare.name.toLowerCase().includes(searchLower) ||
+        daycare.type.toLowerCase().includes(searchLower) ||
+        (daycare.description && daycare.description.toLowerCase().includes(searchLower)) ||
+        daycare.city.toLowerCase().includes(searchLower)
+      );
+      console.log(`Filtered to ${filteredDaycares.length} daycares matching "${search}"`);
+    }
+
+    // Filter by age group if specified
+    if (ageGroup && ageGroup !== 'All Ages') {
+      filteredDaycares = filteredDaycares.filter((daycare: any) =>
+        daycare.ageGroups.includes(ageGroup)
+      );
+    }
+
+    // Sort by rating if specified
+    if (sortBy === 'rating') {
+      filteredDaycares.sort((a: any, b: any) => b.rating - a.rating);
+    }
+
+    return NextResponse.json(filteredDaycares)
 
   } catch (error: any) {
     console.error('=== DAYCARES API ERROR ===')
