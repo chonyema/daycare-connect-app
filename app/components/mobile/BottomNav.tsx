@@ -30,7 +30,7 @@ interface NavItem {
 export default function BottomNav() {
   const pathname = usePathname();
   const router = useRouter();
-  const { user } = useUser();
+  const { user } = useAuth();
 
   // Define navigation items based on user role
   const navItems: NavItem[] = [
