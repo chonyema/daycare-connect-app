@@ -46,6 +46,22 @@ export async function POST() {
         ) THEN
           ALTER TABLE "waitlist_offers" ADD COLUMN "requiredDocuments" TEXT;
         END IF;
+
+        -- Add seatId column if it doesn't exist
+        IF NOT EXISTS (
+          SELECT 1 FROM information_schema.columns
+          WHERE table_name = 'waitlist_offers' AND column_name = 'seatid'
+        ) THEN
+          ALTER TABLE "waitlist_offers" ADD COLUMN "seatId" TEXT;
+        END IF;
+
+        -- Add createdBy column if it doesn't exist
+        IF NOT EXISTS (
+          SELECT 1 FROM information_schema.columns
+          WHERE table_name = 'waitlist_offers' AND column_name = 'createdby'
+        ) THEN
+          ALTER TABLE "waitlist_offers" ADD COLUMN "createdBy" TEXT;
+        END IF;
       END $$;
     `);
 
