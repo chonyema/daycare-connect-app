@@ -62,8 +62,12 @@ export default function WaitlistPositionTracker() {
     try {
       const res = await fetch('/api/waitlist/position');
       const data = await res.json();
+      console.log('Waitlist position response:', data);
       if (data.success) {
+        console.log('Setting entries:', data.entries);
         setEntries(data.entries);
+      } else {
+        console.error('Failed to fetch positions:', data.error);
       }
     } catch (error) {
       console.error('Failed to fetch positions:', error);
