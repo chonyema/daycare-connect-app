@@ -20,7 +20,8 @@ export async function POST() {
         await prisma.$executeRawUnsafe(column.sql);
         results.push({ column: column.name, status: 'added' });
       } catch (error: any) {
-        if (error.code === '42701') {
+        // Check if error message contains "already exists"
+        if (error.message && error.message.includes('already exists')) {
           // Column already exists
           results.push({ column: column.name, status: 'exists' });
         } else {
