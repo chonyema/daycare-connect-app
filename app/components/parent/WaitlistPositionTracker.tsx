@@ -191,7 +191,7 @@ export default function WaitlistPositionTracker() {
                       {entry.childName}
                     </h3>
                     <p className="mt-1 text-sm text-gray-600">
-                      {entry.daycare.name}{entry.program ? ` - ${entry.program.name}` : ''}
+                      {entry.daycare.name}{entry.program?.name ? ` - ${entry.program.name}` : ''}
                     </p>
                     <p className="mt-1 text-sm text-gray-500">
                       Desired Start: {new Date(entry.desiredStartDate).toLocaleDateString()}
@@ -199,10 +199,10 @@ export default function WaitlistPositionTracker() {
                   </div>
 
                   {/* Position Badge */}
-                  <div className={`px-4 py-2 rounded-lg ${getPositionColor(entry.position, entry.insights.totalInQueue)}`}>
+                  <div className={`px-4 py-2 rounded-lg ${getPositionColor(entry.position, entry.insights?.totalInQueue || entry.position)}`}>
                     <div className="text-center">
                       <div className="text-3xl font-bold">#{entry.position}</div>
-                      <div className="text-xs">of {entry.insights.totalInQueue}</div>
+                      <div className="text-xs">of {entry.insights?.totalInQueue || entry.position}</div>
                     </div>
                   </div>
                 </div>
@@ -216,7 +216,7 @@ export default function WaitlistPositionTracker() {
                       Estimated Wait
                     </div>
                     <div className="mt-2 text-lg font-semibold text-gray-900">
-                      {entry.insights.estimatedWaitTime}
+                      {entry.insights?.estimatedWaitTime || 'Calculating...'}
                     </div>
                   </div>
 
@@ -227,9 +227,9 @@ export default function WaitlistPositionTracker() {
                       Offers Ahead
                     </div>
                     <div className="mt-2 text-lg font-semibold text-gray-900">
-                      {entry.insights.offersInProgress} families
+                      {entry.insights?.offersInProgress || 0} families
                     </div>
-                    {entry.insights.offersInProgress > 0 && (
+                    {(entry.insights?.offersInProgress || 0) > 0 && (
                       <p className="mt-1 text-xs text-gray-500">
                         Currently reviewing offers
                       </p>
