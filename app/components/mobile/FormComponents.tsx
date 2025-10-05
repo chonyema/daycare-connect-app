@@ -107,6 +107,8 @@ export function Button({
   fullWidth = false,
   className,
   onClick,
+  disabled,
+  type = 'button',
   ...props
 }: ButtonProps) {
   const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -133,7 +135,8 @@ export function Button({
     <motion.button
       whileTap={{ scale: 0.95 }}
       onClick={handleClick}
-      disabled={loading || props.disabled}
+      disabled={loading || disabled}
+      type={type}
       className={cn(
         'relative rounded-2xl font-semibold transition-all duration-200',
         'disabled:opacity-50 disabled:cursor-not-allowed',
@@ -144,7 +147,6 @@ export function Button({
         fullWidth && 'w-full',
         className
       )}
-      {...props}
     >
       {loading && (
         <motion.div
