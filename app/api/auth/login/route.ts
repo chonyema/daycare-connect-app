@@ -26,9 +26,22 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Find user
+    // Find user with all RBAC fields
     const user = await prisma.user.findUnique({
-      where: { email }
+      where: { email },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        phone: true,
+        password: true,
+        userType: true,
+        role: true,
+        isActive: true,
+        isSuperAdmin: true,
+        permissions: true,
+        daycareId: true,
+      }
     });
 
     if (!user) {
@@ -62,7 +75,7 @@ export async function POST(request: NextRequest) {
       { expiresIn: '7d' }
     );
 
-    // Create response with user data
+    // Create response with user data including RBAC fields
     const response = NextResponse.json({
       message: 'Login successful',
       user: {
@@ -71,6 +84,11 @@ export async function POST(request: NextRequest) {
         email: user.email,
         phone: user.phone,
         userType: user.userType,
+        role: user.role,
+        isActive: user.isActive,
+        isSuperAdmin: user.isSuperAdmin,
+        permissions: user.permissions,
+        daycareId: user.daycareId,
       }
     });
 

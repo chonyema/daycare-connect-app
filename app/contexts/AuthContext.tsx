@@ -8,6 +8,11 @@ interface User {
   email: string;
   userType: 'PARENT' | 'PROVIDER' | 'ADMIN';
   phone?: string;
+  role?: string;
+  isActive?: boolean;
+  isSuperAdmin?: boolean;
+  permissions?: string;
+  daycareId?: string;
 }
 
 interface AuthContextType {

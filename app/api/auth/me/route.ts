@@ -28,6 +28,11 @@ export async function GET(request: NextRequest) {
         email: true,
         phone: true,
         userType: true,
+        role: true,
+        isActive: true,
+        isSuperAdmin: true,
+        permissions: true,
+        daycareId: true,
         createdAt: true,
       },
     });
@@ -35,6 +40,12 @@ export async function GET(request: NextRequest) {
     if (!user) {
       return NextResponse.json({ error: 'User not found' }, { status: 401 });
     }
+
+    console.log('=== API /auth/me DEBUG ===');
+    console.log('User from database:', user);
+    console.log('isSuperAdmin:', user.isSuperAdmin);
+    console.log('role:', user.role);
+    console.log('=========================');
 
     return NextResponse.json({ user });
   } catch (error: any) {

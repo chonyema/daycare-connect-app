@@ -5,6 +5,7 @@ import { useAuth } from '../contexts/AuthContext';
 import AuthModal from './AuthModal';
 import DaycareConnectApp from './DaycareConnectApp';
 import ProviderDashboardApp from './ProviderDashboardApp';
+import SuperAdminDashboard from './admin/SuperAdminDashboard';
 import MessageNotifications from './MessageNotifications';
 import MessagingSystem from './MessagingSystem';
 import {
@@ -14,39 +15,85 @@ import {
   Menu,
   X,
   Bell,
-  User
+  User,
+  Shield
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 const UnifiedDaycareApp = () => {
   const { user, loading: authLoading, logout, isProvider, isParent } = useAuth();
-  const [currentInterface, setCurrentInterface] = useState<'parent' | 'provider'>('parent');
+  const [currentInterface, setCurrentInterface] = useState<'parent' | 'provider' | 'admin'>('parent');
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showMessaging, setShowMessaging] = useState(false);
   const [initialConversationId, setInitialConversationId] = useState<string | undefined>();
   const router = useRouter();
 
+  // Safely get RBAC flags from user object
+  const rbacUser = user as any;
+  const isSuperAdmin = Boolean(rbacUser?.isSuperAdmin);
+  const isProviderAdmin = rbacUser?.role === 'PROVIDER_ADMIN' || isSuperAdmin;
+  const isStaff = rbacUser?.role === 'STAFF';
+
+  // Debug logging
+  useEffect(() => {
+    if (user) {
+      console.log('=== USER DEBUG INFO ===');
+      console.log('User object:', user);
+      console.log('isSuperAdmin:', isSuperAdmin);
+      console.log('isProviderAdmin:', isProviderAdmin);
+      console.log('isStaff:', isStaff);
+      console.log('currentInterface:', currentInterface);
+      console.log('======================');
+    }
+  }, [user, isSuperAdmin, isProviderAdmin, isStaff, currentInterface]);
+
   // Set interface based on localStorage or user type
   useEffect(() => {
     // Check if we're on the client side before accessing localStorage
-    if (typeof window !== 'undefined') {
-      // Check if there's a saved interface preference
-      const savedInterface = localStorage.getItem('selectedInterface') as 'parent' | 'provider' | null;
+    if (typeof window !== 'undefined' && user && !authLoading) {
+      // Super Admins ALWAYS default to admin panel unless they explicitly chose otherwise
+      if (isSuperAdmin) {
+        const savedInterface = localStorage.getItem('selectedInterface') as 'parent' | 'provider' | 'admin' | null;
+        // Only respect savedInterface if it exists, otherwise default to admin
+        if (savedInterface) {
+          setCurrentInterface(savedInterface);
+        } else {
+          setCurrentInterface('admin');
+          localStorage.setItem('selectedInterface', 'admin');
+        }
+      } else {
+        // For non-super-admins, use saved preference or default based on role
+        const savedInterface = localStorage.getItem('selectedInterface') as 'parent' | 'provider' | 'admin' | null;
 
-      if (savedInterface) {
-        setCurrentInterface(savedInterface);
-      } else if (user && !authLoading) {
-        // Default to their account type for new users
-        if (isProvider) {
-          setCurrentInterface('provider');
+        if (savedInterface) {
+          // Validate they have access to the saved interface
+          if (savedInterface === 'admin') {
+            // Non-super-admin can't access admin, reset to appropriate view
+            const newInterface = isProvider || isProviderAdmin || isStaff ? 'provider' : 'parent';
+            setCurrentInterface(newInterface);
+            localStorage.setItem('selectedInterface', newInterface);
+          } else if (savedInterface === 'provider' && !(isProvider || isProviderAdmin || isStaff)) {
+            // If saved as provider but not provider anymore, reset to parent
+            setCurrentInterface('parent');
+            localStorage.setItem('selectedInterface', 'parent');
+          } else {
+            setCurrentInterface(savedInterface);
+          }
+        } else {
+          // Default to their account type for new users
+          if (isProvider || isProviderAdmin || isStaff) {
+            setCurrentInterface('provider');
+          } else {
+            setCurrentInterface('parent');
+          }
         }
       }
     }
-  }, [user, isProvider, authLoading]);
+  }, [user, isProvider, isProviderAdmin, isStaff, isSuperAdmin, authLoading]);
 
   // Handle interface switching
-  const handleInterfaceSwitch = (newInterface: 'parent' | 'provider') => {
+  const handleInterfaceSwitch = (newInterface: 'parent' | 'provider' | 'admin') => {
     setCurrentInterface(newInterface);
     if (typeof window !== 'undefined') {
       localStorage.setItem('selectedInterface', newInterface);
@@ -97,18 +144,31 @@ const UnifiedDaycareApp = () => {
               </button>
               <button
                 onClick={() => handleInterfaceSwitch('provider')}
-                disabled={!isProvider}
+                disabled={!isProvider && !isProviderAdmin && !isStaff}
                 className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
                   currentInterface === 'provider'
                     ? 'bg-white text-blue-600 shadow-sm'
-                    : isProvider
+                    : (isProvider || isProviderAdmin || isStaff)
                       ? 'text-gray-600 hover:text-gray-900'
                       : 'text-gray-400 cursor-not-allowed'
                 }`}
-                title={!isProvider ? 'Provider account required' : ''}
+                title={!(isProvider || isProviderAdmin || isStaff) ? 'Provider account required' : ''}
               >
                 Provider View
               </button>
+              {isSuperAdmin && (
+                <button
+                  onClick={() => handleInterfaceSwitch('admin')}
+                  className={`px-4 py-2 rounded-md text-sm font-medium transition-all flex items-center gap-1 ${
+                    currentInterface === 'admin'
+                      ? 'bg-white text-purple-600 shadow-sm'
+                      : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  <Shield className="h-4 w-4" />
+                  Admin Panel
+                </button>
+              )}
             </div>
           )}
 
@@ -189,14 +249,25 @@ const UnifiedDaycareApp = () => {
                   </button>
                   <button
                     onClick={() => handleInterfaceSwitch('provider')}
-                    disabled={!isProvider}
+                    disabled={!isProvider && !isProviderAdmin && !isStaff}
                     className={`block w-full text-left px-3 py-2 rounded-md text-sm font-medium ${
                       currentInterface === 'provider' ? 'bg-blue-50 text-blue-600' :
-                      isProvider ? 'text-gray-600' : 'text-gray-400'
+                      (isProvider || isProviderAdmin || isStaff) ? 'text-gray-600' : 'text-gray-400'
                     }`}
                   >
-                    Provider View {!isProvider && '(Requires provider account)'}
+                    Provider View {!(isProvider || isProviderAdmin || isStaff) && '(Requires provider account)'}
                   </button>
+                  {isSuperAdmin && (
+                    <button
+                      onClick={() => handleInterfaceSwitch('admin')}
+                      className={`block w-full text-left px-3 py-2 rounded-md text-sm font-medium flex items-center gap-2 ${
+                        currentInterface === 'admin' ? 'bg-purple-50 text-purple-600' : 'text-gray-600'
+                      }`}
+                    >
+                      <Shield className="h-4 w-4" />
+                      Admin Panel
+                    </button>
+                  )}
                 </div>
                 <div className="px-4 pt-2 border-t border-gray-200">
                   <button
@@ -320,12 +391,17 @@ const UnifiedDaycareApp = () => {
   // Main app content based on selected interface
   return (
     <div className="min-h-screen bg-gray-50">
-      <UnifiedHeader />
-
-      {currentInterface === 'parent' ? (
-        <DaycareConnectApp user={user} />
+      {currentInterface === 'admin' ? (
+        <SuperAdminDashboard />
       ) : (
-        <ProviderDashboardApp />
+        <>
+          <UnifiedHeader />
+          {currentInterface === 'parent' ? (
+            <DaycareConnectApp user={user} />
+          ) : (
+            <ProviderDashboardApp />
+          )}
+        </>
       )}
 
       {/* Auth Modal */}
