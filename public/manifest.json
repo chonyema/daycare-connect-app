@@ -9,7 +9,9 @@
   "scope": "/",
   "start_url": "/",
   "lang": "en",
+  "dir": "ltr",
   "categories": ["education", "lifestyle", "kids"],
+  "prefer_related_applications": false,
   "icons": [
     {
       "src": "/icons/icon-96x96.svg",
@@ -34,6 +36,12 @@
       "sizes": "512x512",
       "type": "image/svg+xml",
       "purpose": "maskable"
+    },
+    {
+      "src": "/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ],
   "shortcuts": [
@@ -50,6 +58,13 @@
       "description": "View your current bookings",
       "url": "/parent/bookings?shortcut=true",
       "icons": [{ "src": "/icons/icon-96x96.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Settings",
+      "short_name": "Settings",
+      "description": "Manage app settings and preferences",
+      "url": "/settings?shortcut=true",
+      "icons": [{ "src": "/icons/icon-96x96.png", "sizes": "96x96" }]
     }
   ],
   "screenshots": [
@@ -65,5 +80,10 @@
       "type": "image/png",
       "form_factor": "wide"
     }
-  ]
+  ],
+  "display_override": ["standalone", "minimal-ui"],
+  "protocol_handlers": [],
+  "edge_side_panel": {
+    "preferred_width": 480
+  }
 }
