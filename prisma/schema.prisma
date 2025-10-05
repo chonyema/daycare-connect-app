@@ -16,11 +16,23 @@ model User {
   phone     String?
   password  String?
   userType  UserType @default(PARENT)
+  role      Role     @default(USER)
+
+  // RBAC fields
+  isActive  Boolean  @default(true)
+  isSuperAdmin Boolean @default(false)
+  permissions String? // JSON array of custom permissions
+
+  // Staff relationship
+  daycareId String? // For staff members - which daycare they work for
+  employedAt Daycare? @relation("DaycareStaff", fields: [daycareId], references: [id], onDelete: SetNull)
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  lastLoginAt DateTime?
 
   // Relations
-  ownedDaycares Daycare[]
+  ownedDaycares Daycare[] @relation("DaycareOwner")
   bookings     Booking[]
   reviews      Review[]
   savedDaycares SavedDaycare[]
@@ -39,6 +51,9 @@ model User {
 
   // Attendance tracking
   attendanceRecords    Attendance[]
+
+  // Admin activity logs
+  activityLogs         ActivityLog[]
 
   @@map("users")
 }
@@ -82,8 +97,11 @@ model Daycare {
   waitlistCount  Int         @default(0)
   
   // Owner relation
-  ownerId        String      
-  owner          User        @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  ownerId        String
+  owner          User        @relation("DaycareOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+
+  // Staff members
+  staff          User[]      @relation("DaycareStaff")
   
   // Other relations
   bookings       Booking[]
@@ -830,4 +848,35 @@ enum AttendanceStatus {
   CHECKED_OUT
   ABSENT
   LATE
+}
+// === RBAC MODELS ===
+
+model ActivityLog {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  action      String   // e.g., "USER_CREATED", "DAYCARE_DELETED", "ROLE_CHANGED"
+  entity      String   // e.g., "User", "Daycare", "Waitlist"
+  entityId    String?  // ID of the affected entity
+  description String?  // Human-readable description
+  metadata    String?  // JSON data with additional context
+  ipAddress   String?
+  userAgent   String?
+  
+  createdAt   DateTime @default(now())
+  
+  @@map("activity_logs")
+  @@index([userId])
+  @@index([entity, entityId])
+  @@index([createdAt])
+}
+
+// === RBAC ENUMS ===
+
+enum Role {
+  USER           // Regular parent user
+  STAFF          // Daycare staff member
+  PROVIDER_ADMIN // Daycare owner/admin
+  SUPER_ADMIN    // Platform super admin
 }
