@@ -158,5 +158,6 @@ export function hasPermission(role: string, permission: Permission, customPermis
 export function getPermissions(role: string, customPermissions?: string[]): Permission[] {
   const rolePerms = RolePermissions[role as keyof typeof RolePermissions] || [];
   const custom = customPermissions?.filter(p => Object.values(Permission).includes(p as Permission)) || [];
-  return [...new Set([...rolePerms, ...custom as Permission[]])];
+  const combined = [...rolePerms, ...(custom as Permission[])];
+  return Array.from(new Set(combined));
 }
