@@ -41,12 +41,14 @@ export default function RootLayout({
         <meta name="mobile-web-app-capable" content="yes" />
         <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
       </head>
-      <body className={`${inter.className} h-full overflow-x-hidden`}>
+      <body className={`${inter.className} h-full w-full overflow-hidden`}>
         <SplashScreen />
         <AuthProvider>
-          <div className="flex flex-col h-full">
-            <main className="flex-1 overflow-auto pb-16 md:pb-0">
-              {children}
+          <div className="flex flex-col h-full w-full overflow-hidden">
+            <main className="flex-1 overflow-y-auto overflow-x-hidden pb-16 md:pb-0 w-full">
+              <div className="min-h-full w-full max-w-screen-2xl mx-auto">
+                {children}
+              </div>
             </main>
             <div className="md:hidden">
               <BottomNav />
