@@ -44,12 +44,13 @@ export async function GET(req: NextRequest) {
         child: {
           select: {
             id: true,
-            firstName: true,
-            lastName: true,
+            fullName: true,
             dateOfBirth: true,
             allergies: true,
             medicalConditions: true,
-            emergencyContact: true,
+            emergencyContactName: true,
+            emergencyContactPhone: true,
+            emergencyContactRelation: true,
           },
         },
       },
@@ -181,8 +182,7 @@ export async function POST(req: NextRequest) {
         child: {
           select: {
             id: true,
-            firstName: true,
-            lastName: true,
+            fullName: true,
             dateOfBirth: true,
           },
         },
@@ -266,8 +266,7 @@ export async function PUT(req: NextRequest) {
         child: {
           select: {
             id: true,
-            firstName: true,
-            lastName: true,
+            fullName: true,
             dateOfBirth: true,
           },
         },

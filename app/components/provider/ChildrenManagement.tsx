@@ -264,13 +264,21 @@ const ChildrenManagement: React.FC<ChildrenManagementProps> = ({ daycareId }) =>
         </div>
       </div>
 
-      {child.emergencyContact && (
+      {(child.emergencyContactName || child.emergencyContactPhone) && (
         <div className="bg-red-50 p-6 rounded-lg border border-red-200">
           <div className="flex items-center gap-2 mb-4">
             <AlertCircle className="h-5 w-5 text-red-600" />
             <h3 className="font-semibold text-lg text-red-900">Emergency Contact</h3>
           </div>
-          <p className="text-red-800">{child.emergencyContact}</p>
+          {child.emergencyContactName && (
+            <p className="text-red-800 font-medium">{child.emergencyContactName}</p>
+          )}
+          {child.emergencyContactPhone && (
+            <p className="text-red-800">{child.emergencyContactPhone}</p>
+          )}
+          {child.emergencyContactRelation && (
+            <p className="text-red-700 text-sm">Relation: {child.emergencyContactRelation}</p>
+          )}
         </div>
       )}
     </div>

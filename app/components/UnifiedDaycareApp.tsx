@@ -399,7 +399,7 @@ const UnifiedDaycareApp = () => {
           {currentInterface === 'parent' ? (
             <DaycareConnectApp user={user} />
           ) : (
-            <ProviderDashboardApp currentInterface={currentInterface} />
+            <ProviderDashboardApp />
           )}
         </>
       )}

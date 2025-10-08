@@ -437,7 +437,7 @@ export async function GET(request: NextRequest) {
               data: {
                 waitlistEntryId: entry.id,
                 daycareId: entry.daycareId,
-                action: WaitlistAction.STATUS_CHANGED,
+                action: WaitlistAction.STATUS_UPDATED,
                 description: `Offer expired and returned to active waitlist`,
                 performedBy: null,
                 performedByType: null,
