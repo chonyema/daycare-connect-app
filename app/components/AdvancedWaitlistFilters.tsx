@@ -246,7 +246,7 @@ const AdvancedWaitlistFilters: React.FC<AdvancedWaitlistFiltersProps> = ({
               value={criteria.search}
               onChange={(e) => updateCriteria('search', e.target.value)}
               placeholder="Search by child name, parent name, or notes..."
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 

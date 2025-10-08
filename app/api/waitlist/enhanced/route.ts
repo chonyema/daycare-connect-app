@@ -399,9 +399,221 @@ export async function GET(request: NextRequest) {
       } : null
     });
 
+    // Check for expired offers and update them
+    const now = new Date();
+    const expiredOfferUpdates = [];
+    let hasExpiredOffers = false;
+
+    for (const entry of waitlistEntries) {
+      if (entry.status === 'OFFERED' && entry.offers && entry.offers.length > 0) {
+        const latestOffer = entry.offers[0]; // Most recent offer
+        const isExpired = now > new Date(latestOffer.offerExpiresAt);
+
+        // If the latest offer is expired and hasn't been responded to, update the entry
+        if (isExpired && (!latestOffer.response || latestOffer.response === 'PENDING')) {
+          hasExpiredOffers = true;
+
+          expiredOfferUpdates.push(
+            prisma.waitlistEntry.update({
+              where: { id: entry.id },
+              data: {
+                status: 'ACTIVE',
+                lastUpdatedAt: now
+              }
+            })
+          );
+
+          // Also update the offer response to EXPIRED
+          expiredOfferUpdates.push(
+            prisma.waitlistOffer.update({
+              where: { id: latestOffer.id },
+              data: { response: 'EXPIRED' }
+            })
+          );
+
+          // Create audit log for expired offer
+          expiredOfferUpdates.push(
+            prisma.waitlistAuditLog.create({
+              data: {
+                waitlistEntryId: entry.id,
+                daycareId: entry.daycareId,
+                action: WaitlistAction.STATUS_CHANGED,
+                description: `Offer expired and returned to active waitlist`,
+                performedBy: null,
+                performedByType: null,
+                oldValues: JSON.stringify({ status: 'OFFERED' }),
+                newValues: JSON.stringify({ status: 'ACTIVE' }),
+                metadata: JSON.stringify({
+                  offerId: latestOffer.id,
+                  offerExpiredAt: latestOffer.offerExpiresAt,
+                  automaticExpiration: true
+                })
+              }
+            })
+          );
+        }
+      }
+    }
+
+    // Execute all expired offer updates
+    if (expiredOfferUpdates.length > 0) {
+      await Promise.all(expiredOfferUpdates);
+
+      // Refetch the waitlist entries to get updated data
+      const updatedWaitlistEntries = await prisma.waitlistEntry.findMany({
+        where: whereClause,
+        include: {
+          parent: {
+            select: {
+              id: true,
+              name: true,
+              email: true
+            }
+          },
+          daycare: {
+            select: {
+              id: true,
+              name: true,
+              address: true,
+              city: true,
+              phone: true,
+              email: true
+            }
+          },
+          program: {
+            select: {
+              id: true,
+              name: true,
+              description: true,
+              minAgeMonths: true,
+              maxAgeMonths: true
+            }
+          },
+          offers: {
+            orderBy: { createdAt: 'desc' },
+            take: 5,
+            select: {
+              id: true,
+              spotAvailableDate: true,
+              offerExpiresAt: true,
+              response: true,
+              responseNotes: true,
+              createdAt: true
+            }
+          },
+          auditLogs: {
+            orderBy: { createdAt: 'desc' },
+            take: 10,
+            select: {
+              id: true,
+              action: true,
+              description: true,
+              createdAt: true
+            }
+          }
+        },
+        orderBy: [
+          { priorityScore: 'desc' },
+          { joinedAt: 'asc' }
+        ]
+      });
+
+      // Use updated entries for further processing
+      waitlistEntries.splice(0, waitlistEntries.length, ...updatedWaitlistEntries);
+
+      // Recalculate positions for all ACTIVE entries when offers expire
+      if (hasExpiredOffers) {
+        const activeEntries = updatedWaitlistEntries.filter(e => e.status === 'ACTIVE');
+
+        // Add days on waitlist for position calculation
+        const entriesWithDays = activeEntries.map(entry => {
+          const daysOnWaitlist = Math.floor(
+            (now.getTime() - entry.joinedAt.getTime()) / (1000 * 60 * 60 * 24)
+          );
+          return { ...entry, daysOnWaitlist };
+        });
+
+        // Calculate new positions based on priority score and join date
+        const positionUpdates = WaitlistPriorityEngine.calculatePositions(entriesWithDays);
+
+        // Update positions in database
+        const positionUpdatePromises = positionUpdates.map(update =>
+          prisma.waitlistEntry.update({
+            where: { id: update.entryId },
+            data: {
+              position: update.newPosition,
+              lastPositionChange: update.oldPosition !== update.newPosition ? now : undefined
+            }
+          })
+        );
+
+        await Promise.all(positionUpdatePromises);
+
+        // Refetch one more time to get the final updated positions
+        const finalWaitlistEntries = await prisma.waitlistEntry.findMany({
+          where: whereClause,
+          include: {
+            parent: {
+              select: {
+                id: true,
+                name: true,
+                email: true
+              }
+            },
+            daycare: {
+              select: {
+                id: true,
+                name: true,
+                address: true,
+                city: true,
+                phone: true,
+                email: true
+              }
+            },
+            program: {
+              select: {
+                id: true,
+                name: true,
+                description: true,
+                minAgeMonths: true,
+                maxAgeMonths: true
+              }
+            },
+            offers: {
+              orderBy: { createdAt: 'desc' },
+              take: 5,
+              select: {
+                id: true,
+                spotAvailableDate: true,
+                offerExpiresAt: true,
+                response: true,
+                responseNotes: true,
+                createdAt: true
+              }
+            },
+            auditLogs: {
+              orderBy: { createdAt: 'desc' },
+              take: 10,
+              select: {
+                id: true,
+                action: true,
+                description: true,
+                createdAt: true
+              }
+            }
+          },
+          orderBy: [
+            { priorityScore: 'desc' },
+            { joinedAt: 'asc' }
+          ]
+        });
+
+        waitlistEntries.splice(0, waitlistEntries.length, ...finalWaitlistEntries);
+      }
+    }
+
     // Add calculated fields for each entry
     const enhancedEntries = waitlistEntries.map((entry, index) => {
-      const now = new Date();
       const daysOnWaitlist = Math.floor(
         (now.getTime() - entry.joinedAt.getTime()) / (1000 * 60 * 60 * 24)
       );
@@ -411,7 +623,7 @@ export async function GET(request: NextRequest) {
         const expiresAt = new Date(offer.offerExpiresAt);
         const isExpired = now > expiresAt;
         const hoursRemaining = Math.max(0, Math.ceil((expiresAt.getTime() - now.getTime()) / (1000 * 60 * 60)));
-        const canRespond = !isExpired && !offer.response;
+        const canRespond = !isExpired && (!offer.response || offer.response === 'PENDING');
 
         return {
           ...offer,

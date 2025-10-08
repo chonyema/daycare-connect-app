@@ -92,7 +92,9 @@ export async function POST(request: NextRequest) {
       closeTime,
       operatingDays,
       features,
-      images
+      images,
+      jurisdiction,
+      isLicensed
     } = body;
 
     const user = await getUserFromRequest(request);
@@ -120,6 +122,8 @@ export async function POST(request: NextRequest) {
         operatingDays: JSON.stringify(operatingDays),
         features: features ? JSON.stringify(features) : null,
         images: images ? JSON.stringify(images) : null,
+        jurisdiction: jurisdiction || 'ON-CA',
+        isLicensed: isLicensed !== undefined ? isLicensed : true,
         ownerId: providerId,
         verified: false, // Requires admin approval
         active: true,

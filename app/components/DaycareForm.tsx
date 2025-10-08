@@ -40,6 +40,8 @@ const DaycareForm: React.FC<DaycareFormProps> = ({
     closeTime: '18:00',
     operatingDays: [] as string[],
     features: [] as string[],
+    jurisdiction: 'ON-CA',
+    isLicensed: true,
   });
 
   const provinces = [
@@ -98,6 +100,8 @@ const DaycareForm: React.FC<DaycareFormProps> = ({
         closeTime: daycare.closeTime || '18:00',
         operatingDays: daycare.operatingDays ? JSON.parse(daycare.operatingDays) : [],
         features: daycare.features ? JSON.parse(daycare.features) : [],
+        jurisdiction: daycare.jurisdiction || 'ON-CA',
+        isLicensed: daycare.isLicensed !== undefined ? daycare.isLicensed : true,
       });
     } else {
       // Reset form for new daycare
@@ -120,6 +124,8 @@ const DaycareForm: React.FC<DaycareFormProps> = ({
         closeTime: '18:00',
         operatingDays: [],
         features: [],
+        jurisdiction: 'ON-CA',
+        isLicensed: true,
       });
     }
   }, [daycare]);
@@ -219,6 +225,69 @@ const DaycareForm: React.FC<DaycareFormProps> = ({
                     </option>
                   ))}
                 </select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Jurisdiction *
+                </label>
+                <select
+                  name="jurisdiction"
+                  required
+                  value={formData.jurisdiction}
+                  onChange={handleInputChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 bg-white"
+                >
+                  <option value="ON-CA">Ontario, Canada</option>
+                  <option value="AB-CA">Alberta, Canada</option>
+                  <option value="BC-CA">British Columbia, Canada</option>
+                  <option value="MB-CA">Manitoba, Canada</option>
+                  <option value="NB-CA">New Brunswick, Canada</option>
+                  <option value="NL-CA">Newfoundland and Labrador, Canada</option>
+                  <option value="NS-CA">Nova Scotia, Canada</option>
+                  <option value="NT-CA">Northwest Territories, Canada</option>
+                  <option value="NU-CA">Nunavut, Canada</option>
+                  <option value="PE-CA">Prince Edward Island, Canada</option>
+                  <option value="QC-CA">Quebec, Canada</option>
+                  <option value="SK-CA">Saskatchewan, Canada</option>
+                  <option value="YT-CA">Yukon, Canada</option>
+                </select>
+                <p className="text-xs text-gray-500 mt-1">
+                  Select your province/territory for age-based capacity rules
+                </p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Licensing Status *
+                </label>
+                <div className="flex gap-4 mt-2">
+                  <label className="flex items-center">
+                    <input
+                      type="radio"
+                      name="isLicensed"
+                      checked={formData.isLicensed === true}
+                      onChange={() => setFormData({ ...formData, isLicensed: true })}
+                      className="mr-2"
+                    />
+                    <span className="text-sm text-gray-700">Licensed</span>
+                  </label>
+                  <label className="flex items-center">
+                    <input
+                      type="radio"
+                      name="isLicensed"
+                      checked={formData.isLicensed === false}
+                      onChange={() => setFormData({ ...formData, isLicensed: false })}
+                      className="mr-2"
+                    />
+                    <span className="text-sm text-gray-700">Unlicensed</span>
+                  </label>
+                </div>
+                <p className="text-xs text-gray-500 mt-1">
+                  Affects capacity limits and age rules
+                </p>
               </div>
             </div>
 

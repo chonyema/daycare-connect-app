@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { Search, MapPin, Star, Clock, Users, Phone, Mail, Calendar, DollarSign, Heart, X, MessageCircle, Filter, CheckCircle, Loader2, AlertCircle, Upload, FileText, List, UserCheck } from 'lucide-react';
+import { Search, MapPin, Star, Clock, Users, Phone, Mail, Calendar, DollarSign, Heart, X, MessageCircle, Filter, CheckCircle, Loader2, AlertCircle, Upload, FileText, List, UserCheck, Home, Baby } from 'lucide-react';
 import MessageButton from './MessageButton';
 import DocumentUpload from './DocumentUpload';
 import DailyReports from './DailyReports';
@@ -10,6 +10,8 @@ import ParentWaitlistManager from './ParentWaitlistManager';
 import EnhancedWaitlistModal from './EnhancedWaitlistModal';
 import AttendanceHistory from './attendance/AttendanceHistory';
 import { getBookingStatusLabel, getBookingStatusColor } from '@/app/utils/bookingStatus';
+import ParentDashboard from './parent/ParentDashboard';
+import ChildProfiles from './parent/ChildProfiles';
 
 // MOVE SEARCHVIEW OUTSIDE THE MAIN COMPONENT - THIS IS THE KEY FIX!
 const SearchView = React.memo(({
@@ -784,7 +786,8 @@ interface DaycareConnectAppProps {
 }
 
 const DaycareConnectApp: React.FC<DaycareConnectAppProps> = ({ user }) => {
-  const [currentView, setCurrentView] = useState('search');
+  // Default to dashboard if logged in, otherwise search view
+  const [currentView, setCurrentView] = useState(user ? 'dashboard' : 'search');
   const [selectedProvider, setSelectedProvider] = useState<any>(null);
   const [searchLocation, setSearchLocation] = useState('Toronto, ON');
   const [searchQuery, setSearchQuery] = useState('');
@@ -1165,6 +1168,20 @@ const DaycareConnectApp: React.FC<DaycareConnectAppProps> = ({ user }) => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-center space-x-8">
           <button
+            onClick={() => setCurrentView('dashboard')}
+            className={`${currentView === 'dashboard' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 border-b-2 border-transparent'} hover:text-blue-600 px-3 py-4 text-sm font-medium transition-colors flex items-center gap-2`}
+          >
+            <Home className="h-4 w-4" />
+            Dashboard
+          </button>
+          <button
+            onClick={() => setCurrentView('children')}
+            className={`${currentView === 'children' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 border-b-2 border-transparent'} hover:text-blue-600 px-3 py-4 text-sm font-medium transition-colors flex items-center gap-2`}
+          >
+            <Baby className="h-4 w-4" />
+            My Children
+          </button>
+          <button
             onClick={() => setCurrentView('search')}
             className={`${currentView === 'search' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 border-b-2 border-transparent'} hover:text-blue-600 px-3 py-4 text-sm font-medium transition-colors`}
           >
@@ -1213,6 +1230,19 @@ const DaycareConnectApp: React.FC<DaycareConnectAppProps> = ({ user }) => {
       <ParentNavigation />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {currentView === 'dashboard' && user && (
+          <ParentDashboard
+            user={user}
+            onNavigate={setCurrentView}
+            onOpenMessages={() => setShowMessaging(true)}
+          />
+        )}
+        {currentView === 'children' && user && (
+          <ChildProfiles
+            user={user}
+            onNavigate={setCurrentView}
+          />
+        )}
         {currentView === 'search' && (
           <SearchView
             searchQuery={searchQuery}
@@ -1312,7 +1342,7 @@ const DaycareConnectApp: React.FC<DaycareConnectAppProps> = ({ user }) => {
         )}
         {currentView === 'profile' && selectedProvider && <ProviderProfile />}
       </main>
-      
+
       <BookingModal
         selectedProvider={selectedProvider}
         showBookingModal={showBookingModal}

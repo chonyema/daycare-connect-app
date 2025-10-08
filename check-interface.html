@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Interface Checker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        h1 { color: #333; }
+        .result {
+            padding: 15px;
+            border-radius: 4px;
+            margin: 10px 0;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        .warning { background: #fff3cd; color: #856404; border: 1px solid #ffeeba; }
+        button {
+            background: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+        }
+        button:hover { background: #0056b3; }
+        .danger { background: #dc3545; }
+        .danger:hover { background: #c82333; }
+        code {
+            background: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 Provider Portal Interface Checker</h1>
+
+    <div class="card">
+        <h2>Current Interface Status</h2>
+        <div id="status"></div>
+    </div>
+
+    <div class="card">
+        <h2>Actions</h2>
+        <button onclick="switchToProvider()">Switch to Provider View</button>
+        <button onclick="switchToParent()">Switch to Parent View</button>
+        <button onclick="clearStorage()" class="danger">Clear & Reload</button>
+    </div>
+
+    <div class="card">
+        <h2>Instructions</h2>
+        <ol>
+            <li>Open this file in your browser while the app is running</li>
+            <li>Check the "Current Interface Status" above</li>
+            <li>Use the buttons to switch views</li>
+            <li>Go back to your app and refresh the page</li>
+        </ol>
+        <p><strong>Note:</strong> This works because both this page and your app share the same localhost origin.</p>
+    </div>
+
+    <script>
+        function checkStatus() {
+            const selectedInterface = localStorage.getItem('selectedInterface');
+            const statusDiv = document.getElementById('status');
+
+            if (selectedInterface === 'provider') {
+                statusDiv.innerHTML = `
+                    <div class="result success">
+                        ✅ Interface is set to: <code>PROVIDER</code>
+                    </div>
+                    <p>Your app should be showing the Provider Dashboard (not parent tabs).</p>
+                    <p>If you still see "Dashboard" and "My Children" tabs, there may be a bug in the component rendering logic.</p>
+                `;
+            } else if (selectedInterface === 'parent') {
+                statusDiv.innerHTML = `
+                    <div class="result info">
+                        ℹ️ Interface is set to: <code>PARENT</code>
+                    </div>
+                    <p>Your app is showing the Parent view. This is why you see "Dashboard" and "My Children" tabs.</p>
+                    <p><strong>Solution:</strong> Click "Switch to Provider View" button above, then refresh your app.</p>
+                `;
+            } else if (selectedInterface === 'admin') {
+                statusDiv.innerHTML = `
+                    <div class="result warning">
+                        ⚠️ Interface is set to: <code>ADMIN</code>
+                    </div>
+                    <p>Your app is showing the Admin panel.</p>
+                `;
+            } else {
+                statusDiv.innerHTML = `
+                    <div class="result warning">
+                        ⚠️ No interface selected: <code>${selectedInterface || 'null'}</code>
+                    </div>
+                    <p>The app will use the default based on your user type.</p>
+                    <p><strong>Recommendation:</strong> Click "Switch to Provider View" to explicitly set it.</p>
+                `;
+            }
+        }
+
+        function switchToProvider() {
+            localStorage.setItem('selectedInterface', 'provider');
+            alert('✅ Switched to Provider View!\n\nNow go to your app and refresh the page.');
+            checkStatus();
+        }
+
+        function switchToParent() {
+            localStorage.setItem('selectedInterface', 'parent');
+            alert('✅ Switched to Parent View!\n\nNow go to your app and refresh the page.');
+            checkStatus();
+        }
+
+        function clearStorage() {
+            if (confirm('This will clear the interface setting and reload. Continue?')) {
+                localStorage.removeItem('selectedInterface');
+                alert('✅ Cleared! The app will use default settings.\n\nRefresh your app page.');
+                checkStatus();
+            }
+        }
+
+        // Check status on load
+        checkStatus();
+    </script>
+</body>
+</html>

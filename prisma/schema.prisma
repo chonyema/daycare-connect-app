@@ -55,6 +55,9 @@ model User {
   // Admin activity logs
   activityLogs         ActivityLog[]
 
+  // Room/Classroom assignments
+  roomAssignments      RoomStaff[] @relation("RoomStaffAssignment")
+
   @@map("users")
 }
 
@@ -70,32 +73,36 @@ model Daycare {
   phone          String?
   email          String?
   website        String?
-  
+
   // Capacity and availability
   capacity       Int
   currentOccupancy Int       @default(0)
   ageGroups      String      // JSON string: ["Infant", "Toddler"]
-  
+
+  // Age-Rules Capacity Planning
+  jurisdiction   String      @default("ON-CA") // e.g., "ON-CA", "AB-CA", "NY-US"
+  isLicensed     Boolean     @default(true)
+
   // Pricing and hours
   dailyRate      Float
   hourlyRate     Float?
   openTime       String
   closeTime      String
   operatingDays  String      // JSON string: ["Monday", "Tuesday"]
-  
+
   // Features (stored as JSON string)
   features       String?     // JSON string: ["Meals Included", "Playground"]
   images         String?     // JSON string: ["url1", "url2"]
-  
+
   // Status and verification
   verified       Boolean     @default(false)
   active         Boolean     @default(true)
-  
+
   // Ratings
   averageRating  Float?      @default(0)
   totalReviews   Int         @default(0)
   waitlistCount  Int         @default(0)
-  
+
   // Owner relation
   ownerId        String
   owner          User        @relation("DaycareOwner", fields: [ownerId], references: [id], onDelete: Cascade)
@@ -122,6 +129,12 @@ model Daycare {
 
   // Waitlist settings
   waitlistSettings WaitlistSettings?
+
+  // Age-Rules Capacity Planning
+  children       Child[]
+
+  // Rooms/Classrooms
+  rooms          Room[]
 
   createdAt      DateTime    @default(now())
   updatedAt      DateTime    @updatedAt
@@ -831,6 +844,9 @@ model Attendance {
   isLatePickup        Boolean @default(false)
   lateMinutes         Int?
 
+  // Room tracking
+  roomAttendance RoomAttendance?
+
   // Audit
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -872,6 +888,100 @@ model ActivityLog {
   @@index([createdAt])
 }
 
+// === AGE-RULES CAPACITY PLANNING MODELS ===
+
+model Child {
+  id           String    @id @default(cuid())
+
+  // Basic info
+  fullName     String
+  dateOfBirth  DateTime
+
+  // Provider relation
+  daycareId    String
+  daycare      Daycare   @relation(fields: [daycareId], references: [id], onDelete: Cascade)
+
+  // Flags
+  isProviderChild Boolean @default(false) // Provider's own child
+
+  // Enrollment tracking
+  enrollmentStart DateTime @default(now())
+  expectedExit    DateTime? // Planned departure date
+  actualExit      DateTime? // Actual departure date
+  isActive        Boolean  @default(true)
+
+  // Additional info
+  parentName      String?
+  parentContact   String?  // Phone or email
+  notes           String?
+
+  // Medical information
+  allergies       String?  // Comma-separated list of allergies
+  medications     String?  // Current medications
+  medicalConditions String? // Known medical conditions
+  emergencyContactName  String?
+  emergencyContactPhone String?
+  emergencyContactRelation String?
+  doctorName      String?
+  doctorPhone     String?
+  insuranceProvider String?
+  insurancePolicyNumber String?
+
+  // Room assignments
+  roomAssignments RoomChild[]
+
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@index([daycareId, isActive])
+  @@index([daycareId, dateOfBirth])
+  @@map("children")
+}
+
+model JurisdictionRule {
+  id           String  @id @default(cuid())
+
+  // Jurisdiction identifier (e.g., "ON-CA", "AB-CA", "NY-US")
+  jurisdiction String  @unique
+
+  // Human-readable info
+  name         String  // e.g., "Ontario Home Child Care"
+  description  String?
+  country      String  // e.g., "CA", "US"
+
+  // Care type
+  careType     String  // "LICENSED_HOME", "UNLICENSED_HOME", "CENTER"
+
+  // Capacity rules
+  maxTotal     Int     // Maximum total children
+  maxUnder2    Int     // Maximum children under 2 years
+  maxUnder18Months Int? // Some jurisdictions have 18-month rule
+
+  // Age thresholds (in years)
+  countUnder   Int @default(13) // Count children under this age toward total
+  under2Threshold Int @default(2) // Age when child no longer counts as "under 2"
+
+  // Provider's own children rules
+  countProviderChildUnder4 Boolean @default(true) // Count provider's children under 4
+  providerChildExemptAge   Int?    // Age when provider's children don't count
+
+  // Before/after school care
+  includeSchoolAge Boolean @default(true) // Include before/after school kids
+  schoolAgeMin     Int?    // Minimum age for school-age category
+
+  // Active status
+  isActive     Boolean @default(true)
+
+  // Notes and references
+  regulationReference String? // Link to official regulation
+  notes               String?
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("jurisdiction_rules")
+}
+
 // === RBAC ENUMS ===
 
 enum Role {
@@ -879,4 +989,313 @@ enum Role {
   STAFF          // Daycare staff member
   PROVIDER_ADMIN // Daycare owner/admin
   SUPER_ADMIN    // Platform super admin
+}
+
+// === ROOMS/CLASSROOMS FEATURE ===
+
+model Room {
+  id          String   @id @default(cuid())
+
+  // Basic info
+  daycareId   String
+  daycare     Daycare  @relation(fields: [daycareId], references: [id], onDelete: Cascade)
+
+  name        String   // "Infant Room A", "Toddler 1", "Preschool Blue"
+  description String?
+  roomType    RoomType @default(CLASSROOM)
+
+  // Age band configuration
+  minAgeMonths Int
+  maxAgeMonths Int
+
+  // Capacity and ratios
+  totalCapacity     Int
+  currentOccupancy  Int @default(0)
+  staffChildRatio   String // e.g., "1:3", "1:5", "1:8" - JSON for different age ranges
+  minStaffRequired  Int @default(1)
+  maxStaffAllowed   Int?
+
+  // Operating schedule
+  operatingDays   String // JSON: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
+  openTime        String // "07:00"
+  closeTime       String // "18:00"
+
+  // Location within facility
+  floorLevel      String? // "Ground Floor", "Second Floor"
+  roomNumber      String?
+  squareFootage   Int?
+
+  // Features and equipment
+  features        String? // JSON: ["Outdoor Access", "Washroom Attached", "Kitchen Area"]
+  equipment       String? // JSON: ["Cribs", "High Chairs", "Play Equipment"]
+
+  // Status and flags
+  isActive        Boolean @default(true)
+  acceptingEnrollments Boolean @default(true)
+
+  // Licensing and compliance
+  licenseNumber   String?
+  lastInspection  DateTime?
+  nextInspection  DateTime?
+  complianceNotes String?
+
+  // Pricing (can override daycare defaults)
+  dailyRate      Float?
+  hourlyRate     Float?
+
+  // Relations
+  staff          RoomStaff[]
+  children       RoomChild[]
+  schedules      RoomSchedule[]
+  attendanceRecords RoomAttendance[]
+  incidents      RoomIncident[]
+
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([daycareId, isActive])
+  @@map("rooms")
+}
+
+model RoomStaff {
+  id          String @id @default(cuid())
+
+  // Relations
+  roomId      String
+  room        Room   @relation(fields: [roomId], references: [id], onDelete: Cascade)
+
+  staffId     String
+  staff       User   @relation("RoomStaffAssignment", fields: [staffId], references: [id], onDelete: Cascade)
+
+  // Assignment details
+  role        StaffRoomRole @default(ASSISTANT)
+  isPrimary   Boolean @default(false) // Primary educator for the room
+
+  // Schedule
+  assignedDays String // JSON: ["Monday", "Tuesday", "Wednesday"]
+  startTime   String?
+  endTime     String?
+
+  // Status
+  isActive    Boolean @default(true)
+  startDate   DateTime @default(now())
+  endDate     DateTime?
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([roomId, staffId])
+  @@index([roomId, isActive])
+  @@index([staffId, isActive])
+  @@map("room_staff")
+}
+
+model RoomChild {
+  id          String @id @default(cuid())
+
+  // Relations
+  roomId      String
+  room        Room   @relation(fields: [roomId], references: [id], onDelete: Cascade)
+
+  childId     String
+  child       Child  @relation(fields: [childId], references: [id], onDelete: Cascade)
+
+  // Assignment details
+  isPrimary   Boolean @default(true) // Primary room vs occasional visit
+
+  // Schedule
+  assignedDays String // JSON: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
+  startTime   String? // Typical arrival time
+  endTime     String? // Typical departure time
+
+  // Status
+  isActive    Boolean @default(true)
+  startDate   DateTime @default(now())
+  endDate     DateTime? // When child left this room
+
+  // Transition tracking
+  previousRoomId String?
+  transitionReason String?
+  transitionNotes String?
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([roomId, childId, startDate])
+  @@index([roomId, isActive])
+  @@index([childId])
+  @@map("room_children")
+}
+
+model RoomSchedule {
+  id          String @id @default(cuid())
+
+  // Relations
+  roomId      String
+  room        Room   @relation(fields: [roomId], references: [id], onDelete: Cascade)
+
+  // Schedule details
+  dayOfWeek   DayOfWeek
+  startTime   String
+  endTime     String
+
+  // Activity/routine
+  activityType String // "Circle Time", "Outdoor Play", "Meal Time", "Nap Time"
+  description  String?
+
+  // Staffing for this time block
+  requiredStaff Int
+
+  // Recurring or one-time
+  isRecurring  Boolean @default(true)
+  effectiveDate DateTime?
+  expiryDate    DateTime?
+
+  // Status
+  isActive    Boolean @default(true)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([roomId, dayOfWeek])
+  @@map("room_schedules")
+}
+
+model RoomAttendance {
+  id          String @id @default(cuid())
+
+  // Relations
+  roomId      String
+  room        Room   @relation(fields: [roomId], references: [id], onDelete: Cascade)
+
+  attendanceId String
+  attendance   Attendance @relation(fields: [attendanceId], references: [id], onDelete: Cascade)
+
+  // Snapshot data for analytics
+  checkInTime  DateTime
+  checkOutTime DateTime?
+
+  // Room capacity at check-in
+  occupancyAtCheckIn Int
+  staffCountAtCheckIn Int
+  ratioAtCheckIn     String? // Calculated ratio at time of check-in
+
+  // Room transition tracking
+  transferredToRoomId String?
+  transferTime        DateTime?
+  transferReason      String?
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([attendanceId])
+  @@index([roomId, checkInTime])
+  @@map("room_attendance")
+}
+
+model RoomIncident {
+  id          String @id @default(cuid())
+
+  // Relations
+  roomId      String
+  room        Room   @relation(fields: [roomId], references: [id], onDelete: Cascade)
+
+  // Incident details
+  incidentType IncidentType
+  severity     IncidentSeverity @default(LOW)
+
+  title        String
+  description  String
+
+  // When and who
+  occurredAt   DateTime
+  reportedBy   String // User ID
+  reportedAt   DateTime @default(now())
+
+  // Children involved
+  childrenInvolved String? // JSON array of child IDs
+
+  // Staff involved/witnesses
+  staffInvolved String? // JSON array of staff IDs
+
+  // Actions taken
+  actionsTaken String?
+
+  // Follow-up
+  requiresFollowUp Boolean @default(false)
+  followUpNotes    String?
+  followUpCompletedAt DateTime?
+
+  // Parent notification
+  parentsNotified  Boolean @default(false)
+  notifiedAt       DateTime?
+
+  // Photos/documents
+  attachments      String? // JSON array of URLs
+
+  // Status
+  status      IncidentStatus @default(REPORTED)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([roomId, occurredAt])
+  @@index([roomId, status])
+  @@map("room_incidents")
+}
+
+// === ROOMS/CLASSROOMS ENUMS ===
+
+enum RoomType {
+  CLASSROOM        // Regular classroom/playroom
+  INFANT_ROOM      // Specialized infant care
+  TODDLER_ROOM     // Toddler-specific room
+  PRESCHOOL_ROOM   // Preschool classroom
+  NAP_ROOM         // Dedicated nap/rest room
+  OUTDOOR_AREA     // Outdoor play space
+  MULTI_PURPOSE    // Gym, cafeteria, etc.
+}
+
+enum StaffRoomRole {
+  LEAD_TEACHER     // Lead/head teacher
+  ASSISTANT        // Assistant teacher
+  FLOATER          // Relief/floating staff
+  SPECIALIST       // Special education, etc.
+  VOLUNTEER        // Parent volunteers, students
+}
+
+enum DayOfWeek {
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+  SATURDAY
+  SUNDAY
+}
+
+enum IncidentType {
+  INJURY           // Physical injury
+  ILLNESS          // Child became ill
+  BEHAVIORAL       // Behavioral incident
+  ACCIDENT         // Accident (spill, broken item)
+  SAFETY_CONCERN   // Safety hazard identified
+  MEDICATION_ERROR // Medication administration error
+  ALLERGIC_REACTION // Allergic reaction
+  EVACUATION       // Emergency evacuation
+  OTHER
+}
+
+enum IncidentSeverity {
+  LOW      // Minor, no medical attention needed
+  MEDIUM   // Required first aid
+  HIGH     // Required medical attention
+  CRITICAL // Emergency response required
+}
+
+enum IncidentStatus {
+  REPORTED     // Initial report
+  INVESTIGATING // Under review
+  RESOLVED     // Completed
+  REQUIRES_ACTION // Needs follow-up
 }

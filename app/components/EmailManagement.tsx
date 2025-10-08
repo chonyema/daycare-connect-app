@@ -286,7 +286,7 @@ const EmailManagement = () => {
     <div className="space-y-6">
       <div className="flex items-center gap-2 mb-6">
         <Mail className="h-6 w-6 text-blue-600" />
-        <h2 className="text-2xl font-bold">Email Management</h2>
+        <h2 className="text-2xl font-bold text-gray-900">Email Management</h2>
       </div>
 
       {/* Tab Navigation */}

@@ -178,7 +178,7 @@ export default function AttendanceHistory({
                 onChange={(e) =>
                   setFilters({ ...filters, status: e.target.value })
                 }
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 bg-white"
               >
                 <option value="">All</option>
                 <option value="CHECKED_IN">Checked In</option>
@@ -197,7 +197,7 @@ export default function AttendanceHistory({
                 onChange={(e) =>
                   setFilters({ ...filters, startDate: e.target.value })
                 }
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 bg-white"
               />
             </div>
 
@@ -211,7 +211,7 @@ export default function AttendanceHistory({
                 onChange={(e) =>
                   setFilters({ ...filters, endDate: e.target.value })
                 }
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 bg-white"
               />
             </div>
 

@@ -241,7 +241,7 @@ const BookingManagement = () => {
             placeholder="Search bookings..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="px-3 py-1 border border-gray-300 rounded-md text-sm"
+            className="px-3 py-1 border border-gray-300 rounded-md text-sm text-gray-900 bg-white"
           />
         </div>
 
@@ -253,7 +253,7 @@ const BookingManagement = () => {
               setDaycareFilter(e.target.value);
               setCurrentPage(1);
             }}
-            className="px-3 py-1 border border-gray-300 rounded-md text-sm"
+            className="px-3 py-1 border border-gray-300 rounded-md text-sm text-gray-900 bg-white"
           >
             <option value="ALL">All Daycares</option>
             {daycares.map((daycare) => (

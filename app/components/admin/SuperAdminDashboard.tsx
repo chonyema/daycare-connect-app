@@ -7,11 +7,12 @@ import { useAuth } from '@/app/contexts/AuthContext';
 import UserManagement from './UserManagement';
 import ActivityLogs from './ActivityLogs';
 import SystemStats from './SystemStats';
+import RolesPermissions from './RolesPermissions';
 
 export default function SuperAdminDashboard() {
   const { isSuperAdmin } = useRBAC();
   const { logout } = useAuth();
-  const [activeTab, setActiveTab] = useState<'stats' | 'users' | 'activity'>('stats');
+  const [activeTab, setActiveTab] = useState<'stats' | 'users' | 'activity' | 'roles'>('stats');
 
   const handleBackToApp = () => {
     if (typeof window !== 'undefined') {
@@ -37,6 +38,7 @@ export default function SuperAdminDashboard() {
   const tabs = [
     { id: 'stats' as const, label: 'Dashboard', icon: BarChart3 },
     { id: 'users' as const, label: 'User Management', icon: Users },
+    { id: 'roles' as const, label: 'Roles & Permissions', icon: Shield },
     { id: 'activity' as const, label: 'Activity Logs', icon: Activity },
   ];
 
@@ -104,6 +106,7 @@ export default function SuperAdminDashboard() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {activeTab === 'stats' && <SystemStats />}
         {activeTab === 'users' && <UserManagement />}
+        {activeTab === 'roles' && <RolesPermissions />}
         {activeTab === 'activity' && <ActivityLogs />}
       </div>
     </div>

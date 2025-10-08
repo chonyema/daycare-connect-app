@@ -67,20 +67,10 @@ async function generateWaitlistNotifications(userId: string, userType: 'PARENT' 
       for (const offer of entry.offers) {
         const isRecent = new Date().getTime() - offer.createdAt.getTime() < 7 * 24 * 60 * 60 * 1000; // 7 days
         if (isRecent) {
-          if (!offer.response || offer.response === 'PENDING') {
-            notifications.push({
-              id: `offer-${offer.id}`,
-              type: 'offer_received',
-              title: 'New Spot Offer!',
-              message: `You have a new spot offer for ${entry.childName} at ${entry.daycare.name}. Expires ${offer.offerExpiresAt.toLocaleDateString()}.`,
-              timestamp: offer.createdAt,
-              read: false,
-              actionable: true,
-              actionUrl: `/offers/${offer.id}`,
-              priority: 'high',
-              metadata: { offerId: offer.id, entryId: entry.id }
-            });
-          } else if (offer.response === 'EXPIRED') {
+          // Check if offer has expired based on date
+          const isExpired = new Date() > offer.offerExpiresAt;
+
+          if (isExpired || offer.response === 'EXPIRED') {
             notifications.push({
               id: `offer-expired-${offer.id}`,
               type: 'offer_expired',
@@ -90,6 +80,18 @@ async function generateWaitlistNotifications(userId: string, userType: 'PARENT' 
               read: false,
               actionable: false,
               priority: 'medium',
+              metadata: { offerId: offer.id, entryId: entry.id }
+            });
+          } else if (!offer.response || offer.response === 'PENDING') {
+            notifications.push({
+              id: `offer-${offer.id}`,
+              type: 'offer_received',
+              title: 'New Spot Offer!',
+              message: `You have a new spot offer for ${entry.childName} at ${entry.daycare.name}. Expires ${offer.offerExpiresAt.toLocaleDateString()}.`,
+              timestamp: offer.createdAt,
+              read: false,
+              actionable: false,
+              priority: 'high',
               metadata: { offerId: offer.id, entryId: entry.id }
             });
           }

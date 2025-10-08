@@ -22,6 +22,15 @@ import {
   Mail,
   FileText,
   UserCheck,
+  Calculator,
+  ChevronDown,
+  ChevronRight,
+  Menu,
+  X,
+  LayoutDashboard,
+  Building2,
+  ClipboardList,
+  Layers,
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import DaycareForm from './DaycareForm';
@@ -33,6 +42,10 @@ import EnhancedProviderWaitlistDashboard from './EnhancedProviderWaitlistDashboa
 import DailyReports from './DailyReports';
 import TodayAttendance from './attendance/TodayAttendance';
 import AttendanceHistory from './attendance/AttendanceHistory';
+import CapacityPlanner from './capacity/CapacityPlanner';
+import ChildrenManagement from './provider/ChildrenManagement';
+import RoomManagement from './rooms/RoomManagement';
+import StaffManagement from './provider/StaffManagement';
 import { getBookingStatusLabel, getBookingStatusColor } from '@/app/utils/bookingStatus';
 
 interface Daycare {
@@ -66,7 +79,7 @@ interface Booking {
 }
 
 const ProviderDashboardApp = () => {
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, logout } = useAuth();
   const [activeTab, setActiveTab] = useState('dashboard');
   const [daycares, setDaycares] = useState<Daycare[]>([]);
   const [bookings, setBookings] = useState<Booking[]>([]);
@@ -75,6 +88,9 @@ const ProviderDashboardApp = () => {
   const [editingDaycare, setEditingDaycare] = useState<Daycare | null>(null);
   const [showMessaging, setShowMessaging] = useState(false);
   const [selectedAttendanceDaycareId, setSelectedAttendanceDaycareId] = useState<string>('');
+  const [selectedDaycareId, setSelectedDaycareId] = useState<string>('');
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [expandedSections, setExpandedSections] = useState<string[]>(['overview', 'management']);
   const [stats, setStats] = useState({
     totalRevenue: 0,
     activeBookings: 0,
@@ -102,9 +118,14 @@ const ProviderDashboardApp = () => {
       if (daycaresRes.ok) {
         const daycaresData = await daycaresRes.json();
         setDaycares(daycaresData);
-        // Set first daycare as default for attendance
-        if (daycaresData.length > 0 && !selectedAttendanceDaycareId) {
-          setSelectedAttendanceDaycareId(daycaresData[0].id);
+        // Set first daycare as default for attendance and rooms
+        if (daycaresData.length > 0) {
+          if (!selectedAttendanceDaycareId) {
+            setSelectedAttendanceDaycareId(daycaresData[0].id);
+          }
+          if (!selectedDaycareId) {
+            setSelectedDaycareId(daycaresData[0].id);
+          }
         }
       }
 
@@ -182,51 +203,140 @@ const ProviderDashboardApp = () => {
     }
   };
 
-  // Loading check - return early if still loading
-  if (loading || authLoading) {
+  const toggleSection = (sectionId: string) => {
+    setExpandedSections(prev =>
+      prev.includes(sectionId)
+        ? prev.filter(id => id !== sectionId)
+        : [...prev, sectionId]
+    );
+  };
+
+  // Side Navigation with collapsible sections
+  const SideNavigation = () => {
+    const navigationSections = [
+      {
+        id: 'overview',
+        label: 'Overview',
+        icon: LayoutDashboard,
+        items: [
+          { id: 'dashboard', label: 'Dashboard', icon: BarChart3 },
+          { id: 'analytics', label: 'Analytics', icon: TrendingUp },
+        ]
+      },
+      {
+        id: 'management',
+        label: 'Management',
+        icon: Building2,
+        items: [
+          { id: 'daycares', label: 'My Daycares', icon: Home },
+          { id: 'rooms', label: 'Rooms/Classes', icon: Layers },
+          { id: 'staff', label: 'Staff', icon: UserCheck },
+          { id: 'children', label: 'Children', icon: Users },
+          { id: 'bookings', label: 'Bookings', icon: Calendar },
+          { id: 'waitlist', label: 'Waitlist', icon: ClipboardList },
+        ]
+      },
+      {
+        id: 'operations',
+        label: 'Operations',
+        icon: UserCheck,
+        items: [
+          { id: 'attendance', label: 'Attendance', icon: UserCheck },
+          { id: 'daily-reports', label: 'Daily Reports', icon: FileText },
+          { id: 'capacity', label: 'Capacity Planning', icon: Calculator },
+        ]
+      },
+      {
+        id: 'communication',
+        label: 'Communication',
+        icon: MessageCircle,
+        items: [
+          { id: 'messages', label: 'Messages', icon: MessageCircle },
+          { id: 'emails', label: 'Emails', icon: Mail },
+        ]
+      }
+    ];
+
     return (
-      <div className="flex items-center justify-center py-20">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading your dashboard...</p>
+      <div className={`${sidebarCollapsed ? 'w-16' : 'w-64'} bg-gray-900 text-white h-screen flex flex-col transition-all duration-300 fixed left-0 top-0 z-50`}>
+        {/* Header */}
+        <div className="p-4 border-b border-gray-800 flex items-center justify-between">
+          {!sidebarCollapsed && <h2 className="text-xl font-bold">Provider</h2>}
+          <button
+            onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+            className="p-2 hover:bg-gray-800 rounded-lg"
+          >
+            {sidebarCollapsed ? <Menu className="h-5 w-5" /> : <X className="h-5 w-5" />}
+          </button>
         </div>
+
+        {/* Navigation */}
+        <nav className="flex-1 overflow-y-auto py-4">
+          {navigationSections.map((section) => (
+            <div key={section.id} className="mb-2">
+              {!sidebarCollapsed && (
+                <button
+                  onClick={() => toggleSection(section.id)}
+                  className="w-full px-4 py-2 flex items-center justify-between text-gray-400 hover:text-white hover:bg-gray-800 transition-colors"
+                >
+                  <div className="flex items-center gap-3">
+                    <section.icon className="h-5 w-5" />
+                    <span className="font-semibold text-sm">{section.label}</span>
+                  </div>
+                  {expandedSections.includes(section.id) ? (
+                    <ChevronDown className="h-4 w-4" />
+                  ) : (
+                    <ChevronRight className="h-4 w-4" />
+                  )}
+                </button>
+              )}
+
+              {(expandedSections.includes(section.id) || sidebarCollapsed) && (
+                <div className={sidebarCollapsed ? '' : 'ml-4'}>
+                  {section.items.map((item) => (
+                    <button
+                      key={item.id}
+                      onClick={() => setActiveTab(item.id)}
+                      className={`w-full px-4 py-2.5 flex items-center gap-3 transition-colors ${
+                        activeTab === item.id
+                          ? 'bg-blue-600 text-white'
+                          : 'text-gray-300 hover:bg-gray-800 hover:text-white'
+                      } ${sidebarCollapsed ? 'justify-center' : ''}`}
+                      title={sidebarCollapsed ? item.label : ''}
+                    >
+                      <item.icon className="h-5 w-5 flex-shrink-0" />
+                      {!sidebarCollapsed && <span className="font-medium">{item.label}</span>}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          ))}
+        </nav>
+
+        {/* User Section */}
+        {!sidebarCollapsed && (
+          <div className="p-4 border-t border-gray-800">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
+                {user?.name?.charAt(0) || 'P'}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium truncate">{user?.name || 'Provider'}</p>
+                <p className="text-xs text-gray-400 truncate">{user?.email}</p>
+              </div>
+            </div>
+            <button
+              onClick={logout}
+              className="w-full px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded-lg text-sm font-medium transition-colors"
+            >
+              Sign Out
+            </button>
+          </div>
+        )}
       </div>
     );
-  }
-
-  // Provider Navigation
-  const ProviderNavigation = () => (
-    <nav className="bg-white border-b border-gray-200">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex space-x-8">
-          {[
-            { id: 'dashboard', label: 'Dashboard', icon: BarChart3 },
-            { id: 'daycares', label: 'My Daycares', icon: Home },
-            { id: 'bookings', label: 'Bookings', icon: Calendar },
-            { id: 'attendance', label: 'Attendance', icon: UserCheck },
-            { id: 'waitlist', label: 'Waitlist', icon: Users },
-            { id: 'daily-reports', label: 'Daily Reports', icon: FileText },
-            { id: 'analytics', label: 'Analytics', icon: TrendingUp },
-            { id: 'emails', label: 'Emails', icon: Mail },
-            { id: 'messages', label: 'Messages', icon: MessageCircle },
-          ].map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-2 py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
-                activeTab === tab.id
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
-            >
-              <tab.icon className="h-4 w-4" />
-              {tab.label}
-            </button>
-          ))}
-        </div>
-      </div>
-    </nav>
-  );
+  };
 
   const DashboardView = () => (
     <div className="space-y-6">
@@ -404,12 +514,14 @@ const ProviderDashboardApp = () => {
     </div>
   );
 
+  // Main component return
   return (
-    <div>
-      <ProviderNavigation />
+    <div className="flex h-screen overflow-hidden bg-gray-100">
+      <SideNavigation />
 
-      {/* Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      {/* Main Content Area */}
+      <div className={`flex-1 overflow-y-auto transition-all duration-300 ${sidebarCollapsed ? 'ml-16' : 'ml-64'}`}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {activeTab === 'dashboard' && <DashboardView />}
         {activeTab === 'daycares' && <DaycaresView />}
         {activeTab === 'bookings' && <BookingManagement />}
@@ -429,7 +541,7 @@ const ProviderDashboardApp = () => {
                 <select
                   value={selectedAttendanceDaycareId}
                   onChange={(e) => setSelectedAttendanceDaycareId(e.target.value)}
-                  className="w-full md:w-64 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full md:w-64 px-3 py-2 border border-gray-300 rounded-lg text-gray-900 bg-white focus:ring-2 focus:ring-blue-500"
                 >
                   {daycares.map(daycare => (
                     <option key={daycare.id} value={daycare.id}>
@@ -514,6 +626,137 @@ const ProviderDashboardApp = () => {
             }}
           />
         )}
+        {activeTab === 'capacity' && (
+          <div className="space-y-6">
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">Capacity Planning</h2>
+              <p className="text-gray-600">Automated age-based capacity tracking and 12-month forecasting</p>
+            </div>
+
+            {daycares.length === 0 ? (
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
+                <h3 className="font-bold text-yellow-900 mb-2">No Daycares Found</h3>
+                <p className="text-sm text-yellow-700 mb-4">
+                  You need to create a daycare first to use capacity planning.
+                </p>
+                <button
+                  onClick={() => setActiveTab('daycares')}
+                  className="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700"
+                >
+                  Go to My Daycares
+                </button>
+              </div>
+            ) : (
+              <>
+                {daycares.length > 1 && (
+                  <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Select Daycare
+                    </label>
+                    <select
+                      value={selectedDaycareId || daycares[0].id}
+                      onChange={(e) => setSelectedDaycareId(e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 bg-white"
+                    >
+                      {daycares.map((daycare) => (
+                        <option key={daycare.id} value={daycare.id}>
+                          {daycare.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+                <CapacityPlanner daycareId={selectedDaycareId || daycares[0].id} />
+              </>
+            )}
+          </div>
+        )}
+        {activeTab === 'children' && <ChildrenManagement />}
+        {activeTab === 'staff' && (
+          <div className="space-y-6">
+            {daycares.length === 0 ? (
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
+                <h3 className="font-bold text-yellow-900 mb-2">No Daycares Found</h3>
+                <p className="text-sm text-yellow-700 mb-4">
+                  You need to create a daycare first to manage staff members.
+                </p>
+                <button
+                  onClick={() => setActiveTab('daycares')}
+                  className="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700"
+                >
+                  Go to My Daycares
+                </button>
+              </div>
+            ) : (
+              <>
+                {daycares.length > 1 && (
+                  <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Select Daycare
+                    </label>
+                    <select
+                      value={selectedDaycareId || daycares[0].id}
+                      onChange={(e) => setSelectedDaycareId(e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 bg-white"
+                    >
+                      {daycares.map((daycare) => (
+                        <option key={daycare.id} value={daycare.id}>
+                          {daycare.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+                <StaffManagement daycareId={selectedDaycareId || daycares[0]?.id} />
+              </>
+            )}
+          </div>
+        )}
+        {activeTab === 'rooms' && (
+          <div className="space-y-6">
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">Rooms & Classes</h2>
+              <p className="text-gray-600">Manage classroom spaces and age group assignments</p>
+            </div>
+
+            {daycares.length === 0 ? (
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
+                <h3 className="font-bold text-yellow-900 mb-2">No Daycares Found</h3>
+                <p className="text-sm text-yellow-700 mb-4">
+                  You need to create a daycare first to manage rooms and classes.
+                </p>
+                <button
+                  onClick={() => setActiveTab('daycares')}
+                  className="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700"
+                >
+                  Go to My Daycares
+                </button>
+              </div>
+            ) : (
+              <>
+                {daycares.length > 1 && (
+                  <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Select Daycare
+                    </label>
+                    <select
+                      value={selectedDaycareId}
+                      onChange={(e) => setSelectedDaycareId(e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 bg-white"
+                    >
+                      {daycares.map((daycare) => (
+                        <option key={daycare.id} value={daycare.id}>
+                          {daycare.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+                {selectedDaycareId && <RoomManagement daycareId={selectedDaycareId} />}
+              </>
+            )}
+          </div>
+        )}
         {activeTab === 'analytics' && <Analytics />}
         {activeTab === 'emails' && <EmailManagement />}
       </div>
@@ -541,6 +784,7 @@ const ProviderDashboardApp = () => {
           onClose={() => setShowMessaging(false)}
         />
       )}
+      </div>
     </div>
   );
 };

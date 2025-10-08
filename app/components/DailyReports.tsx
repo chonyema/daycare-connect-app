@@ -247,7 +247,7 @@ const DailyReports: React.FC<DailyReportsProps> = ({ userType, currentUser }) =>
           <select
             value={dateFilter}
             onChange={(e) => setDateFilter(e.target.value)}
-            className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
           >
             <option value="today">Today</option>
             <option value="this-week">This Week</option>
@@ -275,7 +275,7 @@ const DailyReports: React.FC<DailyReportsProps> = ({ userType, currentUser }) =>
           {userType === 'PROVIDER' && (
             <button
               onClick={() => setShowReportForm(true)}
-              className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+              className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium"
             >
               Create First Report
             </button>
@@ -474,7 +474,7 @@ const DailyReports: React.FC<DailyReportsProps> = ({ userType, currentUser }) =>
                 }}
                 className="p-2 hover:bg-gray-100 rounded-full transition-colors"
               >
-                <X className="h-6 w-6 text-gray-400" />
+                <X className="h-6 w-6 text-gray-600" />
               </button>
             </div>
 

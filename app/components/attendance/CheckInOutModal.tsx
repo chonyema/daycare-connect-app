@@ -136,7 +136,7 @@ export default function CheckInOutModal({
                     onChange={(e) =>
                       setFormData({ ...formData, temperature: e.target.value })
                     }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 bg-white focus:ring-2 focus:ring-blue-500"
                     placeholder="98.6"
                   />
                 </div>
@@ -150,7 +150,7 @@ export default function CheckInOutModal({
                     onChange={(e) =>
                       setFormData({ ...formData, mood: e.target.value })
                     }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 bg-white focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="">Select mood</option>
                     <option value="Happy">Happy</option>
@@ -175,7 +175,7 @@ export default function CheckInOutModal({
                         emergencyContact: e.target.value,
                       })
                     }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 bg-white focus:ring-2 focus:ring-blue-500"
                     placeholder="Phone number"
                   />
                 </div>
@@ -191,7 +191,7 @@ export default function CheckInOutModal({
                 onChange={(e) =>
                   setFormData({ ...formData, notes: e.target.value })
                 }
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 bg-white focus:ring-2 focus:ring-blue-500"
                 rows={3}
                 placeholder="Any additional notes..."
               />
@@ -202,7 +202,7 @@ export default function CheckInOutModal({
               <button
                 type="button"
                 onClick={onClose}
-                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
                 disabled={loading}
               >
                 Cancel

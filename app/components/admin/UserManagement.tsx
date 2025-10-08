@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Users, Search, Plus, Edit, Trash2, Eye, EyeOff, CheckCircle, XCircle } from 'lucide-react';
+import { Users, Search, Plus, Edit, Trash2, Eye, EyeOff, CheckCircle, XCircle, Shield, Info } from 'lucide-react';
+import { getPermissions } from '@/app/lib/rbac/permissions';
 
 interface User {
   id: string;
@@ -24,6 +25,7 @@ export default function UserManagement() {
   const [roleFilter, setRoleFilter] = useState<string>('all');
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showPermissionsModal, setShowPermissionsModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [formData, setFormData] = useState({
     email: '',
@@ -284,6 +286,16 @@ export default function UserManagement() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <button
+                        onClick={() => {
+                          setSelectedUser(user);
+                          setShowPermissionsModal(true);
+                        }}
+                        className="text-blue-600 hover:text-blue-900 mr-4"
+                        title="View Permissions"
+                      >
+                        <Shield className="h-4 w-4" />
+                      </button>
+                      <button
                         onClick={() => openEditModal(user)}
                         className="text-indigo-600 hover:text-indigo-900 mr-4"
                       >
@@ -490,6 +502,74 @@ export default function UserManagement() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Permissions Modal */}
+      {showPermissionsModal && selectedUser && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-2xl w-full mx-4 max-h-[80vh] overflow-y-auto">
+            <div className="flex items-start justify-between mb-4">
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900">User Permissions</h3>
+                <p className="text-sm text-gray-500 mt-1">
+                  {selectedUser.name || selectedUser.email} • {selectedUser.role}
+                </p>
+              </div>
+              <button
+                onClick={() => {
+                  setShowPermissionsModal(false);
+                  setSelectedUser(null);
+                }}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <XCircle className="h-6 w-6" />
+              </button>
+            </div>
+
+            <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+              <div className="flex items-start gap-2">
+                <Info className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                <div className="text-sm text-blue-900">
+                  <p className="font-medium">Role: {selectedUser.role}</p>
+                  <p className="mt-1">
+                    This user has {getPermissions(selectedUser.role).length} permissions based on their role.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              {getPermissions(selectedUser.role).map((permission) => (
+                <div
+                  key={permission}
+                  className="flex items-center gap-2 p-2 bg-green-50 border border-green-200 rounded-lg"
+                >
+                  <CheckCircle className="h-4 w-4 text-green-600 flex-shrink-0" />
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-green-900">
+                      {permission.split(':')[1].split('_').map(w =>
+                        w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()
+                      ).join(' ')}
+                    </p>
+                    <p className="text-xs text-green-700">{permission}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-6 flex justify-end">
+              <button
+                onClick={() => {
+                  setShowPermissionsModal(false);
+                  setSelectedUser(null);
+                }}
+                className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700"
+              >
+                Close
+              </button>
+            </div>
           </div>
         </div>
       )}

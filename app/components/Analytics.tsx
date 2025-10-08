@@ -201,7 +201,7 @@ const Analytics = () => {
             <select
               value={timeRange}
               onChange={(e) => setTimeRange(e.target.value as any)}
-              className="border border-gray-300 rounded-lg px-3 py-1 text-sm"
+              className="border border-gray-300 rounded-lg px-3 py-1 text-sm text-gray-900 bg-white"
             >
               <option value="7d">Last 7 days</option>
               <option value="30d">Last 30 days</option>

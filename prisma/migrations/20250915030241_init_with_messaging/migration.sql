@@ -6,8 +6,8 @@ CREATE TABLE "users" (
     "phone" TEXT,
     "password" TEXT,
     "userType" TEXT NOT NULL DEFAULT 'PARENT',
-    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" DATETIME NOT NULL
+    "createdAt" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP NOT NULL
 );
 
 -- CreateTable
@@ -39,8 +39,8 @@ CREATE TABLE "daycares" (
     "totalReviews" INTEGER NOT NULL DEFAULT 0,
     "waitlistCount" INTEGER NOT NULL DEFAULT 0,
     "ownerId" TEXT NOT NULL,
-    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" DATETIME NOT NULL,
+    "createdAt" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP NOT NULL,
     CONSTRAINT "daycares_ownerId_fkey" FOREIGN KEY ("ownerId") REFERENCES "users" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
@@ -51,16 +51,16 @@ CREATE TABLE "bookings" (
     "daycareId" TEXT NOT NULL,
     "childName" TEXT NOT NULL,
     "childAge" TEXT,
-    "startDate" DATETIME NOT NULL,
-    "endDate" DATETIME,
+    "startDate" TIMESTAMP NOT NULL,
+    "endDate" TIMESTAMP,
     "careType" TEXT NOT NULL,
     "status" TEXT NOT NULL DEFAULT 'PENDING',
     "dailyRate" REAL NOT NULL,
     "totalCost" REAL,
     "notes" TEXT,
     "specialNeeds" TEXT,
-    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" DATETIME NOT NULL,
+    "createdAt" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP NOT NULL,
     CONSTRAINT "bookings_parentId_fkey" FOREIGN KEY ("parentId") REFERENCES "users" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT "bookings_daycareId_fkey" FOREIGN KEY ("daycareId") REFERENCES "daycares" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
@@ -74,8 +74,8 @@ CREATE TABLE "reviews" (
     "title" TEXT,
     "comment" TEXT NOT NULL,
     "verified" BOOLEAN NOT NULL DEFAULT false,
-    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" DATETIME NOT NULL,
+    "createdAt" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP NOT NULL,
     CONSTRAINT "reviews_parentId_fkey" FOREIGN KEY ("parentId") REFERENCES "users" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT "reviews_daycareId_fkey" FOREIGN KEY ("daycareId") REFERENCES "daycares" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
@@ -85,7 +85,7 @@ CREATE TABLE "saved_daycares" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "parentId" TEXT NOT NULL,
     "daycareId" TEXT NOT NULL,
-    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "createdAt" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT "saved_daycares_parentId_fkey" FOREIGN KEY ("parentId") REFERENCES "users" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT "saved_daycares_daycareId_fkey" FOREIGN KEY ("daycareId") REFERENCES "daycares" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
@@ -96,10 +96,10 @@ CREATE TABLE "conversations" (
     "parentId" TEXT NOT NULL,
     "providerId" TEXT NOT NULL,
     "daycareId" TEXT,
-    "lastMessageAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "lastMessageAt" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "isActive" BOOLEAN NOT NULL DEFAULT true,
-    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" DATETIME NOT NULL,
+    "createdAt" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP NOT NULL,
     CONSTRAINT "conversations_parentId_fkey" FOREIGN KEY ("parentId") REFERENCES "users" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT "conversations_providerId_fkey" FOREIGN KEY ("providerId") REFERENCES "users" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT "conversations_daycareId_fkey" FOREIGN KEY ("daycareId") REFERENCES "daycares" ("id") ON DELETE SET NULL ON UPDATE CASCADE
@@ -114,11 +114,11 @@ CREATE TABLE "messages" (
     "content" TEXT NOT NULL,
     "messageType" TEXT NOT NULL DEFAULT 'TEXT',
     "isRead" BOOLEAN NOT NULL DEFAULT false,
-    "readAt" DATETIME,
+    "readAt" TIMESTAMP,
     "attachmentUrl" TEXT,
     "attachmentType" TEXT,
-    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" DATETIME NOT NULL,
+    "createdAt" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP NOT NULL,
     CONSTRAINT "messages_conversationId_fkey" FOREIGN KEY ("conversationId") REFERENCES "conversations" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT "messages_senderId_fkey" FOREIGN KEY ("senderId") REFERENCES "users" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT "messages_receiverId_fkey" FOREIGN KEY ("receiverId") REFERENCES "users" ("id") ON DELETE CASCADE ON UPDATE CASCADE

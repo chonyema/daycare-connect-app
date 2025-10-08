@@ -539,6 +539,27 @@ const ParentWaitlistManager: React.FC<ParentWaitlistManagerProps> = ({
                   </div>
                 ))}
 
+                {/* Expired Offers */}
+                {entry.offers?.filter(offer => (offer.isExpired || offer.response === 'EXPIRED') && offer.response !== 'ACCEPTED' && offer.response !== 'DECLINED').slice(0, 2).map((offer) => (
+                  <div key={offer.id} className="bg-gray-50 border border-gray-300 rounded-lg p-4 mb-4 opacity-75">
+                    <div className="flex items-start gap-3">
+                      <XCircle className="h-5 w-5 text-gray-500 mt-0.5 flex-shrink-0" />
+                      <div className="flex-1">
+                        <h4 className="font-semibold text-gray-700 mb-1">Offer Expired</h4>
+                        <p className="text-gray-600 text-sm mb-1">
+                          A spot was offered for <strong>{formatDate(offer.spotAvailableDate)}</strong>
+                        </p>
+                        <p className="text-gray-500 text-xs">
+                          Expired on {formatDate(offer.offerExpiresAt)}
+                        </p>
+                        <p className="text-gray-600 text-sm mt-2">
+                          You've been returned to the active waitlist at position <strong>#{entry.position}</strong>
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+
                 {/* Program Info */}
                 {entry.program && (
                   <div className="text-sm text-gray-600">
