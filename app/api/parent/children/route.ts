@@ -43,6 +43,14 @@ export async function GET(request: NextRequest) {
             phone: true,
           },
         },
+        parent: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            phone: true,
+          },
+        },
       },
       orderBy: {
         startDate: 'desc',
@@ -53,7 +61,7 @@ export async function GET(request: NextRequest) {
     const childrenMap = new Map();
 
     for (const booking of bookings) {
-      const childKey = `${booking.childName}-${booking.parentEmail}`;
+      const childKey = `${booking.childName}-${booking.parent.email}`;
 
       if (!childrenMap.has(childKey)) {
         childrenMap.set(childKey, {
@@ -62,12 +70,12 @@ export async function GET(request: NextRequest) {
           dateOfBirth: booking.startDate, // Using start date as proxy - ideally would have actual DOB
           age: booking.childAge || 'Not specified',
           daycare: booking.daycare,
-          parentName: booking.parentName || user.name || 'Parent',
-          parentContact: booking.parentPhone || booking.parentEmail,
+          parentName: booking.parent.name || user.name || 'Parent',
+          parentContact: booking.parent.phone || booking.parent.email,
           enrollmentStart: booking.startDate,
           expectedExit: booking.endDate,
           isActive: booking.status === 'CONFIRMED',
-          notes: booking.specialNeeds || booking.notes,
+          notes: booking.notes,
         });
       }
     }
